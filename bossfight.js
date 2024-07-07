@@ -4,7 +4,7 @@ https://sprig.hackclub.com/gallery/getting_started
 
 @title: 
 @author: noxi
-@tags: []
+@tags: [dungeon]
 @addedOn: 2024-00-00
 */
 
@@ -208,13 +208,17 @@ xw...xw
 xw...xw
 xw.p.xw`,
   map`
-.m......d
-.........
-m....p...`,
+.v......d
+.vm......
+.v...p...`,
   map``
 ]
 
 setMap(levels[level])
+
+const hit = tune`
+500: C4/500 + B4/500 + C5/500,
+15500`
 
 setPushables({
   [ player ]: [  ]
@@ -223,15 +227,19 @@ setPushables({
 let gameOver = false;
 
 let plr = getFirst(player);
+
 let healthbar1 = addSprite(width()-1, 0, heart);
 let healthbar2 = addSprite(width()-2, 0, heart);
-let healthbar3 = addSprite(width()-3, 0, emptyheart);
+let healthbar3 = addSprite(width()-3, 0, heart);
 var hearts = 3;
 
+const mobSprites = getAll(mob);
 
 function resetMap() {
     level = level + 1;
     setMap(levels[level]);
+
+  
     plr = getFirst(player);
     healthbar1 = addSprite(width()-1, 0, heart);
     healthbar2 = addSprite(width()-2, 0, heart);
@@ -265,35 +273,31 @@ afterInput(() => {
 
   const doorSprite = getFirst(door)
   const bossSprite = getFirst(boss)
-  const mobSprite = getFirst(mob)
 
 if (plr.x === doorSprite.x && plr.y === doorSprite.y) {
   resetMap() // Load the next level
 }
-if (plr.x === mobSprite.x && plr.y === mobSprite.y) {
-  playerCollided();
+
+for (let i = 0; i < mobSprites.length; i++) {
+if (plr.x === mobSprites[i].x && plr.y === mobSprites[i].y)
+      playerCollided();
 }
-
-
-  
   // if level is boss lvl, load hp bar text
   
   // if (playerSprite.x === bossSprite.x && playerSprite.y === bossSprite.y) {
     // Deal dmg?
     // reswdetMap(levels[level]); // Check if player hit the boss
   // }
-
-
+  
 })
 
   
-
 
 function mobMoveAll() {
   const options = ["up", "down", "left", "right"];
 
   // Get all mob sprites in the game
-  const mobSprites = getAll(mob);
+  let mobSprites = getAll(mob)
 
   // Iterate over each mob sprite
   mobSprites.forEach(mobSprite => {
@@ -341,6 +345,7 @@ const intervalId = setInterval(mobMoveAll, 1000);
 
 function playerCollided() {
   hearts -= 1;
+  playTune(hit);
   // reset player position
   checkGameOver()
 }
