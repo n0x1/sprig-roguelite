@@ -17,11 +17,105 @@ const wall3 = "x"
 const door = "d"
 const heart = "h"
 const spawn = "r"
-const house = "a"
+const rooftip = "a"
 const grass = "f"
-const path = "c"
+const housewall = "c"
+const roofleft = "l"
+const roofright = "z"
+const roofoverhangleft = "j"
+const roofoverhangright = "k"
+const roofbody = "q"
+const housewallleft = "e"
+const housewallright = "i"
+const housedoor = "n"
+
 
 setLegend(
+  [rooftip, bitmap`
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+.......00.......
+......0330......
+....00333300....
+...0333333330...
+.00333333333300.
+0333333333333330`],
+  [roofleft, bitmap`
+...............0
+.............003
+...........00333
+..........033333
+........00333333
+.......033333333
+.....00333333333
+...0033333333333
+.003333333333333
+0333333333333333
+3333333333333333
+3333333333333333
+3333333333333333
+3333333333333333
+3333333333333333
+0000000000000000`],
+  [roofright, bitmap`
+0...............
+300.............
+33300...........
+333330..........
+33333300........
+333333330.......
+33333333300.....
+3333333333300...
+333333333333300.
+3333333333333330
+3333333333333333
+3333333333333333
+3333333333333333
+3333333333333333
+3333333333333333
+0000000000000000`],
+  [roofoverhangleft, bitmap`
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+..............00
+............0033
+..........003333
+.......000333333
+......0333333333
+.....00000000000`],
+  [roofoverhangright, bitmap`
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+00..............
+3300............
+333300..........
+333333000.......
+3333333330......
+00000000000.....`],
   [player, bitmap`
 .......LL.......
 .....LLLLLL.....
@@ -159,22 +253,22 @@ setLegend(
 9909909909909909
 0009900009900009`],
   [door, bitmap`
-9900000CC0000099
-990990CCCC099099
-99099CCCCCC99099
-0009900000099000
+990000FCCF000099
+990990CFFC099099
+99099CCFFCC99099
+000990F00F099000
 99000LLLLLL00099
-9909LL....LL9099
-990LL......LL099
-000L........L000
-990L........L099
-99L..........L99
-99L..........L99
-00L..........L00
-99L..........L99
-99L..........L99
-99L..........L99
-00L..........L00`],
+9909LLCCCCLL9099
+990LLCCCCCCLL099
+000LCCCCCCCCL000
+990LCCCCCCCCL099
+99LCCCCCCCCCCL99
+99LCCCCC0000CL99
+00LCCCCCCCC0CL00
+99LCCCCCCCCCCL99
+99LCCCCCCCCCCL99
+99LCCCCCCCCCCL99
+00LCCCCCCCCCCL00`],
   [spawn, bitmap`
 ................
 ................
@@ -192,23 +286,6 @@ setLegend(
 ................
 ................
 ................`],
-  [house, bitmap`
-FFFFFFFFFFFFFFFF
-FFFFFFFFFFFFFFFF
-FFFFFFFFFFFFFFFF
-FFFFFFFFFFFFFFCC
-FFFFFFFFFFFFCCCC
-CCFFFFFFFFCCCCCC
-CCCCCCFFCCCCCCCC
-CCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCC`],
   [grass, bitmap`
 DDDDDDDDDDDDDDDD
 DDDDDDFDDDDDDDDD
@@ -226,7 +303,7 @@ DDDFDDDDDDFDDDDF
 DDDFDDDDDFDDDDFD
 DDDDDDDDDDDDDDFD
 DDDDDDDDDDDDDDFD`],
-  [path, bitmap`
+  [housewall, bitmap`
 CCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCC
@@ -242,24 +319,96 @@ CCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCC`]
+CCCCCCCCCCCCCCCC`],
+  [housewallleft, bitmap`
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC`],
+  [housewallright, bitmap`
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0`],
+  [roofbody, bitmap`
+3333333333333333
+3333333333333333
+3333333333333333
+3333333333333333
+3333333333333333
+3333333333333333
+3333333333333333
+3333333333333333
+3333333333333333
+3333333333333333
+3333333333333333
+3333333333333333
+3333333333333333
+3333333333333333
+3333333333333333
+0000000000000000`],
+  [housedoor, bitmap`
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCC0000000000CCC
+CCC0990666660CCC
+CCC0990666660CCC
+CCC0990666660CCC
+CCC0990666660CCC
+CCC0990666660CCC
+CCC09C0666660CCC
+CCC0990666660CCC
+CCC0990666660CCC
+CCC0990666660CCC
+CCC0990666660CCC
+CCC0990666660CCC
+CCC0990666660CCC`],
+  
 
 )
 
-setSolids([wall, wall2, wall3, player, boss])
+setSolids([wall, wall2, wall3, housewall, housewallleft,  housewallright, roofbody, player, boss])
+
+
 
 let level = 0
 const levels = [
+  //friendly lvls
   map`
-......d...
-..........
-..........
-..........
-..........
-..........
-..........
-....p.....`,
-  
+ffffffdfff
+ffffffffff
+ffafffffff
+jlqzkfffff
+feciffffff
+feniffffff
+ffffffffff
+ffffpfffff`,
+  // enemy lvls
   map`
 xwvdvxw
 xw.m.xw
@@ -281,10 +430,40 @@ xw.p.xw`,
 ..........
 ..........
 ....p.....`
+
 ]
 
 setMap(levels[level]); // only for start
 
+function putGrassUnderRoofs() { // and under the player 
+  let grassUnderRoof = getAll(rooftip);
+grassUnderRoof.forEach(rooftip => {
+  addSprite(rooftip.x, rooftip.y,grass);
+})
+
+grassUnderRoof = getAll(roofleft)
+grassUnderRoof.forEach(roofleft => {
+  addSprite(roofleft.x, roofleft.y,grass);
+})
+  grassUnderRoof = getAll(roofright)
+grassUnderRoof.forEach(roofright => {
+  addSprite(roofright.x, roofright.y,grass);
+})
+  grassUnderRoof = getAll(roofoverhangleft)
+grassUnderRoof.forEach(roofoverhangleft => {
+  addSprite(roofoverhangleft.x, roofoverhangleft.y,grass);
+})
+    grassUnderRoof = getAll(roofoverhangright)
+grassUnderRoof.forEach(roofoverhangright => {
+  addSprite(roofoverhangright.x, roofoverhangright.y,grass);
+})
+
+  addSprite(getFirst(player).x,getFirst(player).y,grass);
+  
+
+
+} 
+putGrassUnderRoofs() // and under the player
 
 const hit = tune`
 500: C4/500 + B4/500 + C5/500,
@@ -309,7 +488,7 @@ function createHeartsArray(health) {
     heartsArray.push(heart);
   }
 }
-createHeartsArray(maxhealth) // should be max health at the start of game
+// createHeartsArray(maxhealth) // should be max health at the start of game BUT dont need until going in
 
 function updateHeartsArray(health) {
   heartsArray = [];
@@ -367,6 +546,7 @@ onInput("d", () => {
 
 
 afterInput(() => {
+  
 
   const doorSprite = getFirst(door)
   const bossSprite = getFirst(boss)
