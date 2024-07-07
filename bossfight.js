@@ -1,11 +1,8 @@
 /*
-First time? Check out the tutorial game:
-https://sprig.hackclub.com/gallery/getting_started
-
 @title: 
 @author: noxi
 @tags: [dungeon]
-@addedOn: 2024-00-00
+@addedOn: 2024-07-07
 */
 
 
@@ -19,10 +16,10 @@ const wall2 = "v"
 const wall3 = "x"
 const door = "d"
 const heart = "h"
-const emptyheart = "e"
+const spawn = "r"
 
 setLegend(
-  [ player, bitmap`
+  [player, bitmap`
 .......LL.......
 .....LLLLLL.....
 ....LLLLLLLL....
@@ -38,8 +35,8 @@ setLegend(
 .....1C66C0.....
 ......LLLL......
 ......L..L......
-......L..L......` ],
-  [ hurtplayer, bitmap`
+......L..L......`],
+  [hurtplayer, bitmap`
 .......LL.......
 .....LLLLLL.....
 ....LLLLLLLL....
@@ -55,7 +52,7 @@ setLegend(
 .....1336C0.....
 ......3LLL......
 ......L..L......
-......L..L......` ],
+......L..L......`],
   [heart, bitmap`
 ..000......000..
 .03330....03330.
@@ -72,23 +69,6 @@ setLegend(
 ....03333330....
 .....033330.....
 ......0330......
-.......00.......`],
-  [emptyheart, bitmap`
-..000......000..
-.02220....02220.
-0222220..0222220
-0222222002222220
-0222222222222220
-0222222222222220
-0222222222222220
-0222222222222220
-.02222222222220.
-.02222222222220.
-..022222222220..
-...0222222220...
-....02222220....
-.....022220.....
-......0220......
 .......00.......`],
   [boss, bitmap`
 ......6.6.6.....
@@ -191,8 +171,25 @@ CCL..........LCC
 CCL..........LCC
 CCL..........LCC
 CCL..........LCC
-CCL..........LCC`]
-  
+CCL..........LCC`],
+  [spawn, bitmap`
+................
+................
+.....CCCCCC.....
+.....C..........
+....C...........
+....CC..........
+.....CCCCCC.....
+..........CC....
+...........C....
+.....C.....C....
+......C...CC....
+.......CCCC.....
+................
+................
+................
+................`]
+
 )
 
 setSolids([wall, wall2, wall3, player, boss])
@@ -205,45 +202,60 @@ xw.m.xw
 xw...xw
 xw...xw
 xw...xw
-xw...xw
-xw.p.xw`,
+xw.p.xw
+xw.r.xw`,
   map`
 .v......d
 .vm......
 .v...p...`,
-  map``
+  map`
+p.....`
 ]
 
-setMap(levels[level])
+setMap(levels[level]); // only for start
+
 
 const hit = tune`
 500: C4/500 + B4/500 + C5/500,
 15500`
 
 setPushables({
-  [ player ]: [  ]
+  [player]: []
 })
 
 let gameOver = false;
 
 let plr = getFirst(player);
 
-let healthbar1 = addSprite(width()-1, 0, heart);
-let healthbar2 = addSprite(width()-2, 0, heart);
-let healthbar3 = addSprite(width()-3, 0, heart);
-var hearts = 3;
+let maxhealth = 3;
+let health = 3;
+let heartsArray = [];
+
+function createHeartsArray(health) {
+  for (let i = 0; i < health; i++) {
+    let heartSprite = addSprite(width() - i - 1, 0, heart);
+    heartsArray.push(heart);
+  }
+}
+createHeartsArray(maxhealth) // should be max health at the start of game
+
+function handleHealthUI(maxhealth) {
+  heartsArray.pop();
+  console.log(heartsArray);
+  createHeartsArray(health);
+  console.log("handle health ui ran");
+  //tis should handle a specific index related to health: heartsArray[health] 
+}
+
 
 const mobSprites = getAll(mob);
 
 function resetMap() {
-    level = level + 1;
-    setMap(levels[level]);
-
-  
-    plr = getFirst(player);
-    healthbar1 = addSprite(width()-1, 0, heart);
-    healthbar2 = addSprite(width()-2, 0, heart);
-    healthbar3 = addSprite(width()-3, 0, emptyheart);
+  level = level + 1;
+  setMap(levels[level]);
+  createHeartsArray(health);
+  plr = getFirst(player);
+  addSprite(plr.x,plr.y,spawn);
 }
 
 onInput("s", () => {
@@ -274,30 +286,33 @@ afterInput(() => {
   const doorSprite = getFirst(door)
   const bossSprite = getFirst(boss)
 
-if (plr.x === doorSprite.x && plr.y === doorSprite.y) {
-  resetMap() // Load the next level
-}
+  if (plr.x === doorSprite.x && plr.y === doorSprite.y) {
+    resetMap() // Load the next level
+  }
 
-for (let i = 0; i < mobSprites.length; i++) {
-if (plr.x === mobSprites[i].x && plr.y === mobSprites[i].y)
+  for (let i = 0; i < mobSprites.length; i++) {
+    let mobSprites = getAll(mob);
+    if (plr.x === mobSprites[i].x && plr.y === mobSprites[i].y) {
       playerCollided();
-}
+      console.log(i);
+    }
+  }
   // if level is boss lvl, load hp bar text
-  
+
   // if (playerSprite.x === bossSprite.x && playerSprite.y === bossSprite.y) {
-    // Deal dmg?
-    // reswdetMap(levels[level]); // Check if player hit the boss
+  // Deal dmg?
+  // reswdetMap(levels[level]); // Check if player hit the boss
   // }
-  
+
 })
 
-  
+
 
 function mobMoveAll() {
   const options = ["up", "down", "left", "right"];
 
   // Get all mob sprites in the game
-  let mobSprites = getAll(mob)
+  let mobSprites = getAll(mob);
 
   // Iterate over each mob sprite
   mobSprites.forEach(mobSprite => {
@@ -321,7 +336,7 @@ function mobMoveAll() {
 
     // Check for wall collision and player exclusion
     const spritesAtNextPos = getTile(newX, newY);
-    const isWallCollision = spritesAtNextPos.some(sprite => [wall, wall2, wall3, door].includes(sprite.type));
+    const isWallCollision = spritesAtNextPos.some(sprite => [wall, wall2, wall3, door, spawn].includes(sprite.type));
     const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
 
     // Move the mob sprite only if there is no wall collision and not colliding with the player
@@ -336,34 +351,35 @@ function mobMoveAll() {
       playerCollided()
     }
   });
-  
+
 }
 
-// Call mobMoveAll() instead of mobMove() to move all mob sprites
 const intervalId = setInterval(mobMoveAll, 1000);
 
 
 function playerCollided() {
-  hearts -= 1;
+  health -= 1;
+  handleHealthUI(maxhealth);
   playTune(hit);
-  // reset player position
   checkGameOver()
+  plr.x = getFirst(spawn).x;
+  plr.y = getFirst(spawn).y;
 }
 
 function checkGameOver() {
-if (hearts === 0) {
-  const hurtPlayer = addSprite(plr.x, plr.y, hurtplayer);
-  plr.remove();
-  clearInterval(intervalId);
-  addText("Game Over", {
-  x: 5,
-  y: 4,
-  color:color`7`
-  })
-  addText("reset:j", {
-  x: 6,
-  y: 5,
-  color:color`4`
-  })
-}
+  if (health === 0) {
+    const hurtPlayer = addSprite(plr.x, plr.y, hurtplayer);
+    plr.remove();
+    clearInterval(intervalId);
+    addText("Game Over", {
+      x: 5,
+      y: 4,
+      color: color`7`
+    })
+    addText("reset:j", {
+      x: 6,
+      y: 5,
+      color: color`4`
+    })
+  }
 }
