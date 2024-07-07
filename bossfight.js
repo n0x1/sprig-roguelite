@@ -17,6 +17,9 @@ const wall3 = "x"
 const door = "d"
 const heart = "h"
 const spawn = "r"
+const house = "a"
+const grass = "f"
+const path = "c"
 
 setLegend(
   [player, bitmap`
@@ -156,22 +159,22 @@ setLegend(
 9909909909909909
 0009900009900009`],
   [door, bitmap`
-CCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCC
-CCCCCLLLLLLCCCCC
-CCCCLL....LLCCCC
-CCCLL......LLCCC
-CCCL........LCCC
-CCCL........LCCC
-CCL..........LCC
-CCL..........LCC
-CCL..........LCC
-CCL..........LCC
-CCL..........LCC
-CCL..........LCC
-CCL..........LCC`],
+9900000CC0000099
+990990CCCC099099
+99099CCCCCC99099
+0009900000099000
+99000LLLLLL00099
+9909LL....LL9099
+990LL......LL099
+000L........L000
+990L........L099
+99L..........L99
+99L..........L99
+00L..........L00
+99L..........L99
+99L..........L99
+99L..........L99
+00L..........L00`],
   [spawn, bitmap`
 ................
 ................
@@ -188,7 +191,58 @@ CCL..........LCC`],
 ................
 ................
 ................
-................`]
+................`],
+  [house, bitmap`
+FFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFCC
+FFFFFFFFFFFFCCCC
+CCFFFFFFFFCCCCCC
+CCCCCCFFCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC`],
+  [grass, bitmap`
+DDDDDDDDDDDDDDDD
+DDDDDDFDDDDDDDDD
+DDDDDFDDDDFDDDFD
+DDDFDFDDDFDDFFDD
+DDFDDDDDDFDDDDDD
+DDFDDDFDFDDDDDDD
+DFDDDFDDDDDDDDFD
+DDDDDFDDDFDDDFDD
+DDDDDFDDFDDDDFDD
+DDDDDDDDFDDDFDDD
+DDDDDDDDDDDDDDDD
+DDDDFDDDDDDDDDDF
+DDDFDDDDDDFDDDDF
+DDDFDDDDDFDDDDFD
+DDDDDDDDDDDDDDFD
+DDDDDDDDDDDDDDFD`],
+  [path, bitmap`
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC`]
 
 )
 
@@ -197,19 +251,36 @@ setSolids([wall, wall2, wall3, player, boss])
 let level = 0
 const levels = [
   map`
+......d...
+..........
+..........
+..........
+..........
+..........
+..........
+....p.....`,
+  
+  map`
 xwvdvxw
 xw.m.xw
 xw...xw
 xw...xw
 xw...xw
-xw.p.xw
-xw.r.xw`,
+xw...xw
+xw.p.xw`,
   map`
 .v......d
 .vm......
 .v...p...`,
   map`
-p.....`
+..........
+..........
+..........
+..........
+..........
+..........
+..........
+....p.....`
 ]
 
 setMap(levels[level]); // only for start
@@ -227,11 +298,12 @@ let gameOver = false;
 
 let plr = getFirst(player);
 
-let maxhealth = 3;
-let health = 3;
+const maxhealth = 3;
+var health = maxhealth;
 let heartsArray = [];
 
 function createHeartsArray(health) {
+  heartsArray = [];
   for (let i = 0; i < health; i++) {
     let heartSprite = addSprite(width() - i - 1, 0, heart);
     heartsArray.push(heart);
@@ -239,12 +311,25 @@ function createHeartsArray(health) {
 }
 createHeartsArray(maxhealth) // should be max health at the start of game
 
-function handleHealthUI(maxhealth) {
-  heartsArray.pop();
-  console.log(heartsArray);
+function updateHeartsArray(health) {
+  heartsArray = [];
+  let tempHeart = getAll(heart);
+  tempHeart.forEach(heart => {
+    heart.remove();
+  })
+  for (let i = 0; i < health; i++) {
+    let heartSprite = addSprite(width() - i - 1, 0, heart)
+  }
+}
+
+function handleHealthUI(health) {
+  // heartsArray.splice(health, 1);
+  let tempHeart = getAll(heart);
+  tempHeart.forEach(heart => {
+    heart.remove();
+  });
   createHeartsArray(health);
-  console.log("handle health ui ran");
-  //tis should handle a specific index related to health: heartsArray[health] 
+
 }
 
 
@@ -289,12 +374,12 @@ afterInput(() => {
   if (plr.x === doorSprite.x && plr.y === doorSprite.y) {
     resetMap() // Load the next level
   }
-
+  let mobSprites = getAll(mob);
   for (let i = 0; i < mobSprites.length; i++) {
-    let mobSprites = getAll(mob);
+
     if (plr.x === mobSprites[i].x && plr.y === mobSprites[i].y) {
       playerCollided();
-      console.log(i);
+      console.log("collided")
     }
   }
   // if level is boss lvl, load hp bar text
@@ -354,12 +439,14 @@ function mobMoveAll() {
 
 }
 
-const intervalId = setInterval(mobMoveAll, 1000);
+const intervalId = setInterval(mobMoveAll, 750);
 
 
 function playerCollided() {
-  health -= 1;
-  handleHealthUI(maxhealth);
+  health--;
+  //debug
+  handleHealthUI(health);
+  createHeartsArray(health)
   playTune(hit);
   checkGameOver()
   plr.x = getFirst(spawn).x;
