@@ -5,8 +5,6 @@
 @addedOn: 2024-07-07
 */
 
-
-
 const player = "p"
 const hurtplayer = "g" //game over
 const boss = "b"
@@ -28,7 +26,9 @@ const roofbody = "q"
 const housewallleft = "e"
 const housewallright = "i"
 const housedoor = "n"
-const stonefloor = "o"
+const spikes = "$"
+const ghost = "t"
+const lifepickup = "#"
 
 
 setLegend(
@@ -118,22 +118,22 @@ setLegend(
 3333333330......
 00000000000.....`],
   [player, bitmap`
-.......LL.......
-.....LLLLLL.....
-....LLLLLLLL....
-....L11LL11L....
-....L101101L....
-.....L1001L.....
-......LLLL......
-.......11.....00
-.....111111..010
-.....LLLLLL.010.
-.....1LLLL1010..
-.....1LLLL100...
-.....1C66C0.....
-......LLLL......
-......L..L......
-......L..L......`],
+................
+................
+......0000......
+.....00LL00.....
+.....0LLLL0.....
+....006LL600....
+....00LLLL00....
+.....00LL00....1
+.....00000C...11
+....0000CC00.11.
+....000C000011..
+...00CC000011...
+...00CCCCC100...
+..000000000000..
+..000000000000..
+.0000CC00CC0000.`],
   [heart, bitmap`
 ..000......000..
 .03330....03330.
@@ -151,6 +151,23 @@ setLegend(
 .....033330.....
 ......0330......
 .......00.......`],
+  [ghost, bitmap`
+................
+......0000......
+....00222200....
+...0222222220...
+..022332233220..
+..022332233220..
+..022222222220..
+..022222222220..
+..022222222220..
+..022222222220..
+..022222222220..
+..022222222220..
+..022222222220..
+..022002022020..
+..020.0200200...
+...0...0..0.....`],
   [boss, bitmap`
 ......6.6.6.....
 ......66366.....
@@ -185,7 +202,7 @@ setLegend(
 ......C.C.......
 ................
 ................`],
-    [hurtplayer, bitmap`
+  [hurtplayer, bitmap`
 ................
 ................
 ................
@@ -201,7 +218,7 @@ setLegend(
 ...L11111111L...
 ..CCCCCCCCCCCC..
 .....CC.CCC.....
-................`],
+................`], //grave
   [wall, bitmap`
 11LL1111LL1111LL
 L1LL1LL1LL1LL1LL
@@ -389,23 +406,23 @@ CCC0990666660CCC
 CCC0990666660CCC
 CCC0990666660CCC
 CCC0990666660CCC`],
-  [stonefloor, bitmap`
-0000000000000000
-0111111111111110
-0101111111111010
-0111111111111110
-0111111111111110
-0111111111111110
-0111111111111110
-0111111111111110
-0111111111111110
-0111111111111110
-0111111111111110
-0111111111111110
-0111111111111110
-0101111111111010
-0111111111111110
-0000000000000000`],
+  [spikes, bitmap`
+................
+..1..........1..
+..1..........1..
+.101........101.
+.000........000.
+.....1....1.....
+.....1....1.....
+....101..101....
+....000..000....
+................
+..1..........1..
+..1...1..1...1..
+.101..1..1..101.
+.000.101101.000.
+.....000000.....
+................`],
   
 
 )
@@ -439,29 +456,42 @@ ffpfffffff`,
   // enemy lvls
   map`
 xwvdvxw
-xwomoxw
-xwoooxw
-xwomoxw
-xwoooxw
-xwoooxw
-xwopoxw`,
+xw.m.xw
+xw...xw
+xw.m.xw
+xw...xw
+xw...xw
+xw.p.xw`,
   map`
 wvxwvxwvx
 w.......x
-w..wvxw.x
+w.$wvxw.x
 w.....w.x
-w..w..w.x
+w..w..$.x
 wm.w..w.x
 wvxw.pwdx`,
   map`
-..........
-..........
-..........
-..........
-..........
-..........
-..........
-....p.....`
+vxwvdvxwvx
+v..t.t...x
+v.v....v.x
+v..xwvxt.x
+v........x
+v...xw...x
+v.....v..x
+v..vp....x`,
+  map`
+vxwvxwvxwvxwvxw
+vfwdxfffffffffw
+vfftffftfftfffw
+vfffffffffffffw
+vffgfffffgffffw
+vfftffffffftffw
+vfffffgtffffffw
+vffffff.ftffffw
+vfffftffffffffw
+vffgffffffffffw
+vffffffffffffpw
+vxwvxwvxwvxwvxw`
 
 
 ]
@@ -497,9 +527,24 @@ grassUnderRoof.forEach(roofoverhangright => {
 
 } 
 putGrassUnderRoofs() // and under the player
-function putStoneUnderMobs() {
-  //wip
+
+function putGrassGraveyardLvl() {
+  console.log("ran");
+  let lvlGhosts = getAll(ghost)
+  lvlGhosts.forEach(ghost => {
+    console.log("ghostForeach");
+    addSprite(ghost.x, ghost.y, grass);
+  })
+  
+  let tombstones = getAll(hurtplayer);
+    tombstones.forEach(hurtplayer => {
+    addSprite(hurtplayer.x, hurtplayer.y, grass);
+  })
+  
+  
 }
+
+
 
 const hit = tune`
 500: C4/500 + B4/500 + C5/500,
@@ -515,6 +560,7 @@ let plr = getFirst(player);
 let score = 0;
 
 var mobMoveInterval = setInterval(mobMoveAll, 1000);
+var ghostMoveInterval = setInterval(ghostMoveAll, 1200);
 
 const maxhealth = 3;
 var health = maxhealth;
@@ -555,6 +601,10 @@ const mobSprites = getAll(mob);
 
 function resetMap() {
   level = level + 1;
+  console.log(level);
+  if (level === 5) { // index 5 is gy lvl
+  putGrassGraveyardLvl(); 
+}
   setMap(levels[level]);
   createHeartsArray(health);
   plr = getFirst(player);
@@ -618,13 +668,25 @@ afterInput(() => {
 
   
   let mobSprites = getAll(mob); // collision via player movement check
+  let spikeSprites = getAll(spikes);
+  let ghostSprites = getAll(ghost);
+  
   for (let i = 0; i < mobSprites.length; i++) {
-
-    if (plr.x === mobSprites[i].x && plr.y === mobSprites[i].y) {
+  if (plr.x === mobSprites[i].x && plr.y === mobSprites[i].y) {
       playerCollided();
-      console.log("collided")
     }
   }
+  for (let i = 0; i < ghostSprites.length; i++) {
+  if (plr.x === ghostSprites[i].x && plr.y === ghostSprites[i].y) {
+      playerCollided();
+    }
+  }
+  for (let i = 0; i < spikeSprites.length; i++) {
+    if (plr.x === spikeSprites[i].x && plr.y === spikeSprites[i].y) {
+      stillDamage();
+  }
+  }
+  
   // if level is boss lvl, load hp bar text
 
   // if (playerSprite.x === bossSprite.x && playerSprite.y === bossSprite.y) {
@@ -664,7 +726,7 @@ function mobMoveAll() {
 
     // Check for wall collision and player exclusion
     const spritesAtNextPos = getTile(newX, newY);
-    const isWallCollision = spritesAtNextPos.some(sprite => [wall, wall2, mob, wall3, door, spawn].includes(sprite.type));
+    const isWallCollision = spritesAtNextPos.some(sprite => [wall, wall2, mob, ghost, wall3, door, spikes, spawn].includes(sprite.type));
     const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
 
     // Move the mob sprite only if there is no wall collision and not colliding with the player
@@ -682,6 +744,59 @@ function mobMoveAll() {
 
 }
 
+function ghostMoveAll() {
+  const options = ["up", "down", "left", "right"];
+
+  // Get all mob sprites in the game
+  let ghostSprites = getAll(ghost);
+
+  // Iterate over each mob sprite
+    ghostSprites.forEach(ghostSprite => {
+    let randomIndex = Math.floor(Math.random() * options.length);
+    let direction = options[randomIndex];
+
+    // Save the current position of the mob sprite
+    let newX = ghostSprite.x;
+    let newY = ghostSprite.y;
+
+    let oldX = ghostSprite.x;
+    let oldY = ghostSprite.y;
+
+      
+    // Calculate the next position based on the random direction
+    if (direction === "up") {
+      newY -= 1;
+    } else if (direction === "down") {
+      newY += 1;
+    } else if (direction === "left") {
+      newX -= 1;
+    } else if (direction === "right") {
+      newX += 1;
+    }
+
+    // Check for wall collision and player exclusion
+    const spritesAtNextPos = getTile(newX, newY);
+    const isWallCollision = spritesAtNextPos.some(sprite => [mob, heart, spawn, door].includes(sprite.type));
+    const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
+
+    // Move the mob sprite only if there is no wall collision and not colliding with the player
+    if (!isWallCollision && !isPlayerCollision) {
+      ghostSprite.x = newX;
+      ghostSprite.y = newY;
+    } else if (isWallCollision) {
+      ghostMoveAll()
+    } else if (isPlayerCollision) {
+      ghostSprite.x = newX;
+      ghostSprite.y = newY;
+      playerCollided()
+    } else if (ghostSprite.x === oldX && ghostSprite.y === oldY) {
+      console.log("wall prevention");
+      ghostMoveAll();
+    }
+  });
+
+}
+
 
 
 
@@ -693,6 +808,14 @@ function playerCollided() {
   checkGameOver()
   plr.x = getFirst(spawn).x;
   plr.y = getFirst(spawn).y;
+}
+
+function stillDamage() { // same but without resetting to spawn
+    health--;
+  handleHealthUI(health);
+  createHeartsArray(health)
+  playTune(hit);
+  checkGameOver()
 }
 
 function checkGameOver() {
