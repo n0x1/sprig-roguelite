@@ -28,6 +28,7 @@ const roofbody = "q"
 const housewallleft = "e"
 const housewallright = "i"
 const housedoor = "n"
+const stonefloor = "o"
 
 
 setLegend(
@@ -133,23 +134,6 @@ setLegend(
 ......LLLL......
 ......L..L......
 ......L..L......`],
-  [hurtplayer, bitmap`
-.......LL.......
-.....LLLLLL.....
-....LLLLLLLL....
-....L11LL11L....
-....L101101L....
-.....L7007L.....
-......7LL7......
-......7117......
-.....111111.....
-.....LLL33L.....
-.....1LL3L1.....
-.....1L3LL1.....
-.....1336C0.....
-......3LLL......
-......L..L......
-......L..L......`],
   [heart, bitmap`
 ..000......000..
 .03330....03330.
@@ -201,91 +185,108 @@ setLegend(
 ......C.C.......
 ................
 ................`],
-  [wall, bitmap`
-0099000099000099
-9099099099099099
-9099099099099099
-9000099000099000
-0099000099000099
-9099099099099099
-9099099099099099
-9000099000099000
-0099000099000099
-9099099099099099
-9099099099099099
-9000099000099000
-0099000099000099
-9099099099099099
-9099099099099099
-9000099000099000`],
-  [wall2, bitmap`
-0000990000990000
-0990990990990990
-0990990990990990
-0990000990000990
-0000990000990000
-0990990990990990
-0990990990990990
-0990000990000990
-0000990000990000
-0990990990990990
-0990990990990990
-0990000990000990
-0000990000990000
-0990990990990990
-0990990990990990
-0990000990000990`],
-  [wall3, bitmap`
-9900009900009900
-9909909909909909
-9909909909909909
-0009900009900009
-9900009900009900
-9909909909909909
-9909909909909909
-0009900009900009
-9900009900009900
-9909909909909909
-9909909909909909
-0009900009900009
-9900009900009900
-9909909909909909
-9909909909909909
-0009900009900009`],
-  [door, bitmap`
-990000FCCF000099
-990990CFFC099099
-99099CCFFCC99099
-000990F00F099000
-99000LLLLLL00099
-9909LLCCCCLL9099
-990LLCCCCCCLL099
-000LCCCCCCCCL000
-990LCCCCCCCCL099
-99LCCCCCCCCCCL99
-99LCCCCC0000CL99
-00LCCCCCCCC0CL00
-99LCCCCCCCCCCL99
-99LCCCCCCCCCCL99
-99LCCCCCCCCCCL99
-00LCCCCCCCCCCL00`],
-  [spawn, bitmap`
-................
-................
-.....CCCCCC.....
-.....C..........
-....C...........
-....CC..........
-.....CCCCCC.....
-..........CC....
-...........C....
-.....C.....C....
-......C...CC....
-.......CCCC.....
+    [hurtplayer, bitmap`
 ................
 ................
 ................
+................
+......LLLL......
+....LLL11LLL....
+....L111111L....
+....L111111L....
+...L00110100L...
+...L010101010...
+...L00110100L...
+...L01010101L...
+...L11111111L...
+..CCCCCCCCCCCC..
+.....CC.CCC.....
 ................`],
+  [wall, bitmap`
+11LL1111LL1111LL
+L1LL1LL1LL1LL1LL
+L1LL1LL1LL1LL1LL
+L1111LL1111LL111
+11LL1111LL1111LL
+L1LL1LL1LL1LL1LL
+L1LL1LL1LL1LL1LL
+L1111LL1111LL111
+11LL1111LL1111LL
+L1LL1LL1LL1LL1LL
+L1LL1LL1LL1LL1LL
+L1111LL1111LL111
+11LL1111LL1111LL
+L1LL1LL1LL1LL1LL
+L1LL1LL1LL1LL1LL
+L1111LL1111LL111`],
+  [wall2, bitmap`
+1111LL1111LL1111
+1LL1LL1LL1LL1LL1
+1LL1LL1LL1LL1LL1
+1LL1111LL1111LL1
+1111LL1111LL1111
+1LL1LL1LL1LL1LL1
+1LL1LL1LL1LL1LL1
+1LL1111LL1111LL1
+1111LL1111LL1111
+1LL1LL1LL1LL1LL1
+1LL1LL1LL1LL1LL1
+1LL1111LL1111LL1
+1111LL1111LL1111
+1LL1LL1LL1LL1LL1
+1LL1LL1LL1LL1LL1
+1LL1111LL1111LL1`],
+  [wall3, bitmap`
+LL1111LL1111LL11
+LL1LL1LL1LL1LL1L
+LL1LL1LL1LL1LL1L
+111LL1111LL1111L
+LL1111LL1111LL11
+LL1LL1LL1LL1LL1L
+LL1LL1LL1LL1LL1L
+111LL1111LL1111L
+LL1111LL1111LL11
+LL1LL1LL1LL1LL1L
+LL1LL1LL1LL1LL1L
+111LL1111LL1111L
+LL1111LL1111LL11
+LL1LL1LL1LL1LL1L
+LL1LL1LL1LL1LL1L
+111LL1111LL1111L`],
+  [door, bitmap`
+LL1111LCCL1111LL
+LL1LL1CFFC1LL1LL
+LL1LL11FF11LL1LL
+111LL111111LL111
+LL111100001111LL
+LL1LL0CCCC0LL1LL
+LL1L0CCCCCC0L1LL
+1110CCCCCCCC0111
+LL10CCCCCCCC01LL
+LL0CCCCCCCCCC0LL
+LL0CCCCC0000C0LL
+110CCCCCCCC0C011
+LL0CCCCCCCCCC0LL
+LL0CCCCCCCCCC0LL
+LL0CCCCCCCCCC0LL
+110CCCCCCCCCC011`],
+  [spawn, bitmap`
+LLLLLLLLLLLLLLLL
+LLLLLLLLLLLLLLLL
+L8888888888LLLLL
+L8LLLLLLLL88LLLL
+88LLLLLLLLLLLLLL
+L8LLLLLLLLLLLLLL
+L88LLLLLLLLLLLLL
+LLL888888LLLLLLL
+LLLLLLLL888LLLLL
+LLLLLLLLLL8LLLLL
+LLLLLLLLLL8LLLLL
+LL8LLLLLL88LLLLL
+LLL8LLL888LLLLLL
+LLL8888LLLLLLLLL
+LLLLLLLLLLLLLLLL
+LLLLLLLLLLLLLLLL`],
   [grass, bitmap`
 DDDDDDDDDDDDDDDD
 DDDDDDFDDDDDDDDD
@@ -388,6 +389,23 @@ CCC0990666660CCC
 CCC0990666660CCC
 CCC0990666660CCC
 CCC0990666660CCC`],
+  [stonefloor, bitmap`
+0000000000000000
+0111111111111110
+0101111111111010
+0111111111111110
+0111111111111110
+0111111111111110
+0111111111111110
+0111111111111110
+0111111111111110
+0111111111111110
+0111111111111110
+0111111111111110
+0111111111111110
+0101111111111010
+0111111111111110
+0000000000000000`],
   
 
 )
@@ -396,9 +414,19 @@ setSolids([wall, wall2, wall3, housewall, housewallleft,  housewallright, roofbo
 
 
 
-let level = 0
+let level = 1 // starting level (index 1 in this case)
 const levels = [
-  //friendly lvls
+  // shop (interior) lvls
+    map`
+..........
+..........
+..........
+..........
+..........
+..........
+..........
+........p.`,
+  //start lvl
   map`
 ffffffdfff
 ffffffffff
@@ -407,20 +435,24 @@ jlqzkfffff
 feciffffff
 feniffffff
 ffffffffff
-ffffpfffff`,
+ffpfffffff`,
   // enemy lvls
   map`
 xwvdvxw
-xw.m.xw
-xw...xw
-xw...xw
-xw...xw
-xw...xw
-xw.p.xw`,
+xwomoxw
+xwoooxw
+xwomoxw
+xwoooxw
+xwoooxw
+xwopoxw`,
   map`
-.v......d
-.vm......
-.v...p...`,
+wvxwvxwvx
+w.......x
+w..wvxw.x
+w.....w.x
+w..w..w.x
+wm.w..w.x
+wvxw.pwdx`,
   map`
 ..........
 ..........
@@ -430,6 +462,7 @@ xw.p.xw`,
 ..........
 ..........
 ....p.....`
+
 
 ]
 
@@ -458,12 +491,15 @@ grassUnderRoof.forEach(roofoverhangright => {
   addSprite(roofoverhangright.x, roofoverhangright.y,grass);
 })
 
-  addSprite(getFirst(player).x,getFirst(player).y,grass);
+  addSprite(2,7,grass);
   
 
 
 } 
 putGrassUnderRoofs() // and under the player
+function putStoneUnderMobs() {
+  //wip
+}
 
 const hit = tune`
 500: C4/500 + B4/500 + C5/500,
@@ -476,6 +512,9 @@ setPushables({
 let gameOver = false;
 
 let plr = getFirst(player);
+let score = 0;
+
+var mobMoveInterval = setInterval(mobMoveAll, 1000);
 
 const maxhealth = 3;
 var health = maxhealth;
@@ -542,19 +581,43 @@ onInput("d", () => {
     plr.x += 1; // Move the player right
   }
 });
+onInput("j", () => { // RESET game if game over is on
+  if (gameOver) {
+  level = 1
+  setMap(levels[level]);
+    
+  clearText();
+    
+  health = maxhealth;
+  heartsArray = [];
+  
+  putGrassUnderRoofs();
+    
+  plr = getFirst(player);
+  plr.x = 2;
+  plr.y = 7;
 
+  gameOver = false;
+  }
+});
 
 
 afterInput(() => {
-  
-
   const doorSprite = getFirst(door)
+  const houseDoor = getFirst(housedoor)
   const bossSprite = getFirst(boss)
 
-  if (plr.x === doorSprite.x && plr.y === doorSprite.y) {
-    resetMap() // Load the next level
+  if (getAll(door).length > 0 && plr.x === doorSprite.x && plr.y === doorSprite.y) {
+    resetMap() // Load the next level (mob lvls)
   }
-  let mobSprites = getAll(mob);
+  if (getAll(housedoor).length > 0 && plr.x === houseDoor.x && plr.y === houseDoor.y) {
+    setMap(levels[0]);
+    plr = getFirst(player);
+  }
+
+
+  
+  let mobSprites = getAll(mob); // collision via player movement check
   for (let i = 0; i < mobSprites.length; i++) {
 
     if (plr.x === mobSprites[i].x && plr.y === mobSprites[i].y) {
@@ -601,7 +664,7 @@ function mobMoveAll() {
 
     // Check for wall collision and player exclusion
     const spritesAtNextPos = getTile(newX, newY);
-    const isWallCollision = spritesAtNextPos.some(sprite => [wall, wall2, wall3, door, spawn].includes(sprite.type));
+    const isWallCollision = spritesAtNextPos.some(sprite => [wall, wall2, mob, wall3, door, spawn].includes(sprite.type));
     const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
 
     // Move the mob sprite only if there is no wall collision and not colliding with the player
@@ -619,12 +682,11 @@ function mobMoveAll() {
 
 }
 
-const intervalId = setInterval(mobMoveAll, 750);
+
 
 
 function playerCollided() {
   health--;
-  //debug
   handleHealthUI(health);
   createHeartsArray(health)
   playTune(hit);
@@ -635,13 +697,14 @@ function playerCollided() {
 
 function checkGameOver() {
   if (health === 0) {
-    const hurtPlayer = addSprite(plr.x, plr.y, hurtplayer);
+    const grave = addSprite(plr.x, plr.y, hurtplayer);
     plr.remove();
-    clearInterval(intervalId);
+    gameOver = true;
+
     addText("Game Over", {
       x: 5,
       y: 4,
-      color: color`7`
+      color: color`3`
     })
     addText("reset:j", {
       x: 6,
