@@ -28,7 +28,14 @@ const housewallright = "i"
 const housedoor = "n"
 const spikes = "$"
 const ghost = "t"
-const lifepickup = "#"
+const bossheart = "&"
+const warningtile = "!"
+const advancetile = "A"
+const playerL = "L"
+const playerR = "R"
+const playerB = "B"
+
+
 
 
 setLegend(
@@ -129,11 +136,62 @@ setLegend(
 .....00000C...11
 ....0000CC00.11.
 ....000C000011..
-...00CC000011...
-...00CCCCC100...
+...00CC000099...
+...00CCCCCL00...
 ..000000000000..
 ..000000000000..
 .0000CC00CC0000.`],
+  [playerL, bitmap`
+................
+................
+.....00.........
+....0L00........
+....L6000.......
+....LL000.......
+....LL000.......
+.1...000C0......
+..1..00CC00.....
+..11.0CC000.....
+...19CC00000....
+....L9CCC0000...
+.....000000000..
+.....000000000..
+.....00000000000
+.....CC0CC.0000.`],
+  [playerR, bitmap`
+................
+................
+.........00.....
+........00L0....
+.......0006L....
+.......000LL....
+.......000LL....
+......0C000...1.
+.....00CC00..1..
+.....000CC0.11..
+....00000CC91...
+...0000CCC9L....
+..000000000.....
+..000000000.....
+00000000000.....
+.0000.CC0CC.....`],
+  [playerB, bitmap`
+................
+................
+......0000......
+.....000000.....
+.....000000.....
+....00000000....
+....00000000....
+.....000000.....
+.1...C00000.....
+.11.00C00000....
+..19000CC000....
+...0000CC0000...
+...000CCCC000...
+..000000000000..
+.0000000000000..
+00000CC00CC000..`],
   [heart, bitmap`
 ..000......000..
 .03330....03330.
@@ -150,6 +208,23 @@ setLegend(
 ....03333330....
 .....033330.....
 ......0330......
+.......00.......`],
+  [bossheart, bitmap`
+..000......000..
+.04440....04440.
+0444440..0444440
+0444444004422440
+0444444444442240
+0444444444444240
+0444444444444440
+0444444444444440
+.04444444444440.
+.04444444444440.
+..044444444440..
+...0444444440...
+....04444440....
+.....044440.....
+......0440......
 .......00.......`],
   [ghost, bitmap`
 ................
@@ -288,22 +363,22 @@ LL0CCCCCCCCCC0LL
 LL0CCCCCCCCCC0LL
 110CCCCCCCCCC011`],
   [spawn, bitmap`
-LLLLLLLLLLLLLLLL
-LLLLLLLLLLLLLLLL
-L8888888888LLLLL
-L8LLLLLLLL88LLLL
-88LLLLLLLLLLLLLL
-L8LLLLLLLLLLLLLL
-L88LLLLLLLLLLLLL
-LLL888888LLLLLLL
-LLLLLLLL888LLLLL
-LLLLLLLLLL8LLLLL
-LLLLLLLLLL8LLLLL
-LL8LLLLLL88LLLLL
-LLL8LLL888LLLLLL
-LLL8888LLLLLLLLL
-LLLLLLLLLLLLLLLL
-LLLLLLLLLLLLLLLL`],
+1111111111111111
+1CLFFFFFFFFFFLC1
+1CLFFFFFFFFFFLC1
+1CLFFFFFFFFFFLC1
+1CLFFFFFFFFFFLC1
+1CLFFFFLLFFFFLC1
+1CLFFFLFFLFFFLC1
+1CLFFFLLLLFFFLC1
+1CLFFLL22LLFFLC1
+1CLFFL2222LFFLC1
+1CLFFLL22LLFFLC1
+1CLFFLL22LLFFLC1
+1CLFFLLLLLLFFLC1
+1CLFFFFFFFFFFLC1
+1CLFFFFFFFFFFLC1
+1111111111111111`],
   [grass, bitmap`
 DDDDDDDDDDDDDDDD
 DDDDDDFDDDDDDDDD
@@ -423,6 +498,40 @@ CCC0990666660CCC`],
 .000.101101.000.
 .....000000.....
 ................`],
+  [warningtile, bitmap`
+3333333333333333
+3333333333333333
+3333333333333333
+3333333663333333
+3333333663333333
+3333333663333333
+3333333663333333
+3333333663333333
+3333333663333333
+3333333333333333
+3333333333333333
+3333333663333333
+3333333663333333
+3333333333333333
+3333333333333333
+3333333333333333`],
+  [advancetile, bitmap`
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................`] // use for an open world feel in lvls, advancing to a lvl that is not in rotation, but expands upon the prev then goes into rotation
   
 
 )
@@ -432,7 +541,7 @@ setSolids([wall, wall2, wall3, housewall, housewallleft,  housewallright, roofbo
 
 
 let level = 1 // starting level (index 1 in this case)
-const levels = [
+const levels = [ // easy lvls
   // shop (interior) lvls
     map`
 ..........
@@ -461,7 +570,7 @@ xw...xw
 xw.m.xw
 xw...xw
 xw...xw
-xw.p.xw`,
+xw.p.xw`, //goblin corridor
   map`
 wvxwvxwvx
 w.......x
@@ -484,14 +593,29 @@ vxwvxwvxwvxwvxw
 vfwdxfffffffffw
 vfftffftfftfffw
 vfffffffffffffw
-vffgfffffgffffw
+vfggfgtffgffffw
 vfftffffffftffw
-vfffffgtffffffw
-vffffff.ftffffw
-vfffftffffffffw
-vffgffffffffffw
-vffffffffffffpw
-vxwvxwvxwvxwvxw`
+vfffgfgtffffffw
+vfffffffftffffw
+vfffftftffffffw
+vffgfffgfgffgfw
+vtfffffffffffpw
+vxwvxwvxwvxwvxw`, //ghost graveyard
+  map`
+wvxwvxwvx
+wpx.....x
+w.x.vtwmx
+w.x.v.w.x
+w...v...x
+wvxwvxwdx`,
+  map`
+vxwvdvwwv
+v...b...v
+v.......v
+v.......v
+v.......v
+v.......v
+vxwvpvxwv`,
 
 
 ]
@@ -529,12 +653,11 @@ grassUnderRoof.forEach(roofoverhangright => {
 putGrassUnderRoofs() // and under the player
 
 function putGrassGraveyardLvl() {
-  console.log("ran");
-  let lvlGhosts = getAll(ghost)
+   let lvlGhosts = getAll(ghost)
   lvlGhosts.forEach(ghost => {
     console.log("ghostForeach");
     addSprite(ghost.x, ghost.y, grass);
-  })
+  }) 
   
   let tombstones = getAll(hurtplayer);
     tombstones.forEach(hurtplayer => {
@@ -545,7 +668,7 @@ function putGrassGraveyardLvl() {
 }
 
 
-
+//sounds
 const hit = tune`
 500: C4/500 + B4/500 + C5/500,
 15500`
@@ -557,7 +680,7 @@ setPushables({
 let gameOver = false;
 
 let plr = getFirst(player);
-let score = 0;
+let score = 0; // tracking when to change difficulty
 
 var mobMoveInterval = setInterval(mobMoveAll, 1000);
 var ghostMoveInterval = setInterval(ghostMoveAll, 1200);
@@ -600,19 +723,24 @@ function handleHealthUI(health) {
 const mobSprites = getAll(mob);
 
 function resetMap() {
-  level = level + 1;
-  console.log(level);
-  if (level === 5) { // index 5 is gy lvl
-  putGrassGraveyardLvl(); 
-}
+  let prev = level // temporarily store previous level to prevent repeats
+  level = Math.floor(Math.random() * levels.length); // random level above safe ones
+  if (level === 0 || level === 1 || prev == level)
+    resetMap() //recursively call until its a dungeon lvl
+  console.log("Level: " + level);
+  score++;
   setMap(levels[level]);
   createHeartsArray(health);
   plr = getFirst(player);
   addSprite(plr.x,plr.y,spawn);
+  if (level === 5) { // index 5 is gy lvl
+  putGrassGraveyardLvl(); 
+}
 }
 
 onInput("s", () => {
   if (!gameOver) {
+    // plr = addSprite(orientation down)
     plr.y += 1; // Move the player down
   }
 });
@@ -811,7 +939,7 @@ function playerCollided() {
 }
 
 function stillDamage() { // same but without resetting to spawn
-    health--;
+  health--;
   handleHealthUI(health);
   createHeartsArray(health)
   playTune(hit);
