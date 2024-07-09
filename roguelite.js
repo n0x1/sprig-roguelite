@@ -1,7 +1,7 @@
 /*
 @title: 
 @author: noxi
-@tags: [dungeon]
+@tags: [advanced, roguelite]
 @addedOn: 2024-07-07
 */
 
@@ -363,22 +363,22 @@ LL0CCCCCCCCCC0LL
 LL0CCCCCCCCCC0LL
 110CCCCCCCCCC011`],
   [spawn, bitmap`
-1111111111111111
-1CLFFFFFFFFFFLC1
-1CLFFFFFFFFFFLC1
-1CLFFFFFFFFFFLC1
-1CLFFFFFFFFFFLC1
-1CLFFFFLLFFFFLC1
-1CLFFFLFFLFFFLC1
-1CLFFFLLLLFFFLC1
-1CLFFLL22LLFFLC1
-1CLFFL2222LFFLC1
-1CLFFLL22LLFFLC1
-1CLFFLL22LLFFLC1
-1CLFFLLLLLLFFLC1
-1CLFFFFFFFFFFLC1
-1CLFFFFFFFFFFLC1
-1111111111111111`],
+7777777777777777
+7771LL1111LL1777
+7177LL1LL1LL7717
+71177L1LL1L77117
+7LL1171LL1711LL7
+7LL1LL7777LL1LL7
+7LL1L7CCCC7L1LL7
+71117CCC7CC71117
+7LL17CC7CCC71LL7
+7LL17C7007C71LL7
+7LL17CC770C71LL7
+71177CC7CCC77117
+7L771C7C7CC177L7
+7771LLCCC7LL1777
+77L1LL1771LL1L77
+7777777777777777`],
   [grass, bitmap`
 DDDDDDDDDDDDDDDD
 DDDDDDFDDDDDDDDD
@@ -561,7 +561,10 @@ jlqzkfffff
 feciffffff
 feniffffff
 ffffffffff
-ffpfffffff`,
+ffprffffff`,
+
+  //scroller (advancetile having) lvls 
+  
   // enemy lvls
   map`
 xwvdvxw
@@ -570,7 +573,7 @@ xw...xw
 xw.m.xw
 xw...xw
 xw...xw
-xw.p.xw`, //goblin corridor
+xw...rw`, //goblin corridor
   map`
 wvxwvxwvx
 w.......x
@@ -578,7 +581,7 @@ w.$wvxw.x
 w.....w.x
 w..w..$.x
 wm.w..w.x
-wvxw.pwdx`,
+wvxwvpwdx`,
   map`
 vxwvdvxwvx
 v..t.t...x
@@ -599,8 +602,8 @@ vfffgfgtffffffw
 vfffffffftffffw
 vfffftftffffffw
 vffgfffgfgffgfw
-vtfffffffffffpw
-vxwvxwvxwvxwvxw`, //ghost graveyard
+vtffffffffffffw
+vxwvxwvxwvxwvrw`, //ghost graveyard
   map`
 wvxwvxwvx
 wpx.....x
@@ -724,33 +727,42 @@ const mobSprites = getAll(mob);
 
 function resetMap() {
   let prev = level // temporarily store previous level to prevent repeats
-  level = Math.floor(Math.random() * levels.length); // random level above safe ones
-  if (level === 0 || level === 1 || prev == level)
-    resetMap() //recursively call until its a dungeon lvl
+  level = Math.floor(Math.random() * levels.length); // random level above safe ones 
+
+  // idea: random range increases as score increases - maybe add score to lvl length
+  
+  if (level === 0 || level === 1 || prev == level) // add more lvlvs as scrollers added 
+  resetMap() //recursively call until its a dungeon lvl
   console.log("Level: " + level);
   score++;
   setMap(levels[level]);
   createHeartsArray(health);
-  plr = getFirst(player);
   addSprite(plr.x,plr.y,spawn);
+  plr = getFirst(player);
   if (level === 5) { // index 5 is gy lvl
   putGrassGraveyardLvl(); 
 }
 }
 
+/* var tempXToPreventSpawnSafetyAbuse;
+var tempYToPreventSpawnSafetyAbuse; */w
+
 onInput("s", () => {
   if (!gameOver) {
+
     // plr = addSprite(orientation down)
     plr.y += 1; // Move the player down
   }
 });
 onInput("w", () => {
   if (!gameOver) {
+    
     plr.y -= 1; // Move the player up
   }
 });
 onInput("a", () => {
   if (!gameOver) {
+    
     plr.x -= 1; // Move the player left
   }
 });
@@ -792,12 +804,17 @@ afterInput(() => {
     setMap(levels[0]);
     plr = getFirst(player);
   }
-
-
   
   let mobSprites = getAll(mob); // collision via player movement check
   let spikeSprites = getAll(spikes);
   let ghostSprites = getAll(ghost);
+
+  
+/* if (plr.x === getFirst(spawn).x && plr.y === getFirst(spawn).y && mapJustChanged === false) {
+    plr.x = tempXToPreventSpawnSafetyAbuse;
+    plr.y = tempYToPreventSpawnSafetyAbuse;
+} */
+
   
   for (let i = 0; i < mobSprites.length; i++) {
   if (plr.x === mobSprites[i].x && plr.y === mobSprites[i].y) {
@@ -838,7 +855,7 @@ function mobMoveAll() {
     let direction = options[randomIndex];
 
     // Save the current position of the mob sprite
-    let newX = mobSprite.x;
+    let newX = mobSprite.x;1
     let newY = mobSprite.y;
 
     // Calculate the next position based on the random direction
@@ -928,7 +945,7 @@ function ghostMoveAll() {
 
 
 
-function playerCollided() {
+function playerCollided() { //collide with normal mob
   health--;
   handleHealthUI(health);
   createHeartsArray(health)
