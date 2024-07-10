@@ -51,6 +51,9 @@ const warningtile = "!"
 const advancetile = "A"
 const candle = "]"
 const sword = "S"
+const water = "B"
+const fireball = "C"
+const fireshooter = "D"
 
 
 const legendKeys = [
@@ -65,6 +68,8 @@ const legendKeys = [
   door,
   ghost,
   candle,
+  fireball,
+  fireshooter,
   wall,
   wall2,
   wall3,
@@ -82,6 +87,7 @@ const legendKeys = [
   housedoor,
   crate,
   spikes,
+  water,
   warningtile,
   advancetile,
 ]
@@ -535,6 +541,57 @@ legend.set(crate, [crate, bitmap`
 0CCCCCCCCC11CCC0
 01CCCCCCCCCCCC10
 0000000000000000`])
+legend.set(water, [water, bitmap`
+7777777777777777
+7777777777777777
+7777757755575777
+7755577777757777
+7577777777777777
+7777777777777777
+7777777777777777
+7577777777757757
+7755557777575577
+7777777777777777
+7777777777777777
+7777777777777777
+7777577757775777
+7777755577757577
+7777777777777777
+7777777777777777`])
+legend.set(fireball, [fireball, bitmap`
+...........3..3.
+....3....3.33.3.
+....3.3.393.93.3
+..3.3.3.3933993.
+...393..3933993.
+...393.39939993.
+...393399939993.
+..3993999939993.
+..3999999966993.
+..3999669666933.
+..3996666666933.
+..3996666666993.
+..399666666693..
+..333666336933..
+....333333333...
+................`])
+legend.set(fireshooter, [fireshooter, bitmap`
+................
+....00000000....
+...0000000000...
+..000000000000..
+..000000000000..
+..00LLLLLLLL00..
+..0LLLLLLLLLL0..
+.00LLLLLLLLLL00.
+.0LLLL0000LLLL0.
+.0LLL003300LLL0.
+.0LL00333300LL0.
+.00L00000000L00.
+..0LLL0000LLL0..
+..00LLLLLLLL00..
+...0000000000...
+................`])
 legend.set(spikes, [spikes, bitmap`
 ................
 ..1..........1..
@@ -570,22 +627,22 @@ legend.set(warningtile, [warningtile, bitmap`
 3333333333333333
 3333333333333333`])
 legend.set(advancetile, [advancetile, bitmap`
-................
-................
-................
-................
-................
-................
-................
-................
-................
-................
-................
-................
-................
-................
-................
-................`]) // use for an open world feel in lvls, advancing to a lvl that is not in rotation, but expands upon the prev then goes into rotation
+8888888888888888
+8888888888888888
+8888888888888888
+8888880888888888
+8888800888888888
+8888800888888888
+8888088088888888
+8888088808888888
+8888088880888888
+8880888888088888
+8880888888808888
+8800000000000888
+8808888888888088
+8088888888888808
+8088888888888808
+0888888888888880`]) // use for an open world feel in lvls, advancing to a lvl that is not in rotation, but expands upon the prev then goes into rotation
 
 
 const frames = {
@@ -761,7 +818,7 @@ const levels = [ // easy lvls
 ........p.`,
   //start lvl
   map`
-ffffff.fff
+ffffffDfff
 ffffffffff
 ffafffffff
 jlqzkfffff
@@ -769,8 +826,6 @@ feciffffff
 feniffffff
 ffffffffff
 ffpfdfffff`,
-
-  //scroller (advancetile having) lvls 
 
   // enemy lvls
   map`
@@ -829,8 +884,23 @@ wy.......v
 w......y.v
 w........v
 wvxwvpvxwv`,
+  map`
+wvdvBBv
+BB..BBv
+BB..ABv
+BB..BBv
+wvpvxwv`, // water chamber
 
-
+  //secret or scroller lvls 
+  map`
+BBBBBBBBB
+BBBBBBBBB
+BBBBBBBBB
+BBBBdBBBB
+BBB...BBB
+BB.....BB
+BB.....BB
+BB..p..BB`, //water boss
 ]
 
 setMap(levels[level]); // only for init
@@ -888,6 +958,10 @@ function levelSpecificDeco() {
     addSprite(width()-1,4,candle);
     addSprite(4,0,candle);
     addSprite(0,3,candle);
+    }
+    if (level === 2) {
+      addSprite(width()-2,4,candle);
+      addSprite(1,4,candle);
     }
 }
 
@@ -960,7 +1034,7 @@ function resetMap() {
 
   // idea: random range increases as score increases - maybe add score to lvl length
 
-  if (level === 0 || level === 1 || prev == level) { // add more lvlvs as scrollers added 
+  if (level === 0 || level === 1 || prev === level) { // add more lvlvs as scrollers added 
     resetMap() //recursively call until its a dungeon lvl
   }
   console.log("Level: " + level);
@@ -1227,9 +1301,6 @@ function ghostMoveAll() {
       ghostSprite.x = newX;
       ghostSprite.y = newY;
       playerCollided()
-    } else if (ghostSprite.x === oldX && ghostSprite.y === oldY) {
-      console.log("wall prevention");
-      ghostMoveAll();
     }
   });
 
@@ -1261,6 +1332,17 @@ function spiderMoveAll() {
     }
   });
 }
+
+function fireShoot() {
+    let fireshoota = getFirst(fireshooter);
+    if (fireshoota) { // Check if fireshoota is not undefined
+        let fireproj = addSprite(fireshoota.x, fireshoota.y, fireball);
+        if (fireproj) { // Check if fireproj is not undefined
+            fireproj.y++;
+        }
+    }
+}
+setInterval(fireShoot, 1000)
 
 function playerCollided() { //collide with normal mob
   health--;
