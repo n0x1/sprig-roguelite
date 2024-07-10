@@ -5,6 +5,22 @@
 @addedOn: 2024-07-07
 */
 
+/* bulletin 
+   add more mobs:
+   fire shooters
+   boss attack pattern
+   attack for player & direction changes
+
+   then add scroller lvls & difficulty curve (with score var
+*/
+
+const dirVectors = {
+  "RIGHT": [1, 0],
+  "LEFT": [-1, 0],
+  "UP": [0, -1],
+  "DOWN": [0, 1]
+}
+
 const player = "p"
 const hurtplayer = "g" //game over
 const boss = "b"
@@ -33,15 +49,65 @@ const spider = "y"
 const bossheart = "&"
 const warningtile = "!"
 const advancetile = "A"
-const playerL = "L"
-const playerR = "R"
-const playerB = "B"
+const candle = "]"
+
+const legendKeys = [
+  rooftip,
+  roofleft,
+  roofright,
+  roofoverhangleft,
+  roofoverhangright,
+  player,
+  heart,
+  bossheart,
+  ghost,
+  boss,
+  mob,
+  spider,
+  hurtplayer,
+  wall,
+  wall2,
+  wall3,
+  door,
+  spawn,
+  grass,
+  housewall,
+  housewallleft,
+  housewallright,
+  roofbody,
+  housedoor,
+  crate,
+  spikes,
+  warningtile,
+  advancetile,
+  candle
+]
+
+
+let legend = new Map();
+legendKeys.forEach( (key) => {
+  legend.set(key, bitmap`
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................`)
+})
 
 
 
-
-setLegend(
-  [rooftip, bitmap`
+legend.set(rooftip, [rooftip, bitmap`
 ................
 ................
 ................
@@ -57,8 +123,8 @@ setLegend(
 ....00333300....
 ...0333333330...
 .00333333333300.
-0333333333333330`],
-  [roofleft, bitmap`
+0333333333333330`])
+legend.set(roofleft, [roofleft, bitmap`
 ...............0
 .............003
 ...........00333
@@ -74,8 +140,8 @@ setLegend(
 3333333333333333
 3333333333333333
 3333333333333333
-0000000000000000`],
-  [roofright, bitmap`
+0000000000000000`])
+legend.set(roofright, [roofright, bitmap`
 0...............
 300.............
 33300...........
@@ -91,8 +157,8 @@ setLegend(
 3333333333333333
 3333333333333333
 3333333333333333
-0000000000000000`],
-  [roofoverhangleft, bitmap`
+0000000000000000`])
+legend.set(roofoverhangleft, [roofoverhangleft, bitmap`
 ................
 ................
 ................
@@ -108,8 +174,8 @@ setLegend(
 ..........003333
 .......000333333
 ......0333333333
-.....00000000000`],
-  [roofoverhangright, bitmap`
+.....00000000000`])
+legend.set(roofoverhangright, [roofoverhangright, bitmap`
 ................
 ................
 ................
@@ -125,25 +191,404 @@ setLegend(
 333300..........
 333333000.......
 3333333330......
-00000000000.....`],
-  [player, bitmap`
-................
+00000000000.....`])
+legend.set(heart, [heart, bitmap`
+..000......000..
+.03330....03330.
+0333330..0333330
+0333333003322330
+0333333333332230
+0333333333333230
+0333333333333330
+0333333333333330
+.03333333333330.
+.03333333333330.
+..033333333330..
+...0333333330...
+....03333330....
+.....033330.....
+......0330......
+.......00.......`])
+legend.set(bossheart, [bossheart, bitmap`
+..000......000..
+.04440....04440.
+0444440..0444440
+0444444004422440
+0444444444442240
+0444444444444240
+0444444444444440
+0444444444444440
+.04444444444440.
+.04444444444440.
+..044444444440..
+...0444444440...
+....04444440....
+.....044440.....
+......0440......
+.......00.......`])
+legend.set(ghost, [ghost, bitmap`
 ................
 ......0000......
-.....00LL00.....
-.....0LLLL0.....
-....006LL600....
-....00LLLL00....
-.....00LL00....1
-.....00000C...11
-....0000CC00.11.
-....000C000011..
-...00CC000099...
-...00CCCCCL00...
+....00222200....
+...0222222220...
+..022332233220..
+..022332233220..
+..022222222220..
+..022222222220..
+..022222222220..
+..022222222220..
+..022222222220..
+..022222222220..
+..022222222220..
+..022002022020..
+..020.0200200...
+...0...0..0.....`])
+legend.set(boss, [boss, bitmap`
+......6.6.6.....
+......66366.....
+......DDDDD.....
+.....D0DD0D.....
+..00.DDDDDD.00..
+..000.DD0D.000..
+...066DDDDDD0...
+...DD666DDDDD...
+..DDDDD66DDDDD..
+.DDDDDDD66DDDDD.
+.DD.DDDDD66D.DD.
+.DDD.CC66CC.DDD.
+..DD.CCCCCC.DD..
+......DDDD......
+....DDD..DDD....
+...DDDD..DDDD...`])
+legend.set(mob, [mob, bitmap`
+................
+................
+................
+................
+.....DDDDD......
+....DD0D0DD.....
+....DDDDDDD.....
+....6DDDDD......
+......C9C...20..
+.....CCCCC.20...
+.....CCCCC20....
+.....DCCC00.....
+......CCC.0.....
+......C.C.......
+................
+................`])
+legend.set(spider, [spider, bitmap`
+................
+................
+................
+..0...0000...0..
+.0.0000000000.0.
+....00000000....
+...0000000000...
 ..000000000000..
-..000000000000..
-.0000CC00CC0000.`],
-  [playerL, bitmap`
+.0..00000000..0.
+....00000000....
+...0000000000...
+..00.090090.00..
+..0..000000..0..
+.....0....0.....
+....0......0....
+................`])
+legend.set(hurtplayer, [hurtplayer, bitmap`
+................
+................
+................
+................
+......LLLL......
+....LLL11LLL....
+....L111111L....
+....L111111L....
+...L00110100L...
+...L010101010...
+...L00110100L...
+...L01010101L...
+...L11111111L...
+..CCCCCCCCCCCC..
+.....CC.CCC.....
+................`]) //grave
+legend.set(candle, [candle, bitmap`
+................
+................
+................
+........6.......
+.......66.......
+.......66.......
+......6926......
+......6226......
+.......CC.......
+.......CC.......
+.......CC.......
+.......CC.......
+......0000......
+.......CC.......
+................
+................`])
+legend.set(wall, [wall, bitmap`
+11LL1111LL1111LL
+L1LL1LL1LL1LL1LL
+L1LL1LL1LL1LL1LL
+L1111LL1111LL111
+11LL1111LL1111LL
+L1LL1LL1LL1LL1LL
+L1LL1LL1LL1LL1LL
+L1111LL1111LL111
+11LL1111LL1111LL
+L1LL1LL1LL1LL1LL
+L1LL1LL1LL1LL1LL
+L1111LL1111LL111
+11LL1111LL1111LL
+L1LL1LL1LL1LL1LL
+L1LL1LL1LL1LL1LL
+L1111LL1111LL111`])
+legend.set(wall2, [wall2, bitmap`
+1111LL1111LL1111
+1LL1LL1LL1LL1LL1
+1LL1LL1LL1LL1LL1
+1LL1111LL1111LL1
+1111LL1111LL1111
+1LL1LL1LL1LL1LL1
+1LL1LL1LL1LL1LL1
+1LL1111LL1111LL1
+1111LL1111LL1111
+1LL1LL1LL1LL1LL1
+1LL1LL1LL1LL1LL1
+1LL1111LL1111LL1
+1111LL1111LL1111
+1LL1LL1LL1LL1LL1
+1LL1LL1LL1LL1LL1
+1LL1111LL1111LL1`])
+legend.set(wall3, [wall3, bitmap`
+LL1111LL1111LL11
+LL1LL1LL1LL1LL1L
+LL1LL1LL1LL1LL1L
+111LL1111LL1111L
+LL1111LL1111LL11
+LL1LL1LL1LL1LL1L
+LL1LL1LL1LL1LL1L
+111LL1111LL1111L
+LL1111LL1111LL11
+LL1LL1LL1LL1LL1L
+LL1LL1LL1LL1LL1L
+111LL1111LL1111L
+LL1111LL1111LL11
+LL1LL1LL1LL1LL1L
+LL1LL1LL1LL1LL1L
+111LL1111LL1111L`])
+legend.set(door, [door, bitmap`
+LL1111LCCL1111LL
+LL1LL1CFFC1LL1LL
+LL1LL11FF11LL1LL
+111LL111111LL111
+LL111100001111LL
+LL1LL0CCCC0LL1LL
+LL1L0CCCCCC0L1LL
+1110CCCCCCCC0111
+LL10CCCCCCCC01LL
+LL0CCCCCCCCCC0LL
+LL0CCCCC0000C0LL
+110CCCCCCCC0C011
+LL0CCCCCCCCCC0LL
+LL0CCCCCCCCCC0LL
+LL0CCCCCCCCCC0LL
+110CCCCCCCCCC011`])
+legend.set(spawn, [spawn, bitmap`
+7777777777777777
+7771LL1111LL1777
+7177LL1LL1LL7717
+71177L1LL1L77117
+7LL1171LL1711LL7
+7LL1LL7777LL1LL7
+7LL1L7CCCC7L1LL7
+71117CCC7CC71117
+7LL17CC7CCC71LL7
+7LL17C7007C71LL7
+7LL17CC770C71LL7
+71177CC7CCC77117
+7L771C7C7CC177L7
+7771LLCCC7LL1777
+77L1LL1771LL1L77
+7777777777777777`])
+legend.set(grass, [grass, bitmap`
+DDDDDDDDDDDDDDDD
+DDDDDDFDDDDDDDDD
+DDDDDFDDDDFDDDFD
+DDDFDFDDDFDDFFDD
+DDFDDDDDDFDDDDDD
+DDFDDDFDFDDDDDDD
+DFDDDFDDDDDDDDFD
+DDDDDFDDDFDDDFDD
+DDDDDFDDFDDDDFDD
+DDDDDDDDFDDDFDDD
+DDDDDDDDDDDDDDDD
+DDDDFDDDDDDDDDDF
+DDDFDDDDDDFDDDDF
+DDDFDDDDDFDDDDFD
+DDDDDDDDDDDDDDFD
+DDDDDDDDDDDDDDFD`])
+legend.set(housewall, [housewall, bitmap`
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC`])
+legend.set(housewallleft, [housewallleft, bitmap`
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC`])
+legend.set(housewallright, [housewallright, bitmap`
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0`])
+legend.set(roofbody, [roofbody, bitmap`
+3333333333333333
+3333333333333333
+3333333333333333
+3333333333333333
+3333333333333333
+3333333333333333
+3333333333333333
+3333333333333333
+3333333333333333
+3333333333333333
+3333333333333333
+3333333333333333
+3333333333333333
+3333333333333333
+3333333333333333
+0000000000000000`])
+legend.set(housedoor, [housedoor, bitmap`
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCC0000000000CCC
+CCC0990666660CCC
+CCC0990666660CCC
+CCC0990666660CCC
+CCC0990666660CCC
+CCC0990666660CCC
+CCC09C0666660CCC
+CCC0990666660CCC
+CCC0990666660CCC
+CCC0990666660CCC
+CCC0990666660CCC
+CCC0990666660CCC
+CCC0990666660CCC`])
+legend.set(crate, [crate, bitmap`
+0000000000000000
+01CCCCCCCCCCCC10
+0CCCCCCCCCCCCCC0
+0CC111CCCCCCCCC0
+0CCCCC1111CCCCC0
+0CCCCCCCCC111CC0
+0CC11CCCCCCCCCC0
+0CCCC111CCCCCCC0
+0CCCCCCC111CCCC0
+0CCCCCCCCCC11CC0
+0CC11CCCCCCCCCC0
+0CCCC111CCCCCCC0
+0CCCCCCC11CCCCC0
+0CCCCCCCCC11CCC0
+01CCCCCCCCCCCC10
+0000000000000000`])
+legend.set(spikes, [spikes, bitmap`
+................
+..1..........1..
+..1..........1..
+.101........101.
+.000........000.
+.....1....1.....
+.....1....1.....
+....101..101....
+....000..000....
+................
+..1..........1..
+..1...1..1...1..
+.101..1..1..101.
+.000.101101.000.
+.....000000.....
+................`])
+legend.set(warningtile, [warningtile, bitmap`
+3333333333333333
+3333333333333333
+3333333333333333
+3333333663333333
+3333333663333333
+3333333663333333
+3333333663333333
+3333333663333333
+3333333663333333
+3333333333333333
+3333333333333333
+3333333663333333
+3333333663333333
+3333333333333333
+3333333333333333
+3333333333333333`])
+legend.set(advancetile, [advancetile, bitmap`
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................`]) // use for an open world feel in lvls, advancing to a lvl that is not in rotation, but expands upon the prev then goes into rotation
+
+
+const frames = {
+  [player]: {
+    
+   "LEFT": [player, bitmap`
 ................
 ................
 .....00.........
@@ -160,7 +605,7 @@ setLegend(
 .....000000000..
 .....00000000000
 .....CC0CC.0000.`],
-  [playerR, bitmap`
+    "RIGHT": [player, bitmap`
 ................
 ................
 .........00.....
@@ -177,7 +622,7 @@ setLegend(
 ..000000000.....
 00000000000.....
 .0000.CC0CC.....`],
-  [playerB, bitmap`
+  "UP": [player, bitmap`
 ................
 ................
 ......0000......
@@ -194,392 +639,43 @@ setLegend(
 ..000000000000..
 .0000000000000..
 00000CC00CC000..`],
-  [heart, bitmap`
-..000......000..
-.03330....03330.
-0333330..0333330
-0333333003322330
-0333333333332230
-0333333333333230
-0333333333333330
-0333333333333330
-.03333333333330.
-.03333333333330.
-..033333333330..
-...0333333330...
-....03333330....
-.....033330.....
-......0330......
-.......00.......`],
-  [bossheart, bitmap`
-..000......000..
-.04440....04440.
-0444440..0444440
-0444444004422440
-0444444444442240
-0444444444444240
-0444444444444440
-0444444444444440
-.04444444444440.
-.04444444444440.
-..044444444440..
-...0444444440...
-....04444440....
-.....044440.....
-......0440......
-.......00.......`],
-  [ghost, bitmap`
+  "DOWN": [player, bitmap`
+................
 ................
 ......0000......
-....00222200....
-...0222222220...
-..022332233220..
-..022332233220..
-..022222222220..
-..022222222220..
-..022222222220..
-..022222222220..
-..022222222220..
-..022222222220..
-..022222222220..
-..022002022020..
-..020.0200200...
-...0...0..0.....`],
-  [boss, bitmap`
-......6.6.6.....
-......66366.....
-......DDDDD.....
-.....D0DD0D.....
-..00.DDDDDD.00..
-..000.DD0D.000..
-...066DDDDDD0...
-...DD666DDDDD...
-..DDDDD66DDDDD..
-.DDDDDDD66DDDDD.
-.DD.DDDDD66D.DD.
-.DDD.CC66CC.DDD.
-..DD.CCCCCC.DD..
-......DDDD......
-....DDD..DDD....
-...DDDD..DDDD...`],
-  [mob, bitmap`
-................
-................
-................
-................
-.....DDDDD......
-....DD0D0DD.....
-....DDDDDDD.....
-....6DDDDD......
-......C9C...20..
-.....CCCCC.20...
-.....CCCCC20....
-.....DCCC00.....
-......CCC.0.....
-......C.C.......
-................
-................`],
-  [spider, bitmap`
-................
-................
-................
-..0...0000...0..
-.0.0000000000.0.
-....00000000....
-...0000000000...
+.....00LL00.....
+.....0LLLL0.....
+....006LL600....
+....00LLLL00....
+.....0LLLL0....1
+.....00000C...11
+....0000CC00.11.
+....000C000011..
+...000C000099...
+...00CCCCCCL0...
 ..000000000000..
-.0..00000000..0.
-....00000000....
-...0000000000...
-..00.090090.00..
-..0..000000..0..
-.....0....0.....
-....0......0....
-................`],
-  [hurtplayer, bitmap`
-................
-................
-................
-................
-......LLLL......
-....LLL11LLL....
-....L111111L....
-....L111111L....
-...L00110100L...
-...L010101010...
-...L00110100L...
-...L01010101L...
-...L11111111L...
-..CCCCCCCCCCCC..
-.....CC.CCC.....
-................`], //grave
-  [wall, bitmap`
-11LL1111LL1111LL
-L1LL1LL1LL1LL1LL
-L1LL1LL1LL1LL1LL
-L1111LL1111LL111
-11LL1111LL1111LL
-L1LL1LL1LL1LL1LL
-L1LL1LL1LL1LL1LL
-L1111LL1111LL111
-11LL1111LL1111LL
-L1LL1LL1LL1LL1LL
-L1LL1LL1LL1LL1LL
-L1111LL1111LL111
-11LL1111LL1111LL
-L1LL1LL1LL1LL1LL
-L1LL1LL1LL1LL1LL
-L1111LL1111LL111`],
-  [wall2, bitmap`
-1111LL1111LL1111
-1LL1LL1LL1LL1LL1
-1LL1LL1LL1LL1LL1
-1LL1111LL1111LL1
-1111LL1111LL1111
-1LL1LL1LL1LL1LL1
-1LL1LL1LL1LL1LL1
-1LL1111LL1111LL1
-1111LL1111LL1111
-1LL1LL1LL1LL1LL1
-1LL1LL1LL1LL1LL1
-1LL1111LL1111LL1
-1111LL1111LL1111
-1LL1LL1LL1LL1LL1
-1LL1LL1LL1LL1LL1
-1LL1111LL1111LL1`],
-  [wall3, bitmap`
-LL1111LL1111LL11
-LL1LL1LL1LL1LL1L
-LL1LL1LL1LL1LL1L
-111LL1111LL1111L
-LL1111LL1111LL11
-LL1LL1LL1LL1LL1L
-LL1LL1LL1LL1LL1L
-111LL1111LL1111L
-LL1111LL1111LL11
-LL1LL1LL1LL1LL1L
-LL1LL1LL1LL1LL1L
-111LL1111LL1111L
-LL1111LL1111LL11
-LL1LL1LL1LL1LL1L
-LL1LL1LL1LL1LL1L
-111LL1111LL1111L`],
-  [door, bitmap`
-LL1111LCCL1111LL
-LL1LL1CFFC1LL1LL
-LL1LL11FF11LL1LL
-111LL111111LL111
-LL111100001111LL
-LL1LL0CCCC0LL1LL
-LL1L0CCCCCC0L1LL
-1110CCCCCCCC0111
-LL10CCCCCCCC01LL
-LL0CCCCCCCCCC0LL
-LL0CCCCC0000C0LL
-110CCCCCCCC0C011
-LL0CCCCCCCCCC0LL
-LL0CCCCCCCCCC0LL
-LL0CCCCCCCCCC0LL
-110CCCCCCCCCC011`],
-  [spawn, bitmap`
-7777777777777777
-7771LL1111LL1777
-7177LL1LL1LL7717
-71177L1LL1L77117
-7LL1171LL1711LL7
-7LL1LL7777LL1LL7
-7LL1L7CCCC7L1LL7
-71117CCC7CC71117
-7LL17CC7CCC71LL7
-7LL17C7007C71LL7
-7LL17CC770C71LL7
-71177CC7CCC77117
-7L771C7C7CC177L7
-7771LLCCC7LL1777
-77L1LL1771LL1L77
-7777777777777777`],
-  [grass, bitmap`
-DDDDDDDDDDDDDDDD
-DDDDDDFDDDDDDDDD
-DDDDDFDDDDFDDDFD
-DDDFDFDDDFDDFFDD
-DDFDDDDDDFDDDDDD
-DDFDDDFDFDDDDDDD
-DFDDDFDDDDDDDDFD
-DDDDDFDDDFDDDFDD
-DDDDDFDDFDDDDFDD
-DDDDDDDDFDDDFDDD
-DDDDDDDDDDDDDDDD
-DDDDFDDDDDDDDDDF
-DDDFDDDDDDFDDDDF
-DDDFDDDDDFDDDDFD
-DDDDDDDDDDDDDDFD
-DDDDDDDDDDDDDDFD`],
-  [housewall, bitmap`
-CCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCC`],
-  [housewallleft, bitmap`
-0CCCCCCCCCCCCCCC
-0CCCCCCCCCCCCCCC
-0CCCCCCCCCCCCCCC
-0CCCCCCCCCCCCCCC
-0CCCCCCCCCCCCCCC
-0CCCCCCCCCCCCCCC
-0CCCCCCCCCCCCCCC
-0CCCCCCCCCCCCCCC
-0CCCCCCCCCCCCCCC
-0CCCCCCCCCCCCCCC
-0CCCCCCCCCCCCCCC
-0CCCCCCCCCCCCCCC
-0CCCCCCCCCCCCCCC
-0CCCCCCCCCCCCCCC
-0CCCCCCCCCCCCCCC
-0CCCCCCCCCCCCCCC`],
-  [housewallright, bitmap`
-CCCCCCCCCCCCCCC0
-CCCCCCCCCCCCCCC0
-CCCCCCCCCCCCCCC0
-CCCCCCCCCCCCCCC0
-CCCCCCCCCCCCCCC0
-CCCCCCCCCCCCCCC0
-CCCCCCCCCCCCCCC0
-CCCCCCCCCCCCCCC0
-CCCCCCCCCCCCCCC0
-CCCCCCCCCCCCCCC0
-CCCCCCCCCCCCCCC0
-CCCCCCCCCCCCCCC0
-CCCCCCCCCCCCCCC0
-CCCCCCCCCCCCCCC0
-CCCCCCCCCCCCCCC0
-CCCCCCCCCCCCCCC0`],
-  [roofbody, bitmap`
-3333333333333333
-3333333333333333
-3333333333333333
-3333333333333333
-3333333333333333
-3333333333333333
-3333333333333333
-3333333333333333
-3333333333333333
-3333333333333333
-3333333333333333
-3333333333333333
-3333333333333333
-3333333333333333
-3333333333333333
-0000000000000000`],
-  [housedoor, bitmap`
-CCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCC
-CCC0000000000CCC
-CCC0990666660CCC
-CCC0990666660CCC
-CCC0990666660CCC
-CCC0990666660CCC
-CCC0990666660CCC
-CCC09C0666660CCC
-CCC0990666660CCC
-CCC0990666660CCC
-CCC0990666660CCC
-CCC0990666660CCC
-CCC0990666660CCC
-CCC0990666660CCC`],
-  [crate, bitmap`
-0000000000000000
-01CCCCCCCCCCCC10
-0CCCCCCCCCCCCCC0
-0CC111CCCCCCCCC0
-0CCCCC1111CCCCC0
-0CCCCCCCCC111CC0
-0CC11CCCCCCCCCC0
-0CCCC111CCCCCCC0
-0CCCCCCC111CCCC0
-0CCCCCCCCCC11CC0
-0CC11CCCCCCCCCC0
-0CCCC111CCCCCCC0
-0CCCCCCC11CCCCC0
-0CCCCCCCCC11CCC0
-01CCCCCCCCCCCC10
-0000000000000000`],
-  [spikes, bitmap`
-................
-..1..........1..
-..1..........1..
-.101........101.
-.000........000.
-.....1....1.....
-.....1....1.....
-....101..101....
-....000..000....
-................
-..1..........1..
-..1...1..1...1..
-.101..1..1..101.
-.000.101101.000.
-.....000000.....
-................`],
-  [warningtile, bitmap`
-3333333333333333
-3333333333333333
-3333333333333333
-3333333663333333
-3333333663333333
-3333333663333333
-3333333663333333
-3333333663333333
-3333333663333333
-3333333333333333
-3333333333333333
-3333333663333333
-3333333663333333
-3333333333333333
-3333333333333333
-3333333333333333`],
-  [advancetile, bitmap`
-................
-................
-................
-................
-................
-................
-................
-................
-................
-................
-................
-................
-................
-................
-................
-................`] // use for an open world feel in lvls, advancing to a lvl that is not in rotation, but expands upon the prev then goes into rotation
-  
+..000000000000..
+.0000CC00CC0000.`]
+}
+}
+legend.set(player, frames[player].DOWN)
 
-)
+setLegend(...legend.values())
 
-setSolids([wall, wall2, wall3, crate, housewall, housewallleft,  housewallright, roofbody, player, boss])
+// Define a function to set the player sprite based on the direction
+function setPlayerSprite(direction) {
+  legend.set(player, frames[player][direction]);
+}
+
+
+setSolids([wall, wall2, wall3, crate, housewall, housewallleft, housewallright, roofbody, player, boss])
 
 
 
 let level = 1 // starting level (index 1 in this case)
 const levels = [ // easy lvls
   // shop (interior) lvls
-    map`
+  map`
 ..........
 ..........
 ..........
@@ -600,7 +696,7 @@ ffffffffff
 ffpfdfffff`,
 
   //scroller (advancetile having) lvls 
-  
+
   // enemy lvls
   map`
 xwvdvxw
@@ -608,7 +704,7 @@ xw.m.xw
 xw...xw
 xw.m.xw
 xw...xw
-xwy..xw
+xw...xw
 xw...pw`, //goblin corridor
   map`
 wvxwvxwvx
@@ -641,23 +737,8 @@ vffgfffgfgffgfw
 vtffffffffffffw
 vxwvxwvxwvxwvpw`, //ghost graveyard
   map`
-wpxwvxwvx
-w.x.....x
-w.x.vtwmx
-w.x.v.w.x
-w...v...x
-wvxwvxwdx`,
-  map`
-vxwvdvwwv
-v...b...v
-v.......v
-v.......v
-v.......v
-v.......v
-vxwvpvxwv`,
-  map`
 wvxwvdvxwv
-w........v
+w....y...v
 w.$.$$$$$v
 w.$m....$v
 w...$$.$$v
@@ -667,10 +748,10 @@ wvxwvpvxwv`,
   map`
 wvxwvdvxwv
 w........v
-w........v
-w........v
+w.y......v
+w....y...v
 wy.......v
-w........v
+w......y.v
 w........v
 wvxwvpvxwv`,
 
@@ -681,47 +762,54 @@ setMap(levels[level]); // only for start
 
 function putGrassUnderRoofs() { // and under the player 
   let grassUnderRoof = getAll(rooftip);
-grassUnderRoof.forEach(rooftip => {
-  addSprite(rooftip.x, rooftip.y,grass);
-})
+  grassUnderRoof.forEach(rooftip => {
+    addSprite(rooftip.x, rooftip.y, grass);
+  })
 
-grassUnderRoof = getAll(roofleft)
-grassUnderRoof.forEach(roofleft => {
-  addSprite(roofleft.x, roofleft.y,grass);
-})
+  grassUnderRoof = getAll(roofleft)
+  grassUnderRoof.forEach(roofleft => {
+    addSprite(roofleft.x, roofleft.y, grass);
+  })
   grassUnderRoof = getAll(roofright)
-grassUnderRoof.forEach(roofright => {
-  addSprite(roofright.x, roofright.y,grass);
-})
+  grassUnderRoof.forEach(roofright => {
+    addSprite(roofright.x, roofright.y, grass);
+  })
   grassUnderRoof = getAll(roofoverhangleft)
-grassUnderRoof.forEach(roofoverhangleft => {
-  addSprite(roofoverhangleft.x, roofoverhangleft.y,grass);
-})
-    grassUnderRoof = getAll(roofoverhangright)
-grassUnderRoof.forEach(roofoverhangright => {
-  addSprite(roofoverhangright.x, roofoverhangright.y,grass);
-})
+  grassUnderRoof.forEach(roofoverhangleft => {
+    addSprite(roofoverhangleft.x, roofoverhangleft.y, grass);
+  })
+  grassUnderRoof = getAll(roofoverhangright)
+  grassUnderRoof.forEach(roofoverhangright => {
+    addSprite(roofoverhangright.x, roofoverhangright.y, grass);
+  })
 
-  addSprite(2,7,grass);
-  
+  addSprite(2, 7, grass);
 
 
-} 
+
+}
 putGrassUnderRoofs() // and under the player
 
+function levelSpecificDeco() {
+    if (level === 5) { // index 5 is gy lvl
+    putGrassGraveyardLvl();
+    }
+    addSprite(5,4,candle)
+
+}
 function putGrassGraveyardLvl() {
-   let lvlGhosts = getAll(ghost)
+  let lvlGhosts = getAll(ghost)
   lvlGhosts.forEach(ghost => {
     console.log("ghostForeach");
     addSprite(ghost.x, ghost.y, grass);
-  }) 
-  
+  })
+
   let tombstones = getAll(hurtplayer);
-    tombstones.forEach(hurtplayer => {
+  tombstones.forEach(hurtplayer => {
     addSprite(hurtplayer.x, hurtplayer.y, grass);
   })
-  
-  
+
+
 }
 
 
@@ -737,14 +825,16 @@ setPushables({
 
 let gameOver = false;
 
-let plr = getFirst(player);
+let currentPlayerType = player;
+let plr = getFirst(currentPlayerType);
+let playerDir = "DOWN";
 let score = 0; // tracking when to change difficulty
 let mapJustChanged = true;
 
 // mob difficulties (changable through game perhaps)
 let mobMoveInterval = setInterval(mobMoveAll, 1000);
 let ghostMoveInterval = setInterval(ghostMoveAll, 1200);
-let spiderMoveInterval = setInterval(spiderMoveAll, 1000);
+let spiderMoveInterval = setInterval(spiderMoveAll, 450);
 
 const enemyCollisionBlocksandMobs = [wall, wall2, wall3, mob, ghost, spider, door, spikes, spawn];
 
@@ -791,9 +881,9 @@ function resetMap() {
   level = Math.floor(Math.random() * levels.length); // random level above safe ones 
 
   // idea: random range increases as score increases - maybe add score to lvl length
-  
-  if (level === 0 || level === 1 || prev == level) {// add more lvlvs as scrollers added 
-  resetMap() //recursively call until its a dungeon lvl
+
+  if (level === 0 || level === 1 || prev == level) { // add more lvlvs as scrollers added 
+    resetMap() //recursively call until its a dungeon lvl
   }
   console.log("Level: " + level);
 
@@ -801,17 +891,15 @@ function resetMap() {
   score++;
   setMap(levels[level]);
   createHeartsArray(health);
-  plr = getFirst(player);
-  
-  addSprite(plr.x,plr.y,spawn); //spawn pad under player
-  if (level === 5) { // index 5 is gy lvl
-  putGrassGraveyardLvl(); 
+  plr = getFirst(currentPlayerType);
 
-}
+  addSprite(plr.x, plr.y, spawn); //spawn pad under player
+  levelSpecificDeco();
 }
 
 var tempXToPreventSpawnSafetyAbuse;
 var tempYToPreventSpawnSafetyAbuse;
+
 function preventSpawnAbuse() {
   tempXToPreventSpawnSafetyAbuse = plr.x
   tempYToPreventSpawnSafetyAbuse = plr.y
@@ -820,49 +908,59 @@ function preventSpawnAbuse() {
 onInput("s", () => {
   if (!gameOver) {
     preventSpawnAbuse();
-    // plr = addSprite(orientation down)
-    plr.y += 1; // Move the player down
+    playerDir = "DOWN";
     mapJustChanged = false;
+    plr.y += 1; // Move the player down
   }
 });
 onInput("w", () => {
   if (!gameOver) {
     preventSpawnAbuse();
-    plr.y -= 1; // Move the player up
+    playerDir = "UP";
     mapJustChanged = false;
+
+    plr.y -= 1; // Move the player up
   }
 });
 onInput("a", () => {
   if (!gameOver) {
     preventSpawnAbuse();
-    plr.x -= 1; // Move the player left
+    playerDir = "LEFT";
     mapJustChanged = false;
+
+    plr.x -= 1; // Move the player left
   }
 });
 onInput("d", () => {
   if (!gameOver) {
     preventSpawnAbuse();
-    plr.x += 1; // Move the player right
+
+    playerDir = "RIGHT";
+
     mapJustChanged = false;
+
+    plr.x += 1; // Move the player right
   }
 });
 onInput("j", () => { // RESET game if game over is on
   if (gameOver) {
-  level = 1
-  setMap(levels[level]);
-    
-  clearText();
-    
-  health = maxhealth;
-  heartsArray = [];
-  
-  putGrassUnderRoofs();
-    
-  plr = getFirst(player);
-  plr.x = 2;
-  plr.y = 7;
+    level = 1
+    setMap(levels[level]);
 
-  gameOver = false;
+
+    clearText();
+
+    health = maxhealth;
+    heartsArray = [];
+
+    putGrassUnderRoofs();
+
+    plr = getFirst(currentPlayerType);
+    plr.x = 2;
+    plr.y = 7;
+    playerDir = "DOWN";
+
+    gameOver = false;
   }
 });
 
@@ -877,15 +975,15 @@ afterInput(() => {
   }
   if (getAll(housedoor).length > 0 && plr.x === houseDoor.x && plr.y === houseDoor.y) {
     setMap(levels[0]);
-    plr = getFirst(player);
+    plr = getFirst(currentPlayerType);
   }
-  
+
   let mobSprites = getAll(mob); // collision via player movement check
   let spikeSprites = getAll(spikes);
   let ghostSprites = getAll(ghost);
   let spiderSprites = getAll(spider);
 
-  if (plr.x === getFirst(spawn).x && plr.y === getFirst(spawn).y && mapJustChanged === false ) {
+  if (plr.x === getFirst(spawn).x && plr.y === getFirst(spawn).y && mapJustChanged === false) {
     plr.x = tempXToPreventSpawnSafetyAbuse;
     plr.y = tempYToPreventSpawnSafetyAbuse;
   }
@@ -927,7 +1025,8 @@ function mobMoveAll() {
     let direction = options[randomIndex];
 
     // Save the current position of the mob sprite
-    let newX = mobSprite.x;1
+    let newX = mobSprite.x;
+    1
     let newY = mobSprite.y;
 
     // Calculate the next position based on the random direction
@@ -943,7 +1042,7 @@ function mobMoveAll() {
 
     // Check for wall collision and player exclusion
     const spritesAtNextPos = getTile(newX, newY);
-    const isWallCollision = spritesAtNextPos.some(sprite => enemyCollisionBlocksandMobs.includes(sprite.type));
+    const isWallCollision = spritesAtNextPos.some(sprite => [wall, wall2, wall3, spikes, mob, spider, ghost, heart, spawn, door].includes(sprite.type));
     const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
 
     // Move the mob sprite only if there is no wall collision and not colliding with the player
@@ -968,7 +1067,7 @@ function ghostMoveAll() {
   let ghostSprites = getAll(ghost);
 
   // Iterate over each mob sprite
-    ghostSprites.forEach(ghostSprite => {
+  ghostSprites.forEach(ghostSprite => {
     let randomIndex = Math.floor(Math.random() * options.length);
     let direction = options[randomIndex];
 
@@ -979,7 +1078,7 @@ function ghostMoveAll() {
     let oldX = ghostSprite.x;
     let oldY = ghostSprite.y;
 
-      
+
     // Calculate the next position based on the random direction
     if (direction === "up") {
       newY -= 1;
@@ -1018,40 +1117,28 @@ function spiderMoveAll() {
   let spiderSprites = getAll(spider);
 
   spiderSprites.forEach(spiderSprite => {
-    let newX = spiderSprite.x;
-    let newY = spiderSprite.y;
-    let moveRight = true;
-    spiderSprite.x = newX;
-    
-    const spritesAtNextPos = getTile(newX, newY);
-    const isWallCollision = spritesAtNextPos.some(sprite => [wall,wall2,wall3].includes(sprite.type));
+    if (!spiderSprite.moveRight) {
+      spiderSprite.x--; // Move left
+    } else {
+      spiderSprite.x++; // Move right
+    }
+
+    const spritesAtNextPos = getTile(spiderSprite.x, spiderSprite.y);
+    const isWallCollision = spritesAtNextPos.some(sprite => [wall, wall2, wall3, heart, mob, ghost, spikes].includes(sprite.type));
     const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
 
-    if (!isWallCollision && !isPlayerCollision) {
-      // Determine movement direction based on previous state
-      if (moveRight === true) {
-        console.log("moving spiders")
-        newX++;
+    if (isWallCollision) {
+      spiderSprite.moveRight = !spiderSprite.moveRight; // Change direction if wall collision
+      if (spiderSprite.moveRight) {
+        spiderSprite.x++; // Move right after changing direction
       } else {
-        newX--;
+        spiderSprite.x--; // Move left after changing direction
       }
-    } else {
-      // Handle collisions with walls and players
-      if (isWallCollision) {
-        moveRight = !moveRight; // Change direction if wall collision
-      }
-      if (isPlayerCollision) {
-        if (moveRight) {
-            newX++;
-        } else {
-            newX--;
-        }
-        playerCollided();
-      }
+    } else if (isPlayerCollision) {
+      playerCollided();
     }
   });
 }
-
 
 function playerCollided() { //collide with normal mob
   health--;
