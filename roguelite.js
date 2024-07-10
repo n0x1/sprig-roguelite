@@ -50,6 +50,8 @@ const bossheart = "&"
 const warningtile = "!"
 const advancetile = "A"
 const candle = "]"
+const sword = "S"
+
 
 const legendKeys = [
   rooftip,
@@ -60,15 +62,17 @@ const legendKeys = [
   player,
   heart,
   bossheart,
+  door,
   ghost,
+  candle,
+  wall,
+  wall2,
+  wall3,
+  sword,
   boss,
   mob,
   spider,
   hurtplayer,
-  wall,
-  wall2,
-  wall3,
-  door,
   spawn,
   grass,
   housewall,
@@ -80,7 +84,6 @@ const legendKeys = [
   spikes,
   warningtile,
   advancetile,
-  candle
 ]
 
 
@@ -604,7 +607,7 @@ const frames = {
 .....000000000..
 .....000000000..
 .....00000000000
-.....CC0CC.0000.`],
+....CC00CC.0000.`],
     "RIGHT": [player, bitmap`
 ................
 ................
@@ -621,7 +624,7 @@ const frames = {
 ..000000000.....
 ..000000000.....
 00000000000.....
-.0000.CC0CC.....`],
+.0000.CC00CC....`],
   "UP": [player, bitmap`
 ................
 ................
@@ -656,9 +659,81 @@ const frames = {
 ..000000000000..
 ..000000000000..
 .0000CC00CC0000.`]
-}
+  },
+  [sword]: {
+    "RIGHT": [sword, bitmap`
+..111...........
+..1111..........
+....1111........
+......1112......
+.......112......
+........12......
+........112.....
+........112.....
+........11......
+........12......
+........12......
+.......12.......
+.......12.......
+......112.......
+.....1222.......
+....1212........`],
+    "LEFT": [sword, bitmap`
+........2121....
+.......2221.....
+.......211......
+.......21.......
+.......21.......
+......21........
+......21........
+......11........
+.....211........
+.....211........
+......21........
+......211.......
+......2111......
+........1111....
+..........1111..
+...........111..`],
+    "UP": [sword, bitmap`
+................
+................
+................
+................
+................
+................
+......22........
+...22211122.....
+...111111112222.
+..111......11122
+..11.........121
+.11...........12
+111............1
+11..............
+11..............
+................`],
+    "DOWN": [sword, bitmap`
+................
+..............11
+..............11
+1............111
+21...........11.
+121.........11..
+22111......111..
+.222211111111...
+.....22111222...
+........22......
+................
+................
+................
+................
+................
+................`]
+  }
+
 }
 legend.set(player, frames[player].DOWN)
+legend.set(sword, frames[sword].DOWN)
 
 setLegend(...legend.values())
 
@@ -702,7 +777,7 @@ ffpfdfffff`,
 xwvdvxw
 xw.m.xw
 xw...xw
-xw.m.xw
+xw...xw
 xw...xw
 xw...xw
 xw...pw`, //goblin corridor
@@ -747,7 +822,7 @@ w.$.$.$xwv
 wvxwvpvxwv`,
   map`
 wvxwvdvxwv
-w........v
+w.......yv
 w.y......v
 w....y...v
 wy.......v
@@ -758,7 +833,7 @@ wvxwvpvxwv`,
 
 ]
 
-setMap(levels[level]); // only for start
+setMap(levels[level]); // only for init
 
 function putGrassUnderRoofs() { // and under the player 
   let grassUnderRoof = getAll(rooftip);
@@ -790,13 +865,6 @@ function putGrassUnderRoofs() { // and under the player
 }
 putGrassUnderRoofs() // and under the player
 
-function levelSpecificDeco() {
-    if (level === 5) { // index 5 is gy lvl
-    putGrassGraveyardLvl();
-    }
-    addSprite(5,4,candle)
-
-}
 function putGrassGraveyardLvl() {
   let lvlGhosts = getAll(ghost)
   lvlGhosts.forEach(ghost => {
@@ -812,11 +880,23 @@ function putGrassGraveyardLvl() {
 
 }
 
+function levelSpecificDeco() {
+    if (level === 5) { // index 5 is gy lvl
+    putGrassGraveyardLvl();
+    }
+    if (level === 4 || level === 7) {
+    addSprite(width()-1,4,candle);
+    addSprite(4,0,candle);
+    addSprite(0,3,candle);
+    }
+}
+
 
 //sounds
 const hit = tune`
 500: C4/500 + B4/500 + C5/500,
 15500`
+
 
 setPushables({
   [player]: [crate]
@@ -832,9 +912,7 @@ let score = 0; // tracking when to change difficulty
 let mapJustChanged = true;
 
 // mob difficulties (changable through game perhaps)
-let mobMoveInterval = setInterval(mobMoveAll, 1000);
-let ghostMoveInterval = setInterval(ghostMoveAll, 1200);
-let spiderMoveInterval = setInterval(spiderMoveAll, 450);
+
 
 const enemyCollisionBlocksandMobs = [wall, wall2, wall3, mob, ghost, spider, door, spikes, spawn];
 
@@ -891,7 +969,7 @@ function resetMap() {
   score++;
   setMap(levels[level]);
   createHeartsArray(health);
-  plr = getFirst(currentPlayerType);
+  plr = getFirst(player);
 
   addSprite(plr.x, plr.y, spawn); //spawn pad under player
   levelSpecificDeco();
@@ -942,6 +1020,27 @@ onInput("d", () => {
     plr.x += 1; // Move the player right
   }
 });
+let cooldown = false;
+onInput("i", () => {
+  if (!gameOver && !cooldown) {
+    if (playerDir === "RIGHT") {
+        legend.set(sword, frames[sword].RIGHT)
+        addSprite(plr.x+1, plr.y, sword)
+    }
+    if (playerDir === "LEFT") {
+        legend.set(sword, frames[sword].LEFT)
+        addSprite(plr.x-1, plr.y, sword)
+    }
+    if (playerDir === "UP") {
+    legend.set(sword, frames[sword].UP)
+    addSprite(plr.x, plr.y-1, sword)
+    }
+        if (playerDir === "DOWN") {
+    legend.set(sword, frames[sword].DOWN)
+    addSprite(plr.x, plr.y+1, sword)
+    }
+  }
+});
 onInput("j", () => { // RESET game if game over is on
   if (gameOver) {
     level = 1
@@ -970,6 +1069,9 @@ afterInput(() => {
   const houseDoor = getFirst(housedoor);
   const bossSprite = getFirst(boss);
 
+  legend.set(player, frames[player][playerDir]);
+  setLegend(...legend.values());
+  
   if (getAll(door).length > 0 && plr.x === doorSprite.x && plr.y === doorSprite.y) {
     resetMap(); // Load the next level (mob levels)
   }
@@ -1012,6 +1114,26 @@ afterInput(() => {
   // if level is boss level, load hp bar text
 });
 
+let mobCounter = 0;
+let ghostCounter = 0; 
+let spiderCounter = 0; 
+
+function moveEnemies() {
+  mobCounter++;
+  ghostCounter++;
+  spiderCounter++;
+
+  if (mobCounter % 3 === 0) {
+    mobMoveAll()
+  }
+  if (ghostCounter % 4 === 0) {
+    ghostMoveAll()
+  }
+  if (spiderCounter % 2 === 0) {
+    spiderMoveAll()
+  }
+}
+const moveEnemiesInterval = setInterval(moveEnemies, 250);
 
 function mobMoveAll() {
   const options = ["up", "down", "left", "right"];
