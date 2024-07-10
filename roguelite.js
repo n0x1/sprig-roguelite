@@ -1,7 +1,7 @@
 /*
 @title: 
 @author: noxi
-@tags: [advanced, roguelite]
+@tags: [dungeon]
 @addedOn: 2024-07-07
 */
 
@@ -27,7 +27,9 @@ const housewallleft = "e"
 const housewallright = "i"
 const housedoor = "n"
 const spikes = "$"
+const crate = "Z"
 const ghost = "t"
+const spider = "y"
 const bossheart = "&"
 const warningtile = "!"
 const advancetile = "A"
@@ -277,6 +279,23 @@ setLegend(
 ......C.C.......
 ................
 ................`],
+  [spider, bitmap`
+................
+................
+................
+..0...0000...0..
+.0.0000000000.0.
+....00000000....
+...0000000000...
+..000000000000..
+.0..00000000..0.
+....00000000....
+...0000000000...
+..00.090090.00..
+..0..000000..0..
+.....0....0.....
+....0......0....
+................`],
   [hurtplayer, bitmap`
 ................
 ................
@@ -481,6 +500,23 @@ CCC0990666660CCC
 CCC0990666660CCC
 CCC0990666660CCC
 CCC0990666660CCC`],
+  [crate, bitmap`
+0000000000000000
+01CCCCCCCCCCCC10
+0CCCCCCCCCCCCCC0
+0CC111CCCCCCCCC0
+0CCCCC1111CCCCC0
+0CCCCCCCCC111CC0
+0CC11CCCCCCCCCC0
+0CCCC111CCCCCCC0
+0CCCCCCC111CCCC0
+0CCCCCCCCCC11CC0
+0CC11CCCCCCCCCC0
+0CCCC111CCCCCCC0
+0CCCCCCC11CCCCC0
+0CCCCCCCCC11CCC0
+01CCCCCCCCCCCC10
+0000000000000000`],
   [spikes, bitmap`
 ................
 ..1..........1..
@@ -536,7 +572,7 @@ CCC0990666660CCC`],
 
 )
 
-setSolids([wall, wall2, wall3, housewall, housewallleft,  housewallright, roofbody, player, boss])
+setSolids([wall, wall2, wall3, crate, housewall, housewallleft,  housewallright, roofbody, player, boss])
 
 
 
@@ -554,14 +590,14 @@ const levels = [ // easy lvls
 ........p.`,
   //start lvl
   map`
-ffffffdfff
+ffffff.fff
 ffffffffff
 ffafffffff
 jlqzkfffff
 feciffffff
 feniffffff
 ffffffffff
-ffprffffff`,
+ffpfdfffff`,
 
   //scroller (advancetile having) lvls 
   
@@ -572,8 +608,8 @@ xw.m.xw
 xw...xw
 xw.m.xw
 xw...xw
-xw...xw
-xw...rw`, //goblin corridor
+xwy..xw
+xw...pw`, //goblin corridor
   map`
 wvxwvxwvx
 w.......x
@@ -588,9 +624,9 @@ v..t.t...x
 v.v....v.x
 v..xwvxt.x
 v........x
-v...xw...x
-v.....v..x
-v..vp....x`,
+v..Zxw...x
+v..Z..v..x
+v..vp.Z..x`,
   map`
 vxwvxwvxwvxwvxw
 vfwdxfffffffffw
@@ -603,10 +639,10 @@ vfffffffftffffw
 vfffftftffffffw
 vffgfffgfgffgfw
 vtffffffffffffw
-vxwvxwvxwvxwvrw`, //ghost graveyard
+vxwvxwvxwvxwvpw`, //ghost graveyard
   map`
-wvxwvxwvx
-wpx.....x
+wpxwvxwvx
+w.x.....x
 w.x.vtwmx
 w.x.v.w.x
 w...v...x
@@ -619,6 +655,24 @@ v.......v
 v.......v
 v.......v
 vxwvpvxwv`,
+  map`
+wvxwvdvxwv
+w........v
+w.$.$$$$$v
+w.$m....$v
+w...$$.$$v
+w.$....xwv
+w.$.$.$xwv
+wvxwvpvxwv`,
+  map`
+wvxwvdvxwv
+w........v
+w........v
+w........v
+wy.......v
+w........v
+w........v
+wvxwvpvxwv`,
 
 
 ]
@@ -677,16 +731,23 @@ const hit = tune`
 15500`
 
 setPushables({
-  [player]: []
+  [player]: [crate]
 })
+
 
 let gameOver = false;
 
 let plr = getFirst(player);
 let score = 0; // tracking when to change difficulty
+let mapJustChanged = true;
 
-var mobMoveInterval = setInterval(mobMoveAll, 1000);
-var ghostMoveInterval = setInterval(ghostMoveAll, 1200);
+// mob difficulties (changable through game perhaps)
+let mobMoveInterval = setInterval(mobMoveAll, 1000);
+let ghostMoveInterval = setInterval(ghostMoveAll, 1200);
+let spiderMoveInterval = setInterval(spiderMoveAll, 1000);
+
+const enemyCollisionBlocksandMobs = [wall, wall2, wall3, mob, ghost, spider, door, spikes, spawn];
+
 
 const maxhealth = 3;
 var health = maxhealth;
@@ -731,44 +792,58 @@ function resetMap() {
 
   // idea: random range increases as score increases - maybe add score to lvl length
   
-  if (level === 0 || level === 1 || prev == level) // add more lvlvs as scrollers added 
+  if (level === 0 || level === 1 || prev == level) {// add more lvlvs as scrollers added 
   resetMap() //recursively call until its a dungeon lvl
+  }
   console.log("Level: " + level);
+
+  mapJustChanged = true;
   score++;
   setMap(levels[level]);
   createHeartsArray(health);
-  addSprite(plr.x,plr.y,spawn);
   plr = getFirst(player);
+  
+  addSprite(plr.x,plr.y,spawn); //spawn pad under player
   if (level === 5) { // index 5 is gy lvl
   putGrassGraveyardLvl(); 
+
 }
 }
 
-/* var tempXToPreventSpawnSafetyAbuse;
-var tempYToPreventSpawnSafetyAbuse; */w
+var tempXToPreventSpawnSafetyAbuse;
+var tempYToPreventSpawnSafetyAbuse;
+function preventSpawnAbuse() {
+  tempXToPreventSpawnSafetyAbuse = plr.x
+  tempYToPreventSpawnSafetyAbuse = plr.y
+}
 
 onInput("s", () => {
   if (!gameOver) {
-
+    preventSpawnAbuse();
     // plr = addSprite(orientation down)
     plr.y += 1; // Move the player down
+    mapJustChanged = false;
   }
 });
 onInput("w", () => {
   if (!gameOver) {
-    
+    preventSpawnAbuse();
     plr.y -= 1; // Move the player up
+    mapJustChanged = false;
   }
 });
 onInput("a", () => {
   if (!gameOver) {
-    
+    preventSpawnAbuse();
     plr.x -= 1; // Move the player left
+    mapJustChanged = false;
   }
 });
 onInput("d", () => {
   if (!gameOver) {
+    preventSpawnAbuse();
     plr.x += 1; // Move the player right
+    mapJustChanged = false;
   }
 });
 onInput("j", () => { // RESET game if game over is on
@@ -793,12 +868,12 @@ onInput("j", () => { // RESET game if game over is on
 
 
 afterInput(() => {
-  const doorSprite = getFirst(door)
-  const houseDoor = getFirst(housedoor)
-  const bossSprite = getFirst(boss)
+  const doorSprite = getFirst(door);
+  const houseDoor = getFirst(housedoor);
+  const bossSprite = getFirst(boss);
 
   if (getAll(door).length > 0 && plr.x === doorSprite.x && plr.y === doorSprite.y) {
-    resetMap() // Load the next level (mob lvls)
+    resetMap(); // Load the next level (mob levels)
   }
   if (getAll(housedoor).length > 0 && plr.x === houseDoor.x && plr.y === houseDoor.y) {
     setMap(levels[0]);
@@ -808,39 +883,36 @@ afterInput(() => {
   let mobSprites = getAll(mob); // collision via player movement check
   let spikeSprites = getAll(spikes);
   let ghostSprites = getAll(ghost);
+  let spiderSprites = getAll(spider);
 
-  
-/* if (plr.x === getFirst(spawn).x && plr.y === getFirst(spawn).y && mapJustChanged === false) {
+  if (plr.x === getFirst(spawn).x && plr.y === getFirst(spawn).y && mapJustChanged === false ) {
     plr.x = tempXToPreventSpawnSafetyAbuse;
     plr.y = tempYToPreventSpawnSafetyAbuse;
-} */
+  }
 
-  
   for (let i = 0; i < mobSprites.length; i++) {
-  if (plr.x === mobSprites[i].x && plr.y === mobSprites[i].y) {
+    if (plr.x === mobSprites[i].x && plr.y === mobSprites[i].y) {
       playerCollided();
     }
   }
   for (let i = 0; i < ghostSprites.length; i++) {
-  if (plr.x === ghostSprites[i].x && plr.y === ghostSprites[i].y) {
+    if (plr.x === ghostSprites[i].x && plr.y === ghostSprites[i].y) {
+      playerCollided();
+    }
+  }
+  for (let i = 0; i < spiderSprites.length; i++) {
+    if (plr.x === spiderSprites[i].x && plr.y === spiderSprites[i].y) {
       playerCollided();
     }
   }
   for (let i = 0; i < spikeSprites.length; i++) {
     if (plr.x === spikeSprites[i].x && plr.y === spikeSprites[i].y) {
       stillDamage();
+    }
   }
-  }
-  
-  // if level is boss lvl, load hp bar text
 
-  // if (playerSprite.x === bossSprite.x && playerSprite.y === bossSprite.y) {
-  // Deal dmg?
-  // reswdetMap(levels[level]); // Check if player hit the boss
-  // }
-
-})
-
+  // if level is boss level, load hp bar text
+});
 
 
 function mobMoveAll() {
@@ -871,7 +943,7 @@ function mobMoveAll() {
 
     // Check for wall collision and player exclusion
     const spritesAtNextPos = getTile(newX, newY);
-    const isWallCollision = spritesAtNextPos.some(sprite => [wall, wall2, mob, ghost, wall3, door, spikes, spawn].includes(sprite.type));
+    const isWallCollision = spritesAtNextPos.some(sprite => enemyCollisionBlocksandMobs.includes(sprite.type));
     const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
 
     // Move the mob sprite only if there is no wall collision and not colliding with the player
@@ -921,7 +993,7 @@ function ghostMoveAll() {
 
     // Check for wall collision and player exclusion
     const spritesAtNextPos = getTile(newX, newY);
-    const isWallCollision = spritesAtNextPos.some(sprite => [mob, heart, spawn, door].includes(sprite.type));
+    const isWallCollision = spritesAtNextPos.some(sprite => [mob, spider, ghost, heart, spawn, door].includes(sprite.type)); // GHOSTS r special (they can go thru walls)
     const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
 
     // Move the mob sprite only if there is no wall collision and not colliding with the player
@@ -942,7 +1014,43 @@ function ghostMoveAll() {
 
 }
 
+function spiderMoveAll() {
+  let spiderSprites = getAll(spider);
 
+  spiderSprites.forEach(spiderSprite => {
+    let newX = spiderSprite.x;
+    let newY = spiderSprite.y;
+    let moveRight = true;
+    spiderSprite.x = newX;
+    
+    const spritesAtNextPos = getTile(newX, newY);
+    const isWallCollision = spritesAtNextPos.some(sprite => [wall,wall2,wall3].includes(sprite.type));
+    const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
+
+    if (!isWallCollision && !isPlayerCollision) {
+      // Determine movement direction based on previous state
+      if (moveRight === true) {
+        console.log("moving spiders")
+        newX++;
+      } else {
+        newX--;
+      }
+    } else {
+      // Handle collisions with walls and players
+      if (isWallCollision) {
+        moveRight = !moveRight; // Change direction if wall collision
+      }
+      if (isPlayerCollision) {
+        if (moveRight) {
+            newX++;
+        } else {
+            newX--;
+        }
+        playerCollided();
+      }
+    }
+  });
+}
 
 
 function playerCollided() { //collide with normal mob
