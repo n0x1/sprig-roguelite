@@ -59,6 +59,7 @@ const fireball = "C"
 const fireshooter = "D"
 const chest = "E"
 const merchant = "F"
+const bridge = "G"
 
 
 const legendKeys = [
@@ -565,6 +566,23 @@ legend.set(chest, [chest, bitmap`
 0CCCCCCCCCCCCCC0
 01CCCCCCCCCCCC10
 0000000000000000`])
+legend.set(bridge, [bridge, bitmap`
+CC999CC999CC99CC
+C1999CC999CC991C
+CC999CC999C999CC
+CC999CC99CC99CCC
+CC999CC99CC99CCC
+CC999CC99CC99CCC
+CC999CC99CC99CCC
+CC999CC99C999CCC
+C9999CC9CC999CCC
+C9999C99CC999CCC
+C9999C99CC999CCC
+CC999C99CC999CCC
+CC999C99CC999CCC
+CC999C99CC999CCC
+C1999C99CC999C1C
+CC999C99C9999CCC`])
 legend.set(water, [water, bitmap`
 7777777777777777
 7777777777777777
@@ -668,22 +686,22 @@ legend.set(warningtile, [warningtile, bitmap`
 3333333333333333
 3333333333333333`])
 legend.set(advancetile, [advancetile, bitmap`
-8888888888888888
-8888888888888888
-8888888888888888
-8888880888888888
-8888800888888888
-8888800888888888
-8888088088888888
-8888088808888888
-8888088880888888
-8880888888088888
-8880888888808888
-8800000000000888
-8808888888888088
-8088888888888808
-8088888888888808
-0888888888888880`]) // use for an open world feel in lvls, advancing to a lvl that is not in rotation, but expands upon the prev then goes into rotation
+0000000000000000
+0LLLLLLLLLLLLLL0
+0L000000000000L0
+0L0LLLLLLLLLL0L0
+0L0L00000000L0L0
+0L0L0LLLLLL0L0L0
+0L0L0L033300L0L0
+0L0L0L300030L0L0
+0L0L0L000300L0L0
+0L0L0L003000L0L0
+0L0L0L000000L0L0
+0L0L00003000L0L0
+0L0LLLLLLLLLL0L0
+0L000000000000L0
+0LLLLLLLLLLLLLL0
+0000000000000000`]) // use for an open world feel in lvls, advancing to a lvl that is not in rotation, but expands upon the prev then goes into rotation
 
 
 const frames = {
@@ -841,7 +859,7 @@ function setPlayerSprite(direction) {
 }
 
 
-setSolids([wall, wall2, wall3, crate, housewall, housewallleft, housewallright, roofbody, player, merchant, boss])
+setSolids([wall, wall2, wall3, crate, bridge, housewall, housewallleft, housewallright, roofbody, player, merchant, boss])
 
 
 
@@ -895,14 +913,18 @@ v..Zxw...x
 v..Z..v..x
 v..vp....x`,
   map`
-wvdDxwvx
-w....y.x
-w.$.$$.x
-w.y....x
-w...$$.x
-w.$....x
-w.$.$.$x
-wvxwvpvx`, //ghost graveyard
+vxwvxwvxwvxwvxw
+vfwdxfffffffffw
+vfftffftfftfffw
+vfffffffffffffw
+vfggfgtffgffffw
+vfftffffffftffw
+vfffgfgtffffffw
+vfffffffftffffw
+vfffftftffffffw
+vffgfffgfgffgfw
+vtffffffffffffw
+vxwvxwvxwvxwvpw`, //ghost graveyard
   map`
 wvdDxwvx
 w....y.x
@@ -911,7 +933,7 @@ w.y....x
 w...$$.x
 w.$....x
 w.$.$.$x
-wvxwvpvx`,
+wvxwvpvx`, //spider fire
   map`
 wvxwvdvxwv
 w.......yv
@@ -922,16 +944,16 @@ w......y.v
 w..y.....v
 wvxwvpvxwv`,
   map`
-wvdvBBv
-BB..BBv
-BB..ABv
-BB..BBv
+wvdvGBv
+BG..GBv
+BG..ABv
+BG..GBv
 wvpvxwv`, // water chamber
 
   //secret or scroller lvls 
   map`
 BBBBdBBBB
-BB.....BB
+BB.Z.Z.BB
 BB.....BB
 BB.....BB
 BB.....BB
@@ -939,6 +961,10 @@ BB..!..BB
 BB.....BB
 BB..p..BB`, //water boss
 ]
+
+/* const restrictedRandomEntryLvls = [
+  0, 1, 9
+] */
 
 setMap(levels[level]); // only for init
 
@@ -987,7 +1013,8 @@ function putGrassGraveyardLvl() {
 
 }
 
-function levelSpecificDeco() {
+function levelSpecificStuff() {
+  //decorative
     if (level === 5) { // index 5 is gy lvl
     putGrassGraveyardLvl();
     }
@@ -1000,6 +1027,8 @@ function levelSpecificDeco() {
       addSprite(width()-2,4,candle);
       addSprite(1,4,candle);
     }
+
+  
 }
 
 
@@ -1007,7 +1036,16 @@ function levelSpecificDeco() {
 const hit = tune`
 500: C4/500 + B4/500 + C5/500,
 15500`
-const cratebreak = tune``
+const cratebreak = tune`
+124.48132780082987: F4-124.48132780082987 + G4-124.48132780082987 + D4-124.48132780082987 + E4-124.48132780082987 + A4-124.48132780082987,
+124.48132780082987: G4-124.48132780082987 + D4-124.48132780082987 + C4-124.48132780082987,
+3734.4398340248963`
+
+const advancelvl = tune`
+118.57707509881423: C4-118.57707509881423,
+118.57707509881423: C4-118.57707509881423,
+118.57707509881423: C4-118.57707509881423,
+3438.735177865613`
 
 const villagebgm = tune`
 238.0952380952381: C4~238.0952380952381,
@@ -1042,12 +1080,20 @@ const villagebgm = tune`
 238.0952380952381: G4~238.0952380952381 + B4^238.0952380952381,
 238.0952380952381,
 238.0952380952381: C4~238.0952380952381 + C5~238.0952380952381`
-
-
-const villagebgmplayback = playTune(villagebgm, Infinity)
-
-
-setPushables({
+const hardbgm tune`
+238.0952380952381: C4-238.0952380952381 + E4-238.0952380952381 + B5/238.0952380952381,
+238.0952380952381: B4-238.0952380952381 + C4-238.0952380952381 + A5/238.0952380952381,
+238.0952380952381: D4-238.0952380952381 + C5-238.0952380952381 + B5/238.0952380952381,
+238.0952380952381: A5/238.0952380952381,
+238.0952380952381: C4-238.0952380952381 + F4-238.0952380952381,
+238.0952380952381: E4-238.0952380952381,
+238.0952380952381: B5/238.0952380952381,
+238.0952380952381: A5/238.0952380952381,
+238.0952380952381: B5/238.0952380952381,
+238.0952380952381: A5/238.0952380952381,
+5238.0952380952385`
+  
+hables({
   [player]: [crate],
     [crate]: [mob],
 })
@@ -1064,7 +1110,7 @@ let mapJustChanged = true;
 // mob difficulties (changable through game perhaps)
 
 
-const enemyCollisionBlocksandMobs = [wall, wall2, wall3, mob, ghost, spider, door, spikes, spawn];
+
 
 
 const maxhealth = 3;
@@ -1102,27 +1148,39 @@ function handleHealthUI(health) {
 }
 
 
-const mobSprites = getAll(mob);
 
-function resetMap() {
-  let prev = level // temporarily store previous level to prevent repeats
-  level = Math.floor(Math.random() * levels.length); // random level above safe ones 
+let chosenLevels = [];
 
+function resetMap(n) {
+  if (arguments.length === 0) 
+    level = Math.floor(Math.random() * levels.length); // random level above safe ones 
+  else {
+    level = n;
+    setMap(levels[level])
+  }
   // idea: random range increases as score increases - maybe add score to lvl length
 
-  if (level === 0 || level === 1 || prev === level) { // add more lvlvs as scrollers added 
+  if (level === 0 || level === 1 || chosenLevels.includes(level)) { // add more lvlvs as scrollers added 
     resetMap() //recursively call until its a dungeon lvl
   }
+
   console.log("Level: " + level);
 
   mapJustChanged = true;
   score++;
+  
   setMap(levels[level]);
+  chosenLevels.push(level);
+  
   createHeartsArray(health);
   plr = getFirst(player);
 
+    console.log(chosenLevels); // debug
+  
+  playTune(advancelvl);
+  
   addSprite(plr.x, plr.y, spawn); //spawn pad under player
-  levelSpecificDeco();
+  levelSpecificStuff();
 }
 
 var tempXToPreventSpawnSafetyAbuse;
@@ -1231,17 +1289,29 @@ afterInput(() => {
     plr = getFirst(currentPlayerType);
   }
 
-  let crates = getAll(crate) // destroy on mob hi
+  let crates = getAll(crate); // destroy on mob hit
+  let waterSprites = getAll(water);
   let mobSprites = getAll(mob); // collision via player movement check
   let spikeSprites = getAll(spikes);
   let ghostSprites = getAll(ghost);
   let spiderSprites = getAll(spider);
   let fireballSprites = getAll(fireball)
 
+  
+//modify pushable sprites
 crates.forEach(crate => {
   mobSprites.forEach(mobSprite => {
     if (crate.x === mobSprite.x && crate.y === mobSprite.y) {
       crate.remove();
+      playTune(cratebreak);
+    }
+  });
+});
+crates.forEach(crate => {
+  waterSprites.forEach(water => {
+    if (crate.x === water.x && crate.y === water.y) {
+      crate.remove();
+      playTune(cratebreak);
     }
   });
 });
@@ -1277,7 +1347,15 @@ crates.forEach(crate => {
   }
   }
 
-  // if level is boss level, load hp bar text
+  //doors for specific lvls
+
+if (level === 8) { // water realm
+  const portal = getFirst(advancetile);
+  if (portal && plr.x === portal.x && plr.y === portal.y) {
+    resetMap(9)
+  }
+}
+  
 });
 
 let mobCounter = 0;
@@ -1320,7 +1398,7 @@ function mobMoveAll() {
     moveLogic();
     // Check for wall collision and player exclusion
     const spritesAtNextPos = getTile(newX, newY);
-    const isWallCollision = spritesAtNextPos.some(sprite => [wall, wall2, wall3, spikes, crate, chest, fireshooter, fireball, mob, spider, ghost, heart, spawn, door].includes(sprite.type));
+    const isWallCollision = spritesAtNextPos.some(sprite => [wall, wall2, wall3, bridge, fireshooter, spikes, crate, chest, fireshooter, fireball, mob, spider, ghost, heart, spawn, door].includes(sprite.type));
     const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
 
     // Move the mob sprite only if there is no wall collision and not colliding with the player
@@ -1422,7 +1500,7 @@ function spiderMoveAll() {
     }
 
     const spritesAtNextPos = getTile(spiderSprite.x, spiderSprite.y);
-    const isWallCollision = spritesAtNextPos.some(sprite => [wall, wall2, wall3, chest, crate, heart, fireball, mob, ghost, spikes].includes(sprite.type));
+    const isWallCollision = spritesAtNextPos.some(sprite => [wall, wall2, wall3, bridge, ddchest, crate, heart, fireball, mob, ghost, spikes].includes(sprite.type));
     const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
 
     if (isWallCollision) {
