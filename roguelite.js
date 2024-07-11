@@ -58,6 +58,7 @@ const water = "B"
 const fireball = "C"
 const fireshooter = "D"
 const chest = "E"
+const merchant = "F"
 
 
 const legendKeys = [
@@ -67,6 +68,7 @@ const legendKeys = [
   roofoverhangleft,
   roofoverhangright,
   player,
+  merchant,
   heart,
   bossheart,
   door,
@@ -631,6 +633,23 @@ legend.set(spikes, [spikes, bitmap`
 .000.101101.000.
 .....000000.....
 ................`])
+legend.set(merchant, [merchant, bitmap`
+...........CC...
+.........CCCCC..
+.....CCCCFCCCC..
+....CCCCCCLL....
+.....0CCCCCCC...
+.....0575CCCCC..
+.....015110.....
+.....001100.....
+......0000......
+......0000......
+.....000011.....
+.....001111.....
+.....001111.....
+.....011111.....
+....11111111....
+...11.1.1.111...`])
 legend.set(warningtile, [warningtile, bitmap`
 3333333333333333
 3333333333333333
@@ -687,7 +706,7 @@ const frames = {
 .....000000000..
 .....00000000000
 ....CC00CC.0000.`],
-    "RIGHT": [player, bitmap`
+  "RIGHT": [player, bitmap`
 ................
 ................
 .........00.....
@@ -822,7 +841,7 @@ function setPlayerSprite(direction) {
 }
 
 
-setSolids([wall, wall2, wall3, crate, housewall, housewallleft, housewallright, roofbody, player, boss])
+setSolids([wall, wall2, wall3, crate, housewall, housewallleft, housewallright, roofbody, player, merchant, boss])
 
 
 
@@ -830,8 +849,8 @@ let level = 1 // starting level (index 1 in this case)
 const levels = [ // easy lvls
   // shop (interior) lvls
   map`
-......D...
 ..........
+........F.
 ..........
 ..........
 ..........
@@ -869,12 +888,12 @@ wvxwvpwdx`,
   map`
 vxwvdvxwvx
 v........x
-v.v.m..v.x
-v..xwvx..x
+vmv.w..v.x
+v..xwZx..x
 v.......mx
 v..Zxw...x
 v..Z..v..x
-v..vp.Z..x`,
+v..vp....x`,
   map`
 wvdDxwvx
 w....y.x
@@ -984,14 +1003,53 @@ function levelSpecificDeco() {
 }
 
 
-//sounds
+//sfx and music
 const hit = tune`
 500: C4/500 + B4/500 + C5/500,
 15500`
+const cratebreak = tune``
+
+const villagebgm = tune`
+238.0952380952381: C4~238.0952380952381,
+238.0952380952381: D4~238.0952380952381,
+238.0952380952381: E4~238.0952380952381 + B4~238.0952380952381,
+238.0952380952381,
+238.0952380952381: C4~238.0952380952381,
+238.0952380952381: D4~238.0952380952381,
+238.0952380952381: E4~238.0952380952381 + B4~238.0952380952381,
+238.0952380952381,
+238.0952380952381: C5~238.0952380952381 + G4^238.0952380952381 + C4^238.0952380952381,
+238.0952380952381: B4~238.0952380952381,
+238.0952380952381,
+238.0952380952381: G4~238.0952380952381,
+238.0952380952381: C5~238.0952380952381 + F4^238.0952380952381,
+238.0952380952381: B4~238.0952380952381,
+238.0952380952381: G4^238.0952380952381,
+238.0952380952381: G4~238.0952380952381,
+238.0952380952381,
+238.0952380952381: C4~238.0952380952381 + G4~238.0952380952381 + F4^238.0952380952381,
+238.0952380952381,
+238.0952380952381: A4~238.0952380952381,
+238.0952380952381: G4~238.0952380952381,
+238.0952380952381: C4^238.0952380952381 + D4~238.0952380952381 + F4~238.0952380952381,
+238.0952380952381,
+238.0952380952381: C4~238.0952380952381 + E4~238.0952380952381 + G4~238.0952380952381,
+238.0952380952381,
+238.0952380952381: F4^238.0952380952381,
+238.0952380952381: C4~238.0952380952381 + G4~238.0952380952381,
+238.0952380952381: F4^238.0952380952381,
+238.0952380952381: C4~238.0952380952381 + G4^238.0952380952381,
+238.0952380952381: G4~238.0952380952381 + B4^238.0952380952381,
+238.0952380952381,
+238.0952380952381: C4~238.0952380952381 + C5~238.0952380952381`
+
+
+const villagebgmplayback = playTune(villagebgm, Infinity)
 
 
 setPushables({
-  [player]: [crate]
+  [player]: [crate],
+    [crate]: [mob],
 })
 
 
@@ -1173,12 +1231,21 @@ afterInput(() => {
     plr = getFirst(currentPlayerType);
   }
 
+  let crates = getAll(crate) // destroy on mob hi
   let mobSprites = getAll(mob); // collision via player movement check
   let spikeSprites = getAll(spikes);
   let ghostSprites = getAll(ghost);
   let spiderSprites = getAll(spider);
   let fireballSprites = getAll(fireball)
 
+crates.forEach(crate => {
+  mobSprites.forEach(mobSprite => {
+    if (crate.x === mobSprite.x && crate.y === mobSprite.y) {
+      crate.remove();
+    }
+  });
+});
+  
   if (plr.x === getFirst(spawn).x && plr.y === getFirst(spawn).y && mapJustChanged === false) {
     plr.x = tempXToPreventSpawnSafetyAbuse;
     plr.y = tempYToPreventSpawnSafetyAbuse;
@@ -1217,23 +1284,10 @@ let mobCounter = 0;
 let ghostCounter = 0; 
 let spiderCounter = 0; 
 
-function moveEnemies() {
-  mobCounter++;
-  ghostCounter++;
-  spiderCounter++;
 
-  if (mobCounter % 3 === 0) {
-    mobMoveAll()
-  }
-  if (ghostCounter % 4 === 0) {
-    ghostMoveAll()
-  }
-  if (spiderCounter % 2 === 0) {
-    spiderMoveAll()
-  }
-  
-}
-var moveEnemiesInterval = setInterval(moveEnemies, 250);
+var moveMobsInterval = setInterval(mobMoveAll, 750);
+var moveGhostInterval = setInterval(ghostMoveAll, 1000);
+var moveSpiderInterval = setInterval (spiderMoveAll, 500);
 
 function mobMoveAll() {
   const options = ["up", "down", "left", "right"];
@@ -1252,6 +1306,7 @@ function mobMoveAll() {
     let newY = mobSprite.y;
 
     // Calculate the next position based on the random direction
+  function moveLogic() {
     if (direction === "up") {
       newY -= 1;
     } else if (direction === "down") {
@@ -1261,7 +1316,8 @@ function mobMoveAll() {
     } else if (direction === "right") {
       newX += 1;
     }
-
+  }
+    moveLogic();
     // Check for wall collision and player exclusion
     const spritesAtNextPos = getTile(newX, newY);
     const isWallCollision = spritesAtNextPos.some(sprite => [wall, wall2, wall3, spikes, crate, chest, fireshooter, fireball, mob, spider, ghost, heart, spawn, door].includes(sprite.type));
@@ -1272,7 +1328,17 @@ function mobMoveAll() {
       mobSprite.x = newX;
       mobSprite.y = newY;
     } else if (isWallCollision) {
-      mobMoveAll()
+      function wallCollisionStuff() {
+      randomIndex = Math.floor(Math.random() * options.length);
+      direction = options[randomIndex];
+      moveLogic();
+      if (!isWallCollision) {
+        mobSprite.x = newX;
+        mobSprite.y = newY;
+      } 
+      else if (isWallCollision)
+        wallCollisionStuff();
+      }
     } else if (isPlayerCollision) {
       mobSprite.x = newX;
       mobSprite.y = newY;
@@ -1302,6 +1368,7 @@ function ghostMoveAll() {
 
 
     // Calculate the next position based on the random direction
+function moveLogic() {
     if (direction === "up") {
       newY -= 1;
     } else if (direction === "down") {
@@ -1311,10 +1378,12 @@ function ghostMoveAll() {
     } else if (direction === "right") {
       newX += 1;
     }
-
+}
+moveLogic();
+    
     // Check for wall collision and player exclusion
     const spritesAtNextPos = getTile(newX, newY);
-    const isWallCollision = spritesAtNextPos.some(sprite => [mob, spider, ghost, heart, spawn, door].includes(sprite.type)); // GHOSTS r special (they can go thru walls)
+    const isWallCollision = spritesAtNextPos.some(sprite => [mob, spider, ghost, heart, spawn, door, chest].includes(sprite.type)); // GHOSTS r special (they can go thru walls)
     const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
 
     // Move the mob sprite only if there is no wall collision and not colliding with the player
@@ -1322,7 +1391,17 @@ function ghostMoveAll() {
       ghostSprite.x = newX;
       ghostSprite.y = newY;
     } else if (isWallCollision) {
-      ghostMoveAll()
+      function wallCollisionGhost() {
+      randomIndex = Math.floor(Math.random() * options.length);
+      direction = options[randomIndex];
+      moveLogic();
+      if (!isWallCollision) {
+        ghostSprite.x = newX;
+        ghostSprite.y = newY;
+      } 
+      else if (isWallCollision)
+        wallCollisionGhost();
+      }
     } else if (isPlayerCollision) {
       ghostSprite.x = newX;
       ghostSprite.y = newY;
@@ -1383,7 +1462,7 @@ function fireShoot() {
   });
 }
 
-setInterval(fireShoot, 1000);
+setInterval(fireShoot, 500);
 
 
 function playerCollided() { //collide with normal mob
