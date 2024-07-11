@@ -8,6 +8,9 @@
 /* bulletin 
    add more mobs:
    fire shooters
+
+   chests
+   
    boss attack pattern
    attack for player & direction changes
 
@@ -54,6 +57,7 @@ const sword = "S"
 const water = "B"
 const fireball = "C"
 const fireshooter = "D"
+const chest = "E"
 
 
 const legendKeys = [
@@ -77,6 +81,7 @@ const legendKeys = [
   boss,
   mob,
   spider,
+  chest,
   hurtplayer,
   spawn,
   grass,
@@ -541,6 +546,23 @@ legend.set(crate, [crate, bitmap`
 0CCCCCCCCC11CCC0
 01CCCCCCCCCCCC10
 0000000000000000`])
+legend.set(chest, [chest, bitmap`
+....00000000....
+...0CCCCCCCC0...
+..0CCCCCCCCCC0..
+.0CCCCCCCCCCCC0.
+0CCCCCCCCCCCCCC0
+0CCCCCCCCCCCCCC0
+0CCCCCFFFFCCCCC0
+0CCCCCFCCFCCCCC0
+01111FFFFFF11110
+0CCCCFFCCFFCCCC0
+0CCCCFFFFFFCCCC0
+0CCCCCCCCCCCCCC0
+0CCCCCCCCCCCCCC0
+0CCCCCCCCCCCCCC0
+01CCCCCCCCCCCC10
+0000000000000000`])
 legend.set(water, [water, bitmap`
 7777777777777777
 7777777777777777
@@ -576,22 +598,22 @@ legend.set(fireball, [fireball, bitmap`
 ....333333333...
 ................`])
 legend.set(fireshooter, [fireshooter, bitmap`
-................
-....00000000....
-...0000000000...
-..000000000000..
-..000000000000..
-..00LLLLLLLL00..
-..0LLLLLLLLLL0..
-.00LLLLLLLLLL00.
-.0LLLL0000LLLL0.
-.0LLL003300LLL0.
-.0LL00333300LL0.
-.00L00000000L00.
-..0LLL0000LLL0..
-..00LLLLLLLL00..
-...0000000000...
-................`])
+0000000000000000
+01LL00000000LL10
+01L0000000000L10
+0100000000000010
+0100000000000010
+0100LLLLLLLL0010
+010LLLLLLLLLL010
+000LLLLLLLLLL000
+00LLLL0000LLLL00
+00LLL003300LLL00
+00LL00333300LL00
+000L00000000L000
+010LLL0000LLL010
+0100LLLLLLLL0010
+0110000000000110
+0000000000000000`])
 legend.set(spikes, [spikes, bitmap`
 ................
 ..1..........1..
@@ -808,7 +830,7 @@ let level = 1 // starting level (index 1 in this case)
 const levels = [ // easy lvls
   // shop (interior) lvls
   map`
-..........
+......D...
 ..........
 ..........
 ..........
@@ -818,11 +840,11 @@ const levels = [ // easy lvls
 ........p.`,
   //start lvl
   map`
-ffffffDfff
+ffffff.fff
 ffffffffff
 ffafffffff
 jlqzkfffff
-feciffffff
+feciff.fff
 feniffffff
 ffffffffff
 ffpfdfffff`,
@@ -837,44 +859,40 @@ xw...xw
 xw...xw
 xw...pw`, //goblin corridor
   map`
-wvxwvxwvx
-w.......x
-w.$wvxw.x
+wvxwDxwvx
+w......tx
+w.$w..w.x
 w.....w.x
 w..w..$.x
-wm.w..w.x
+w.Ew..w.x
 wvxwvpwdx`,
   map`
 vxwvdvxwvx
-v..t.t...x
-v.v....v.x
-v..xwvxt.x
 v........x
+v.v.m..v.x
+v..xwvx..x
+v.......mx
 v..Zxw...x
 v..Z..v..x
 v..vp.Z..x`,
   map`
-vxwvxwvxwvxwvxw
-vfwdxfffffffffw
-vfftffftfftfffw
-vfffffffffffffw
-vfggfgtffgffffw
-vfftffffffftffw
-vfffgfgtffffffw
-vfffffffftffffw
-vfffftftffffffw
-vffgfffgfgffgfw
-vtffffffffffffw
-vxwvxwvxwvxwvpw`, //ghost graveyard
+wvdDxwvx
+w....y.x
+w.$.$$.x
+w.y....x
+w...$$.x
+w.$....x
+w.$.$.$x
+wvxwvpvx`, //ghost graveyard
   map`
-wvxwvdvxwv
-w....y...v
-w.$.$$$$$v
-w.$m....$v
-w...$$.$$v
-w.$....xwv
-w.$.$.$xwv
-wvxwvpvxwv`,
+wvdDxwvx
+w....y.x
+w.$.$$.x
+w.y....x
+w...$$.x
+w.$....x
+w.$.$.$x
+wvxwvpvx`,
   map`
 wvxwvdvxwv
 w.......yv
@@ -882,7 +900,7 @@ w.y......v
 w....y...v
 wy.......v
 w......y.v
-w........v
+w..y.....v
 wvxwvpvxwv`,
   map`
 wvdvBBv
@@ -893,12 +911,12 @@ wvpvxwv`, // water chamber
 
   //secret or scroller lvls 
   map`
-BBBBBBBBB
-BBBBBBBBB
-BBBBBBBBB
 BBBBdBBBB
-BBB...BBB
 BB.....BB
+BB.....BB
+BB.....BB
+BB.....BB
+BB..!..BB
 BB.....BB
 BB..p..BB`, //water boss
 ]
@@ -1143,6 +1161,7 @@ afterInput(() => {
   const houseDoor = getFirst(housedoor);
   const bossSprite = getFirst(boss);
 
+
   legend.set(player, frames[player][playerDir]);
   setLegend(...legend.values());
   
@@ -1158,6 +1177,7 @@ afterInput(() => {
   let spikeSprites = getAll(spikes);
   let ghostSprites = getAll(ghost);
   let spiderSprites = getAll(spider);
+  let fireballSprites = getAll(fireball)
 
   if (plr.x === getFirst(spawn).x && plr.y === getFirst(spawn).y && mapJustChanged === false) {
     plr.x = tempXToPreventSpawnSafetyAbuse;
@@ -1183,6 +1203,11 @@ afterInput(() => {
     if (plr.x === spikeSprites[i].x && plr.y === spikeSprites[i].y) {
       stillDamage();
     }
+  for (let i = 0; i < fireballSprites.length; i++) {
+    if (plr.x === fireballSprites[i].x && plr.y === fireballSprites[i].y) {
+      playerCollided();
+    }
+  }
   }
 
   // if level is boss level, load hp bar text
@@ -1206,8 +1231,9 @@ function moveEnemies() {
   if (spiderCounter % 2 === 0) {
     spiderMoveAll()
   }
+  
 }
-const moveEnemiesInterval = setInterval(moveEnemies, 250);
+var moveEnemiesInterval = setInterval(moveEnemies, 250);
 
 function mobMoveAll() {
   const options = ["up", "down", "left", "right"];
@@ -1238,7 +1264,7 @@ function mobMoveAll() {
 
     // Check for wall collision and player exclusion
     const spritesAtNextPos = getTile(newX, newY);
-    const isWallCollision = spritesAtNextPos.some(sprite => [wall, wall2, wall3, spikes, mob, spider, ghost, heart, spawn, door].includes(sprite.type));
+    const isWallCollision = spritesAtNextPos.some(sprite => [wall, wall2, wall3, spikes, crate, chest, fireshooter, fireball, mob, spider, ghost, heart, spawn, door].includes(sprite.type));
     const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
 
     // Move the mob sprite only if there is no wall collision and not colliding with the player
@@ -1317,7 +1343,7 @@ function spiderMoveAll() {
     }
 
     const spritesAtNextPos = getTile(spiderSprite.x, spiderSprite.y);
-    const isWallCollision = spritesAtNextPos.some(sprite => [wall, wall2, wall3, heart, mob, ghost, spikes].includes(sprite.type));
+    const isWallCollision = spritesAtNextPos.some(sprite => [wall, wall2, wall3, chest, crate, heart, fireball, mob, ghost, spikes].includes(sprite.type));
     const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
 
     if (isWallCollision) {
@@ -1334,15 +1360,31 @@ function spiderMoveAll() {
 }
 
 function fireShoot() {
-    let fireshoota = getFirst(fireshooter);
-    if (fireshoota) { // Check if fireshoota is not undefined
-        let fireproj = addSprite(fireshoota.x, fireshoota.y, fireball);
-        if (fireproj) { // Check if fireproj is not undefined
-            fireproj.y++;
-        }
+  let fireShooters = getAll(fireshooter);
+
+  fireShooters.forEach(fiya => {
+    addSprite(fiya.x, fiya.y, fireball);
+    let fireproj = getFirst(fireball);
+    const spritesAtNextPos = getTile(fireproj.x, fireproj.y+1);
+    const isWallCollision = spritesAtNextPos.some(sprite => [wall, wall2, wall3, heart, spawn, door, crate, chest, spider, mob, ghost, spikes].includes(sprite.type));
+    const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
+    
+    if (!isWallCollision && !isPlayerCollision)
+      fireproj.y++;
+    
+    if (isWallCollision) 
+      fireproj.remove()
+  
+    if (isPlayerCollision) {
+      fireproj.y++;
+      playerCollided()
+      fireproj.remove()
     }
+  });
 }
-setInterval(fireShoot, 1000)
+
+setInterval(fireShoot, 1000);
+
 
 function playerCollided() { //collide with normal mob
   health--;
