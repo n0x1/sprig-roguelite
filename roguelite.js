@@ -889,19 +889,19 @@ ffpfdfffff`,
   // enemy lvls
   map`
 xwvdvxw
-xw.m.xw
+xw..mxw
+x.....w
+xm....w
 xw...xw
 xw...xw
-xw...xw
-xw...xw
-xw...pw`, //goblin corridor
+xw.p.xw`, //goblin corridor
   map`
 wvxwDxwvx
 w......tx
 w.$w..w.x
 w.....w.x
-w..w..$.x
-w.Ew..w.x
+wG.w..$.x
+wGZw..w.x
 wvxwvpwdx`,
   map`
 vxwvdvxwvx
@@ -936,12 +936,12 @@ w.$.$.$x
 wvxwvpvx`, //spider fire
   map`
 wvxwvdvxwv
-w.......yv
+w...$...yv
 w.y......v
 w....y...v
 wy.......v
-w......y.v
-w..y.....v
+G......y.v
+G..y.....v
 wvxwvpvxwv`,
   map`
 wvdvGBv
@@ -949,8 +949,6 @@ BG..GBv
 BG..ABv
 BG..GBv
 wvpvxwv`, // water chamber
-
-  //secret or scroller lvls 
   map`
 BBBBdBBBB
 BB.Z.Z.BB
@@ -960,11 +958,30 @@ BB.....BB
 BB..!..BB
 BB.....BB
 BB..p..BB`, //water boss
+  map`
+vdvxwvx
+BZm...x
+BZ....x
+B.....x
+B.....x
+B.y...x
+B.....x
+Bm....x
+B.....x
+xwvxwpx`, //crate blocking door LVL 10
+  map`
+vxwvxwDxwv
+vxwg$w...v
+vx..$w...v
+vp.$$w...v
+vx$$$w...v
+vxw$$w...v
+vxwvxwdxwv`,
 ]
 
-/* const restrictedRandomEntryLvls = [
-  0, 1, 9
-] */
+const randomPickBlacklist = [
+  0,1,9
+]
 
 setMap(levels[level]); // only for init
 
@@ -1027,7 +1044,18 @@ function levelSpecificStuff() {
       addSprite(width()-2,4,candle);
       addSprite(1,4,candle);
     }
-
+    if (level === 10) {
+      addSprite(width()-1,4,candle);
+        addSprite(width()-1,6,candle);
+    }
+ /*  if (level < 9) {
+let decowall = getAll(wall2);
+     for (let i = 0; i < 3; i++) {
+    let rngpick = Math.floor(Math.random() * decowall.length)
+    addSprite(decowall[rngpick].x,decowall[rngpick].y,candle);
+    rngpick = Math.floor(Math.random() * decowall.length)
+    } */ // rng picking thing for candles
+    
   
 }
 
@@ -1040,6 +1068,22 @@ const cratebreak = tune`
 124.48132780082987: F4-124.48132780082987 + G4-124.48132780082987 + D4-124.48132780082987 + E4-124.48132780082987 + A4-124.48132780082987,
 124.48132780082987: G4-124.48132780082987 + D4-124.48132780082987 + C4-124.48132780082987,
 3734.4398340248963`
+const gameoversound = tune`
+78.3289817232376: B5-78.3289817232376 + C4~78.3289817232376 + F4~78.3289817232376,
+78.3289817232376: A5-78.3289817232376 + C4~78.3289817232376,
+78.3289817232376: G5-78.3289817232376 + C4~78.3289817232376 + F4~78.3289817232376,
+78.3289817232376: F5-78.3289817232376 + C4~78.3289817232376,
+78.3289817232376: E5-78.3289817232376 + C4~78.3289817232376 + F4~78.3289817232376,
+78.3289817232376: D5-78.3289817232376 + C4~78.3289817232376,
+78.3289817232376: C5-78.3289817232376 + C4~78.3289817232376 + F4~78.3289817232376,
+78.3289817232376: B4-78.3289817232376 + C4~78.3289817232376,
+78.3289817232376: A4-78.3289817232376 + C4~78.3289817232376 + F4~78.3289817232376,
+78.3289817232376: G4-78.3289817232376 + C4~78.3289817232376,
+78.3289817232376: F4-78.3289817232376 + C4~78.3289817232376,
+78.3289817232376: E4-78.3289817232376 + C4~78.3289817232376,
+78.3289817232376: D4-78.3289817232376 + C4~78.3289817232376,
+78.3289817232376: C4-78.3289817232376 + B5~78.3289817232376 + B4~78.3289817232376,
+1409.9216710182768`
 
 const advancelvl = tune`
 118.57707509881423: C4-118.57707509881423,
@@ -1050,26 +1094,26 @@ const advancelvl = tune`
 const villagebgm = tune`
 238.0952380952381: C4~238.0952380952381,
 238.0952380952381: D4~238.0952380952381,
-238.0952380952381: E4~238.0952380952381 + B4~238.0952380952381,
+238.0952380952381: E4~238.0952380952381 + C5~238.0952380952381,
 238.0952380952381,
 238.0952380952381: C4~238.0952380952381,
 238.0952380952381: D4~238.0952380952381,
-238.0952380952381: E4~238.0952380952381 + B4~238.0952380952381,
+238.0952380952381: E4~238.0952380952381 + D5~238.0952380952381,
 238.0952380952381,
 238.0952380952381: C5~238.0952380952381 + G4^238.0952380952381 + C4^238.0952380952381,
-238.0952380952381: B4~238.0952380952381,
+238.0952380952381: D5~238.0952380952381,
 238.0952380952381,
 238.0952380952381: G4~238.0952380952381,
 238.0952380952381: C5~238.0952380952381 + F4^238.0952380952381,
-238.0952380952381: B4~238.0952380952381,
+238.0952380952381: E5~238.0952380952381,
 238.0952380952381: G4^238.0952380952381,
 238.0952380952381: G4~238.0952380952381,
 238.0952380952381,
 238.0952380952381: C4~238.0952380952381 + G4~238.0952380952381 + F4^238.0952380952381,
 238.0952380952381,
-238.0952380952381: A4~238.0952380952381,
-238.0952380952381: G4~238.0952380952381,
-238.0952380952381: C4^238.0952380952381 + D4~238.0952380952381 + F4~238.0952380952381,
+238.0952380952381: A4~238.0952380952381 + C5~238.0952380952381,
+238.0952380952381: B4~238.0952380952381,
+238.0952380952381: C4^238.0952380952381 + D4~238.0952380952381 + F4~238.0952380952381 + A4~238.0952380952381,
 238.0952380952381,
 238.0952380952381: C4~238.0952380952381 + E4~238.0952380952381 + G4~238.0952380952381,
 238.0952380952381,
@@ -1080,20 +1124,44 @@ const villagebgm = tune`
 238.0952380952381: G4~238.0952380952381 + B4^238.0952380952381,
 238.0952380952381,
 238.0952380952381: C4~238.0952380952381 + C5~238.0952380952381`
-const hardbgm tune`
-238.0952380952381: C4-238.0952380952381 + E4-238.0952380952381 + B5/238.0952380952381,
-238.0952380952381: B4-238.0952380952381 + C4-238.0952380952381 + A5/238.0952380952381,
-238.0952380952381: D4-238.0952380952381 + C5-238.0952380952381 + B5/238.0952380952381,
-238.0952380952381: A5/238.0952380952381,
-238.0952380952381: C4-238.0952380952381 + F4-238.0952380952381,
-238.0952380952381: E4-238.0952380952381,
-238.0952380952381: B5/238.0952380952381,
-238.0952380952381: A5/238.0952380952381,
-238.0952380952381: B5/238.0952380952381,
-238.0952380952381: A5/238.0952380952381,
-5238.0952380952385`
-  
-hables({
+const hardbgm = tune`
+476.1904761904762: A5-476.1904761904762 + C5-476.1904761904762 + B4^476.1904761904762 + C4/476.1904761904762,
+476.1904761904762: B5-476.1904761904762 + C5-476.1904761904762 + B4^476.1904761904762 + D4^476.1904761904762 + C4^476.1904761904762,
+476.1904761904762: C5-476.1904761904762 + A5-476.1904761904762 + B4^476.1904761904762 + C4/476.1904761904762,
+476.1904761904762: G5-476.1904761904762 + C5-476.1904761904762 + B4^476.1904761904762 + D4^476.1904761904762 + C4^476.1904761904762,
+476.1904761904762: A5-476.1904761904762 + C5-476.1904761904762 + B4^476.1904761904762 + C4/476.1904761904762,
+476.1904761904762: F5-476.1904761904762 + C5-476.1904761904762 + B4^476.1904761904762 + D4^476.1904761904762 + C4^476.1904761904762,
+476.1904761904762: E5-476.1904761904762 + C5-476.1904761904762 + B4^476.1904761904762 + C4/476.1904761904762,
+476.1904761904762: C4/476.1904761904762 + B4^476.1904761904762 + C5-476.1904761904762,
+476.1904761904762: D4-476.1904761904762 + C4-476.1904761904762 + B4/476.1904761904762,
+476.1904761904762: F5~476.1904761904762 + B5/476.1904761904762 + C4~476.1904761904762 + C5~476.1904761904762 + B4~476.1904761904762,
+476.1904761904762: F5~476.1904761904762 + C4~476.1904761904762 + C5~476.1904761904762 + B4/476.1904761904762 + B5~476.1904761904762,
+476.1904761904762: F5~476.1904761904762 + B5/476.1904761904762 + C4~476.1904761904762 + C5~476.1904761904762 + B4~476.1904761904762,
+476.1904761904762: F5~476.1904761904762 + C4~476.1904761904762 + C5~476.1904761904762 + B4/476.1904761904762 + B5~476.1904761904762,
+476.1904761904762: F5~476.1904761904762 + B5/476.1904761904762 + C4~476.1904761904762 + C5~476.1904761904762 + B4~476.1904761904762,
+476.1904761904762: F5~476.1904761904762 + C4~476.1904761904762 + C5~476.1904761904762 + B4/476.1904761904762 + B5~476.1904761904762,
+476.1904761904762: F5^476.1904761904762 + B5/476.1904761904762 + C4~476.1904761904762 + C5~476.1904761904762 + B4~476.1904761904762,
+476.1904761904762: C4/476.1904761904762 + B4/476.1904761904762 + C5/476.1904761904762 + B5/476.1904761904762,
+476.1904761904762: A5-476.1904761904762 + G5^476.1904761904762 + D4^476.1904761904762 + C4^476.1904761904762 + B4^476.1904761904762,
+476.1904761904762: B5-476.1904761904762 + A5^476.1904761904762 + C4/476.1904761904762 + B4~476.1904761904762,
+476.1904761904762: A5-476.1904761904762 + G5^476.1904761904762 + C4^476.1904761904762 + D4^476.1904761904762 + B4^476.1904761904762,
+476.1904761904762: G5-476.1904761904762 + F5^476.1904761904762 + C4/476.1904761904762 + B4~476.1904761904762,
+476.1904761904762: A5-476.1904761904762 + G5^476.1904761904762 + C4^476.1904761904762 + D4^476.1904761904762 + B4^476.1904761904762,
+476.1904761904762: F5-476.1904761904762 + E5^476.1904761904762 + C4/476.1904761904762 + B4~476.1904761904762,
+476.1904761904762: E5-476.1904761904762 + D5^476.1904761904762 + C4^476.1904761904762 + D4^476.1904761904762 + B4^476.1904761904762,
+476.1904761904762: C4^476.1904761904762 + B5~476.1904761904762 + A4/476.1904761904762 + C5/476.1904761904762 + B4/476.1904761904762,
+476.1904761904762: B4/476.1904761904762 + A4/476.1904761904762 + C4^476.1904761904762,
+476.1904761904762: B4/476.1904761904762 + A4/476.1904761904762 + C4^476.1904761904762 + B5~476.1904761904762,
+476.1904761904762: B4/476.1904761904762 + A4/476.1904761904762 + C4^476.1904761904762,
+476.1904761904762: A4/476.1904761904762 + G4/476.1904761904762 + C4^476.1904761904762 + B5~476.1904761904762,
+476.1904761904762: B4/476.1904761904762 + C5/476.1904761904762 + G4/476.1904761904762 + F4/476.1904761904762 + C4^476.1904761904762,
+476.1904761904762: B4/476.1904761904762 + G4/476.1904761904762 + F4/476.1904761904762 + C4^476.1904761904762 + D5/476.1904761904762,
+476.1904761904762: B4/476.1904761904762 + G4/476.1904761904762 + F4/476.1904761904762 + C4-476.1904761904762 + C5/476.1904761904762`
+
+
+let bgm = playTune(villagebgm, Infinity);
+
+setPushables({
   [player]: [crate],
     [crate]: [mob],
 })
@@ -1150,6 +1218,7 @@ function handleHealthUI(health) {
 
 
 let chosenLevels = [];
+// random pick blacklist defined under map bitmaps
 
 function resetMap(n) {
   if (arguments.length === 0) 
@@ -1160,9 +1229,10 @@ function resetMap(n) {
   }
   // idea: random range increases as score increases - maybe add score to lvl length
 
-  if (level === 0 || level === 1 || chosenLevels.includes(level)) { // add more lvlvs as scrollers added 
+  if (level === 0 || level === 1 || chosenLevels.includes(level) || randomPickBlacklist.includes(level)) { // add more lvlvs as scrollers added 
     resetMap() //recursively call until its a dungeon lvl
   }
+
 
   console.log("Level: " + level);
 
@@ -1308,6 +1378,12 @@ crates.forEach(crate => {
   });
 });
 crates.forEach(crate => {
+  if (crate.x === doorSprite.x && crate.y === doorSprite.y) {
+      crate.remove();
+      playTune(cratebreak);
+  }
+});
+crates.forEach(crate => {
   waterSprites.forEach(water => {
     if (crate.x === water.x && crate.y === water.y) {
       crate.remove();
@@ -1316,10 +1392,10 @@ crates.forEach(crate => {
   });
 });
   
-  if (plr.x === getFirst(spawn).x && plr.y === getFirst(spawn).y && mapJustChanged === false) {
+if (plr.x === getFirst(spawn).x && plr.y === getFirst(spawn).y && mapJustChanged === false) {
     plr.x = tempXToPreventSpawnSafetyAbuse;
     plr.y = tempYToPreventSpawnSafetyAbuse;
-  }
+}
 
   for (let i = 0; i < mobSprites.length; i++) {
     if (plr.x === mobSprites[i].x && plr.y === mobSprites[i].y) {
@@ -1348,10 +1424,9 @@ crates.forEach(crate => {
   }
 
   //doors for specific lvls
-
-if (level === 8) { // water realm
-  const portal = getFirst(advancetile);
-  if (portal && plr.x === portal.x && plr.y === portal.y) {
+const portal = getFirst(advancetile);
+if (portal && plr.x === portal.x && plr.y === portal.y) {
+  if (level === 8) { // water realm
     resetMap(9)
   }
 }
@@ -1398,7 +1473,7 @@ function mobMoveAll() {
     moveLogic();
     // Check for wall collision and player exclusion
     const spritesAtNextPos = getTile(newX, newY);
-    const isWallCollision = spritesAtNextPos.some(sprite => [wall, wall2, wall3, bridge, fireshooter, spikes, crate, chest, fireshooter, fireball, mob, spider, ghost, heart, spawn, door].includes(sprite.type));
+    const isWallCollision = spritesAtNextPos.some(sprite => [wall, wall2, wall3, bridge, water, fireshooter, spikes, crate, chest, fireshooter, fireball, mob, spider, ghost, heart, spawn, door].includes(sprite.type));
     const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
 
     // Move the mob sprite only if there is no wall collision and not colliding with the player
@@ -1500,7 +1575,7 @@ function spiderMoveAll() {
     }
 
     const spritesAtNextPos = getTile(spiderSprite.x, spiderSprite.y);
-    const isWallCollision = spritesAtNextPos.some(sprite => [wall, wall2, wall3, bridge, ddchest, crate, heart, fireball, mob, ghost, spikes].includes(sprite.type));
+    const isWallCollision = spritesAtNextPos.some(sprite => [wall, wall2, wall3, bridge, water, chest, crate, heart, fireball, mob, ghost, spikes].includes(sprite.type));
     const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
 
     if (isWallCollision) {
@@ -1549,8 +1624,9 @@ function playerCollided() { //collide with normal mob
   createHeartsArray(health)
   playTune(hit);
   checkGameOver()
-  plr.x = getFirst(spawn).x;
-  plr.y = getFirst(spawn).y;
+  let sp = getFirst(spawn);
+  plr.x = sp.x;
+  plr.y = sp.y;
 }
 
 function stillDamage() { // same but without resetting to spawn
@@ -1566,6 +1642,9 @@ function checkGameOver() {
     const grave = addSprite(plr.x, plr.y, hurtplayer);
     plr.remove();
     gameOver = true;
+    
+    bgm.end()
+    playTune(gameoversound);
 
     addText("Game Over", {
       x: 5,
