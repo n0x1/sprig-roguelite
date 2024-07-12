@@ -5,6 +5,14 @@
 @addedOn: 2024-07-07
 */
 
+/* controls
+wasd:move
+i: swing
+j/l: turn
+k: special
+*/
+
+
 /* bulletin 
    add more mobs:
    fire shooters
@@ -15,6 +23,8 @@
    attack for player & direction changes
 
    then add scroller lvls & difficulty curve (with score var
+
+   storyboard final boss battle in burning village save mentor
 */
 
 
@@ -59,7 +69,7 @@ const water = "B"
 const fireball = "C"
 const fireshooter = "D"
 const chest = "E"
-const merchant = "F"
+const mentor = "F"
 const bridge = "G"
 
 
@@ -71,7 +81,7 @@ const legendKeys = [
   roofoverhangright,
   sword,
   player,
-  merchant,
+  mentor,
   heart,
   healingheart,
   door,
@@ -652,7 +662,7 @@ legend.set(spikes, [spikes, bitmap`
 .000.101101.000.
 .....000000.....
 ................`])
-legend.set(merchant, [merchant, bitmap`
+legend.set(mentor, [mentor, bitmap`
 ...........CC...
 .........CCCCC..
 .....CCCCFCCCC..
@@ -860,7 +870,15 @@ function setPlayerSprite(direction) {
 }
 
 
-setSolids([wall, wall2, wall3, crate, bridge, housewall, housewallleft, housewallright, roofbody, player, merchant, boss])
+setSolids([wall, wall2, wall3, crate, bridge, housewall, housewallleft, housewallright, roofbody, player, mentor, boss])
+
+const mentorDialogue = 
+    ["Slash: i",
+     "Turn: j/l",
+     "Special: k",
+     "\"Be careful,",
+     "young one\""]
+
 
 
 
@@ -868,24 +886,23 @@ let level = 1 // starting level (index 1 in this case)
 const levels = [ // easy lvls
   // shop (interior) lvls
   map`
-..........
-........F.
-..........
-..........
-..........
-..........
-..........
-........p.`,
+ccccccwAx
+ccccccw.x
+ccccccw.x
+ccccccw.x
+ccccccwFx
+ccccccw.x
+ccccccwpx`,
   //start lvl
   map`
-ffffff.fff
+fffffvdvxw
 ffffffffff
 ffafffffff
 jlqzkfffff
-feciff.fff
+feciffffff
 feniffffff
 ffffffffff
-ffpfdfffff`,
+ffpfffffff`,
 
   // enemy lvls
   map`
@@ -1194,6 +1211,7 @@ let mapJustChanged = true;
 
 
 
+
 let maxhealth = 3;
 var health = maxhealth;
 let heartsArray = [];
@@ -1228,7 +1246,30 @@ function handleHealthUI(health) {
 
 }
 
+function levelOneSet() {
+  addText("mentor", { 
+  x: 2,
+  y: 9,
+  color: color`0`
+})
+}
+levelOneSet() // init, call whenever returning
 
+async function tutorialCutscene() {
+  function wait(ms) {
+  return new Promise(resolve => {
+    setTimeout(resolve, ms);
+  });
+}
+  
+for (let i = 0; i < mentorDialogue.length-2; i++) {
+addText(mentorDialogue[i], {x:1,y:3+i,color:color`0`})
+await wait(400)
+}
+addText(mentorDialogue[3], {x:1,y:8,color:color`0`})
+addText(mentorDialogue[4], {x:1,y:9,color:color`0`})
+getFirst(mentor).y = getFirst(mentor).y+2
+}
 
 let chosenLevels = [];
 // random pick blacklist defined under map bitmaps
@@ -1320,9 +1361,11 @@ onInput("d", () => {
 });
 
 let cooldown = false;
+let interacting = false;
 onInput("i", () => {
+  // tryInteract();
   let tempspawn = getFirst(spawn);
-  if (!gameOver && !cooldown) {
+  if (!gameOver && !cooldown && !interacting) {
     if (playerDir === "RIGHT") {
         legend.set(sword, frames[sword].RIGHT)
       let swing = addSprite(plr.x+1, plr.y, sword)
@@ -1402,6 +1445,8 @@ onInput("l", () => {
     }
 })
 
+
+
 afterInput(() => {
   const doorSprite = getFirst(door);
   const houseDoor = getFirst(housedoor);
@@ -1416,10 +1461,17 @@ afterInput(() => {
     resetMap(); // Load the next level (mob levels)
   }
   if (getAll(housedoor).length > 0 && plr.x === houseDoor.x && plr.y === houseDoor.y) {
+    level = 0;
     setMap(levels[0]);
+    clearText()
     plr = getFirst(currentPlayerType);
   } 
+  if (level === 0 && plr.x === 7 && plr.y === 5) {
+    console.log("tutorial")
+    tutorialCutscene();
+  }
 
+    
   //heal 
 if (healingHeart)
   if (plr.x === healingHeart.x && plr.y === healingHeart.y)
@@ -1488,6 +1540,11 @@ if (plr.x === spawnSprite.x && plr.y === spawnSprite.y && mapJustChanged === fal
       playerCollided();
     }
   }
+  }
+    for (let i = 0; i < waterSprites.length; i++) {
+    if (plr.x === waterSprites[i].x && plr.y === waterSprites[i].y) {
+      playerCollided();
+    }
   }
 
   //lvl traps
