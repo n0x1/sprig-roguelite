@@ -83,7 +83,6 @@ const legendKeys = [
   player,
   mentor,
   heart,
-  healingheart,
   door,
   ghost,
   candle,
@@ -105,6 +104,7 @@ const legendKeys = [
   roofbody,
   housedoor,
   crate,
+  healingheart,
   spikes,
   water,
   warningtile,
@@ -864,6 +864,22 @@ legend.set(sword, frames[sword].DOWN)
 
 setLegend(...legend.values())
 
+const enemyList = ["mob", "ghost", "spider", "fireball"];
+const enemyStats = {
+  mob: {
+    hp: 2
+  },
+  ghost: {
+    hp: 1
+  },
+  spider: {
+    hp: 2
+  },
+  fireball: {
+    hp: 100
+  },
+};
+
 // Define a function to set the player sprite based on the direction
 function setPlayerSprite(direction) {
   legend.set(player, frames[player][direction]);
@@ -884,7 +900,7 @@ const mentorDialogue =
 
 let level = 1 // starting level (index 1 in this case)
 const levels = [ // easy lvls
-  // shop (interior) lvls
+  // mentor (interior) lvls
   map`
 ccccccwAx
 ccccccw.x
@@ -895,14 +911,14 @@ ccccccw.x
 ccccccwpx`,
   //start lvl
   map`
-fffffvdvxw
+fffffv.vxw
 ffffffffff
 ffafffffff
 jlqzkfffff
 feciffffff
 feniffffff
 ffffffffff
-ffpfffffff`,
+ffpdffffff`,
 
   // enemy lvls
   map`
@@ -988,10 +1004,10 @@ Bm....x
 B.....x
 xwvxwpx`, //crate blocking door LVL 10
   map`
-vxwvxBBBBB
-vxwBBBBBBB
-vxBBBBBBBB
-p.....&BBB
+vxwvxpvBBB
+vxwBB.BBBB
+vxBBB.BBBB
+v&Z....BBB
 vx.....BBB
 vxw....BBB
 vxwvxwdxBB`,
@@ -1076,8 +1092,22 @@ let decowall = getAll(wall2);
 
 //sfx and music
 const hit = tune`
-500: C4/500 + B4/500 + C5/500,
+500: C4/500 + B4/500 + C5/500 + D5~500 + B5^500,
 15500`
+const hitEnemy = tune`
+209.7902097902098,
+104.8951048951049: C5~104.8951048951049 + B4^104.8951048951049 + C4/104.8951048951049 + G4/104.8951048951049 + B5/104.8951048951049,
+3041.958041958042`
+const killEnemy = tune`
+104.8951048951049,
+104.8951048951049: C4/104.8951048951049,
+104.8951048951049: C5~104.8951048951049 + B4^104.8951048951049 + C4/104.8951048951049 + G4/104.8951048951049 + B5/104.8951048951049,
+104.8951048951049: F5/104.8951048951049,
+104.8951048951049: E5^104.8951048951049,
+104.8951048951049,
+104.8951048951049: C5^104.8951048951049,
+104.8951048951049: A4^104.8951048951049,
+2517.4825174825173`
 const cratebreak = tune`
 124.48132780082987: F4-124.48132780082987 + G4-124.48132780082987 + D4-124.48132780082987 + E4-124.48132780082987 + A4-124.48132780082987,
 124.48132780082987: G4-124.48132780082987 + D4-124.48132780082987 + C4-124.48132780082987,
@@ -1208,9 +1238,7 @@ let mapJustChanged = true;
 // mob difficulties (changable through game perhaps)
 
 
-
-
-
+let damageincrement = 1 // init only
 
 let maxhealth = 3;
 var health = maxhealth;
@@ -1387,6 +1415,37 @@ onInput("i", () => {
                 playTune(slash);
     }
     cooldown = true;
+
+    //attack
+  
+  const swordPosition = tilesWith(sword);
+  console.log(swordPosition)
+  // Find sprites at the sword's position
+  const collisionSprites = getTile(swordPosition.x, swordPosition.y);
+
+
+
+// Function to handle sword attack on an enemy target
+function handleSwordAttack(enemy) {
+    console.log("found enemy at sword pos");
+  // Apply damage to the enemy based on its type
+  switch (enemy.type) {
+    case mob:
+      enemy.hp -= 1; // Decrease mob's HP by 1
+      break;
+    case ghost:
+      enemy.hp -= 2; // Decrease ghost's HP by 2
+      break;
+    // Add cases for other enemy types as needed
+  }
+
+  // Check if enemy's HP reaches 0
+  if (enemy.hp <= 0) {
+    defeatEnemy(enemy); // Handle defeated enemy
+  }
+}
+
+    
     setTimeout(() => {
     cooldown = false;
     getFirst(sword).remove();
@@ -1445,7 +1504,9 @@ onInput("l", () => {
     }
 })
 
-
+onInput("k", () => {
+  resetMap(11)
+})
 
 afterInput(() => {
   const doorSprite = getFirst(door);
@@ -1471,7 +1532,7 @@ afterInput(() => {
     tutorialCutscene();
   }
 
-    
+
   //heal 
 if (healingHeart)
   if (plr.x === healingHeart.x && plr.y === healingHeart.y)
@@ -1485,7 +1546,8 @@ if (healingHeart)
   let spiderSprites = getAll(spider);
   let fireballSprites = getAll(fireball)
 
-  
+
+if (mobSprites) {
 //modify pushable sprites
 crates.forEach(crate => {
   mobSprites.forEach(mobSprite => {
@@ -1495,12 +1557,15 @@ crates.forEach(crate => {
     }
   });
 });
+}
+  
 crates.forEach(crate => {
   if (crate.x === doorSprite.x && crate.y === doorSprite.y) {
       crate.remove();
       playTune(cratebreak);
   }
 });
+  
 crates.forEach(crate => {
   waterSprites.forEach(water => {
     if (crate.x === water.x && crate.y === water.y) {
@@ -1516,21 +1581,22 @@ if (plr.x === spawnSprite.x && plr.y === spawnSprite.y && mapJustChanged === fal
     plr.y = tempYToPreventSpawnSafetyAbuse;
 }
 }
-  for (let i = 0; i < mobSprites.length; i++) {
-    if (plr.x === mobSprites[i].x && plr.y === mobSprites[i].y) {
+    //attack
+  
+  mobSprites.forEach(mob => {
+    if (plr.x === mob.x && plr.y === mob.y)
       playerCollided();
-    }
-  }
-  for (let i = 0; i < ghostSprites.length; i++) {
-    if (plr.x === ghostSprites[i].x && plr.y === ghostSprites[i].y) {
+  })
+  
+  ghostSprites.forEach(ghost => {
+    if (plr.x === ghost.x && plr.y === ghost.y)
       playerCollided();
-    }
-  }
-  for (let i = 0; i < spiderSprites.length; i++) {
-    if (plr.x === spiderSprites[i].x && plr.y === spiderSprites[i].y) {
+  })
+  
+  spiderSprites.forEach(spider => {
+    if (plr.x === spider.x && plr.y === spider.y)
       playerCollided();
-    }
-  }
+  })
   for (let i = 0; i < spikeSprites.length; i++) {
     if (plr.x === spikeSprites[i].x && plr.y === spikeSprites[i].y) {
       stillDamage();
@@ -1541,11 +1607,11 @@ if (plr.x === spawnSprite.x && plr.y === spawnSprite.y && mapJustChanged === fal
     }
   }
   }
-    for (let i = 0; i < waterSprites.length; i++) {
-    if (plr.x === waterSprites[i].x && plr.y === waterSprites[i].y) {
+  waterSprites.forEach(watersprite => {
+    if (plr.x === watersprite.x && plr.y === watersprite.y)
       playerCollided();
-    }
-  }
+
+  })
 
   //lvl traps
 
@@ -1754,6 +1820,14 @@ function fireShoot() {
 
 setInterval(fireShoot, 500);
 
+
+function defeatEnemy(enemy) {
+  console.log("enemy defeated")
+  enemy.remove();
+    playTune(killEnemy);
+
+}
+
 function gainHealth() {
   if (health < maxhealth) {  
       health++;
@@ -1775,14 +1849,24 @@ function gainHealth() {
 }
 
 function playerCollided() { //collide with normal mob
+  let plr = getFirst(player)
+  const spawnSprite = getFirst(spawn)
+  console.log("Collided: " + plr.x + ", " + plr.y) 
+  
   health--;
   handleHealthUI(health);
   createHeartsArray(health);
+  
   playTune(hit);
+  
   checkGameOver()
-  let sp = getFirst(spawn);
-  plr.x = sp.x;
-  plr.y = sp.y;
+  
+
+  plr.x = spawnSprite.x;
+  plr.y = spawnSprite.y;
+
+  console.log("Spawn position: " + spawnSprite.x + ", " + spawnSprite.y) 
+  console.log("Reinitalize to spawn: " + plr.x + ", " + plr.y) // does not work on spawn x= 0; sprig bug?
 }
 
 function stillDamage() { // same but without resetting to spawn
@@ -1795,7 +1879,7 @@ function stillDamage() { // same but without resetting to spawn
 
 function checkGameOver() {
   if (health === 0) {
-    const grave = addSprite(plr.x, plr.y, hurtplayer);
+    const plrgrave = addSprite(plr.x, plr.y, hurtplayer);
     plr.remove();
     gameOver = true;
     
