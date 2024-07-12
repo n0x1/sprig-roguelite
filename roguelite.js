@@ -17,6 +17,7 @@
    then add scroller lvls & difficulty curve (with score var
 */
 
+
 const dirVectors = {
   "RIGHT": [1, 0],
   "LEFT": [-1, 0],
@@ -49,7 +50,7 @@ const spikes = "$"
 const crate = "Z"
 const ghost = "t"
 const spider = "y"
-const bossheart = "&"
+const healingheart = "&"
 const warningtile = "!"
 const advancetile = "A"
 const candle = "]"
@@ -68,10 +69,11 @@ const legendKeys = [
   roofright,
   roofoverhangleft,
   roofoverhangright,
+  sword,
   player,
   merchant,
   heart,
-  bossheart,
+  healingheart,
   door,
   ghost,
   candle,
@@ -80,7 +82,6 @@ const legendKeys = [
   wall,
   wall2,
   wall3,
-  sword,
   boss,
   mob,
   spider,
@@ -226,23 +227,23 @@ legend.set(heart, [heart, bitmap`
 .....033330.....
 ......0330......
 .......00.......`])
-legend.set(bossheart, [bossheart, bitmap`
+legend.set(healingheart, [healingheart, bitmap`
 ..000......000..
-.04440....04440.
-0444440..0444440
-0444444004422440
-0444444444442240
-0444444444444240
-0444444444444440
-0444444444444440
-.04444444444440.
-.04444444444440.
-..044444444440..
-...0444444440...
-....04444440....
-.....044440.....
-......0440......
-.......00.......`])
+.03330....03330.
+0333330..0333330
+0333333003322330
+0333333333332230
+0333333333333230
+0333333443333330
+0333333443333330
+.03334444443330.
+.03334444443330.
+..033334433330..
+...0333443330...
+....03333330....
+.....033330.....
+......0330......
+.......00.......`]) //heart pickup
 legend.set(ghost, [ghost, bitmap`
 ................
 ......0000......
@@ -915,15 +916,15 @@ v..vp....x`,
   map`
 vxwvxwvxwvxwvxw
 vfwdxfffffffffw
-vfftffftfftfffw
+vfgfgfffffffffw
 vfffffffffffffw
-vfggfgtffgffffw
-vfftffffffftffw
-vfffgfgtffffffw
-vfffffffftffffw
-vfffftftffffffw
-vffgfffgfgffgfw
-vtffffffffffffw
+vfggfgggfgffffw
+vfffffffffffffw
+vfffgfgfffffffw
+vfgfffffffffffw
+vfffffffffffvfw
+vffgfffgfgffvfw
+vfffffffffffvfw
 vxwvxwvxwvxwvpw`, //ghost graveyard
   map`
 wvdDxwvx
@@ -970,14 +971,15 @@ Bm....x
 B.....x
 xwvxwpx`, //crate blocking door LVL 10
   map`
-vxwvxwDxwv
-vxwg$w...v
-vx..$w...v
-vp.$$w...v
-vx$$$w...v
-vxw$$w...v
-vxwvxwdxwv`,
+vxwvxBBBBB
+vxwBBBBBBB
+vxBBBBBBBB
+p.....&BBB
+vx.....BBB
+vxw....BBB
+vxwvxwdxBB`,
 ]
+let traptriggered = false;
 
 const randomPickBlacklist = [
   0,1,9
@@ -1016,11 +1018,6 @@ function putGrassUnderRoofs() { // and under the player
 putGrassUnderRoofs() // and under the player
 
 function putGrassGraveyardLvl() {
-  let lvlGhosts = getAll(ghost)
-  lvlGhosts.forEach(ghost => {
-    console.log("ghostForeach");
-    addSprite(ghost.x, ghost.y, grass);
-  })
 
   let tombstones = getAll(hurtplayer);
   tombstones.forEach(hurtplayer => {
@@ -1084,6 +1081,22 @@ const gameoversound = tune`
 78.3289817232376: D4-78.3289817232376 + C4~78.3289817232376,
 78.3289817232376: C4-78.3289817232376 + B5~78.3289817232376 + B4~78.3289817232376,
 1409.9216710182768`
+const danger = tune`
+161.29032258064515,
+161.29032258064515: F5-161.29032258064515 + D5-161.29032258064515,
+161.29032258064515: G5/161.29032258064515 + C5/161.29032258064515 + A5/161.29032258064515 + B5/161.29032258064515 + B4/161.29032258064515,
+161.29032258064515: B4/161.29032258064515 + C5/161.29032258064515 + D5/161.29032258064515 + E5/161.29032258064515 + F5/161.29032258064515,
+4516.129032258064`
+const heal = tune`
+223.88059701492537: C4~223.88059701492537,
+223.88059701492537: A4~223.88059701492537 + C4~223.88059701492537 + E4^223.88059701492537,
+223.88059701492537: C5~223.88059701492537 + C4~223.88059701492537 + E5^223.88059701492537,
+6492.537313432836`
+const slash = tune`
+94.33962264150944,
+94.33962264150944: E5~94.33962264150944,
+94.33962264150944: B5^94.33962264150944 + E5^94.33962264150944 + G5^94.33962264150944 + F5^94.33962264150944 + A5^94.33962264150944,
+2735.8490566037735`
 
 const advancelvl = tune`
 118.57707509881423: C4-118.57707509881423,
@@ -1181,7 +1194,7 @@ let mapJustChanged = true;
 
 
 
-const maxhealth = 3;
+let maxhealth = 3;
 var health = maxhealth;
 let heartsArray = [];
 
@@ -1228,16 +1241,19 @@ function resetMap(n) {
     setMap(levels[level])
   }
   // idea: random range increases as score increases - maybe add score to lvl length
-
+if (arguments.length === 0) {
   if (level === 0 || level === 1 || chosenLevels.includes(level) || randomPickBlacklist.includes(level)) { // add more lvlvs as scrollers added 
     resetMap() //recursively call until its a dungeon lvl
   }
-
+}
 
   console.log("Level: " + level);
+  console.log("Score: " + score);
 
   mapJustChanged = true;
-  score++;
+
+  if (!chosenLevels.includes(level))
+    score++;
   
   setMap(levels[level]);
   chosenLevels.push(level);
@@ -1245,12 +1261,16 @@ function resetMap(n) {
   createHeartsArray(health);
   plr = getFirst(player);
 
-    console.log(chosenLevels); // debug
   
   playTune(advancelvl);
+
+  traptriggered = false;
   
   addSprite(plr.x, plr.y, spawn); //spawn pad under player
   levelSpecificStuff();
+  clearText();
+  
+
 }
 
 var tempXToPreventSpawnSafetyAbuse;
@@ -1298,25 +1318,36 @@ onInput("d", () => {
     plr.x += 1; // Move the player right
   }
 });
+
 let cooldown = false;
 onInput("i", () => {
+  let tempspawn = getFirst(spawn);
   if (!gameOver && !cooldown) {
     if (playerDir === "RIGHT") {
         legend.set(sword, frames[sword].RIGHT)
-        addSprite(plr.x+1, plr.y, sword)
+      let swing = addSprite(plr.x+1, plr.y, sword)
+            playTune(slash);
     }
     if (playerDir === "LEFT") {
         legend.set(sword, frames[sword].LEFT)
-        addSprite(plr.x-1, plr.y, sword)
+        let swing = addSprite(plr.x-1, plr.y, sword)
+            playTune(slash);
     }
     if (playerDir === "UP") {
     legend.set(sword, frames[sword].UP)
-    addSprite(plr.x, plr.y-1, sword)
+    let swing = addSprite(plr.x, plr.y-1, sword)
+            playTune(slash);
     }
         if (playerDir === "DOWN") {
     legend.set(sword, frames[sword].DOWN)
-    addSprite(plr.x, plr.y+1, sword)
+    let swing = addSprite(plr.x, plr.y+1, sword)
+                playTune(slash);
     }
+    cooldown = true;
+    setTimeout(() => {
+    cooldown = false;
+    getFirst(sword).remove();
+}, 200);
   }
 });
 onInput("j", () => { // RESET game if game over is on
@@ -1338,15 +1369,45 @@ onInput("j", () => { // RESET game if game over is on
     playerDir = "DOWN";
 
     gameOver = false;
+  } else { // turn player 90 deg
+      let tempdir = playerDir 
+      if (tempdir === "UP") {
+          playerDir = "LEFT"
+      }
+      else if (tempdir === "LEFT") {
+        playerDir = "DOWN"
+      }
+      else if (tempdir === "RIGHT") {
+          playerDir = "UP"
+      }
+      if (tempdir === "DOWN") {
+        playerDir = "RIGHT"
+    }
   }
 });
 
+onInput("l", () => {
+    let tempdir = playerDir 
+      if (tempdir === "UP") {
+          playerDir = "RIGHT"
+      }
+      else if (tempdir === "LEFT") {
+        playerDir = "UP"
+      }
+      else if (tempdir === "RIGHT") {
+          playerDir = "DOWN"
+      }
+      if (tempdir === "DOWN") {
+        playerDir = "LEFT"
+    }
+})
 
 afterInput(() => {
   const doorSprite = getFirst(door);
   const houseDoor = getFirst(housedoor);
   const bossSprite = getFirst(boss);
-
+  const healingHeart = getFirst(healingheart)
+  const spawnSprite = getFirst(spawn)
 
   legend.set(player, frames[player][playerDir]);
   setLegend(...legend.values());
@@ -1357,7 +1418,12 @@ afterInput(() => {
   if (getAll(housedoor).length > 0 && plr.x === houseDoor.x && plr.y === houseDoor.y) {
     setMap(levels[0]);
     plr = getFirst(currentPlayerType);
-  }
+  } 
+
+  //heal 
+if (healingHeart)
+  if (plr.x === healingHeart.x && plr.y === healingHeart.y)
+    gainHealth();
 
   let crates = getAll(crate); // destroy on mob hit
   let waterSprites = getAll(water);
@@ -1391,12 +1457,13 @@ crates.forEach(crate => {
     }
   });
 });
-  
-if (plr.x === getFirst(spawn).x && plr.y === getFirst(spawn).y && mapJustChanged === false) {
+
+if (spawnSprite) {
+if (plr.x === spawnSprite.x && plr.y === spawnSprite.y && mapJustChanged === false) {
     plr.x = tempXToPreventSpawnSafetyAbuse;
     plr.y = tempYToPreventSpawnSafetyAbuse;
 }
-
+}
   for (let i = 0; i < mobSprites.length; i++) {
     if (plr.x === mobSprites[i].x && plr.y === mobSprites[i].y) {
       playerCollided();
@@ -1423,7 +1490,20 @@ if (plr.x === getFirst(spawn).x && plr.y === getFirst(spawn).y && mapJustChanged
   }
   }
 
-  //doors for specific lvls
+  //lvl traps
+
+if (level === 5 && plr.x === width() - 2 && plr.y === 8 && !traptriggered ) {
+  let graves = getAll(hurtplayer)
+  traptriggered = true;
+  
+  graves.forEach(grave => {
+      playTune(danger);
+      
+      addSprite(grave.x,grave.y,ghost)
+  })
+}
+  
+  //doors for specific lvls levelspecific stuff
 const portal = getFirst(advancetile);
 if (portal && plr.x === portal.x && plr.y === portal.y) {
   if (level === 8) { // water realm
@@ -1617,11 +1697,30 @@ function fireShoot() {
 
 setInterval(fireShoot, 500);
 
+function gainHealth() {
+  if (health < maxhealth) {  
+      health++;
+      playTune(heal)
+      handleHealthUI(health);
+      createHeartsArray(health);
+      getFirst(healingheart).remove();
+  } else {
+    addText("max health: " + maxhealth, {
+      x: (width() / 2),
+      y: 3,
+      color:color`3`
+    })
+    setTimeout(() => {
+    clearText();
+    }, 2000);
+
+  }
+}
 
 function playerCollided() { //collide with normal mob
   health--;
   handleHealthUI(health);
-  createHeartsArray(health)
+  createHeartsArray(health);
   playTune(hit);
   checkGameOver()
   let sp = getFirst(spawn);
@@ -1658,3 +1757,4 @@ function checkGameOver() {
     })
   }
 }
+
