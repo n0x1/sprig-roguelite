@@ -1,15 +1,14 @@
 /*
-@title: 
+@title: Spriglite
 @author: noxi
-@tags: [dungeon]
+@tags: [advanced, dungeon]
 @addedOn: 2024-07-07
 */
 
-/* controls
-wasd:move
-i: swing
-j/l: turn
-k: special
+/* ABOUT:
+
+Explore randomly generated dungeons, defeat enemies, upgrade your gear, and find a way to the core of the planet. 
+
 */
 
 
@@ -71,6 +70,7 @@ const fireshooter = "D"
 const chest = "E"
 const mentor = "F"
 const bridge = "G"
+const mobspawner = "H"
 
 
 const legendKeys = [
@@ -108,7 +108,8 @@ const legendKeys = [
   spikes,
   water,
   warningtile,
-  advancetile
+  advancetile,
+  mobspawner,
 ]
 
 
@@ -305,6 +306,23 @@ legend.set(mob, [mob, bitmap`
 ......C.C.......
 ................
 ................`])
+legend.set(mobspawner, [mobspawner, bitmap`
+0000000000000000
+07DDD4DDDDD47770
+0D777474DDD77440
+0DDDDDD77D77DDD0
+0DDDDDDD777DDDD0
+0DDDDD477777DDD0
+0DDD4777CCC74D40
+0DDDD7CCC7C774D0
+0DDDD7CCC77C7DD0
+0DDDD7CCCCC77DD0
+0DD117C0007C7DD0
+0DD777C0CDCD7DD0
+0D77DDCCC1DD7DD0
+077DDDD4DD11D7D0
+07DDDDDDDDDDD770
+0000000000000000`])
 legend.set(spider, [spider, bitmap`
 ................
 ................
@@ -899,13 +917,13 @@ const mentorDialogue =
 
 
 let level = 1 // starting level (index 1 in this case)
-const levels = [ // easy lvls
+const levels = [ // easy lvls, possibly create a seperate array for next difficulties
   // mentor (interior) lvls
   map`
+ccccccccc
+ccccccccc
+ccccccccc
 ccccccwAx
-ccccccw.x
-ccccccw.x
-ccccccw.x
 ccccccwFx
 ccccccw.x
 ccccccwpx`,
@@ -938,10 +956,10 @@ wG.w..$.x
 wGZw..w.x
 wvxwvpwdx`,
   map`
-wvdDxwvx
-wt...y.x
+wvdvxwvx
+wt.....x
 w.$.$$.x
-w.y...tx
+w$....tx
 w...$$.x
 w.$....x
 w.$t$.$x
@@ -959,14 +977,14 @@ vffgfffgfgffvfw
 vfffffffffffvfw
 vxwvxwvxwvxwvpw`, //ghost graveyard
   map`
-wvdDxwvx
-w....y.x
-w.$.$$Gx
-w.y....x
-w...$$.x
-w.$....x
-w.$.$.$x
-wvxwvpvx`, //spider fire
+wdxDxwvx
+w...$$$x
+w$$.$$$x
+w$$....x
+w$$.$$$x
+w$$....x
+w$$.$.$x
+wvxwvpvx`,
   map`
 wvxwvdvxwv
 vv.y$.y.vv
@@ -991,17 +1009,18 @@ BB.....BB
 BB..!..BB
 BB.....BB
 BB..p..BB`, //water boss
+  
   map`
-vdvDwvx
+vdv.wvx
 BZ...Zx
 BZ...Zx
 BZ....x
-B.....x
-B....Zx
+H.....x
+v....Zx
 B....vx
 B...Z.x
 Bm..ZZx
-xwvxwpx`, //crate blocking door LVL 10
+xwvxwpx`, // 10  spawenr of mobs crates
   map`
 vxwvxpvBBB
 vxwBB.BBBB
@@ -1009,16 +1028,36 @@ vxBBB.BBBB
 v&Z....BBB
 vx.....BBB
 vxw....BBB
-vxwvxwdxBB`,
+vxwvxwdxBB`, //heart pickup
   map`
-$$$$$$$$GG
+GGGGGGGGGG
 vxwvxpv.GB
-vxw.....BB
-vx..t...BB
-vmmm...tBB
-vx.t...tBB
-vxw....BBB
-vxwvxwdxBB`,
+vxwm...mBB
+vx...m..BB
+vH......BB
+vx......BB
+vxw....GBB
+vxwvxwdGGG`, //  spawner of mobs smaller chamber
+  map`
+vxwdxwv
+vt...tv
+v.t.t.v
+v.....v
+vxw.xwv
+vm.y.mv
+v.m.m.v
+v..m..v
+v.....v
+v..p..v`, // double static chamber
+  map`
+xwvxwAxwvxw
+x....b....w
+x.........w
+H.........w
+x.........w
+x.........w
+x.........w
+xwvxwpxwvxw`, // boss 14
 ]
 let traptriggered = false;
 
@@ -1115,6 +1154,11 @@ const killEnemy = tune`
 104.8951048951049: C5^104.8951048951049,
 104.8951048951049: A4^104.8951048951049,
 2517.4825174825173`
+const enemySpawn = tune`
+112.78195488721805: B4^112.78195488721805 + C4^112.78195488721805 + G4^112.78195488721805 + E5^112.78195488721805,
+112.78195488721805: D4^112.78195488721805 + A4^112.78195488721805 + C5~112.78195488721805 + F5^112.78195488721805,
+112.78195488721805: E4^112.78195488721805 + B4^112.78195488721805 + E5^112.78195488721805,
+3270.6766917293235`
 const cratebreak = tune`
 124.48132780082987: F4-124.48132780082987 + G4-124.48132780082987 + D4-124.48132780082987 + E4-124.48132780082987 + A4-124.48132780082987,
 124.48132780082987: G4-124.48132780082987 + D4-124.48132780082987 + C4-124.48132780082987,
@@ -1295,7 +1339,7 @@ async function tutorialCutscene() {
   return new Promise(resolve => {
     setTimeout(resolve, ms);
   });
-}
+  }
   
 for (let i = 0; i < mentorDialogue.length-2; i++) {
 addText(mentorDialogue[i], {x:1,y:3+i,color:color`0`})
@@ -1311,7 +1355,7 @@ let chosenLevels = [];
 
 function resetMap(n) {
   if (arguments.length === 0) 
-    level = Math.floor(Math.random() * 9 + score); // random level above safe ones 
+    level = (Math.floor(Math.random() * levels.length / 2) + score); // random level above safe ones 
   else {
     level = n;
     setMap(levels[level])
@@ -1559,7 +1603,7 @@ onInput("l", () => {
 })
 
 onInput("k", () => {
-  //special
+  // resetMap(12) // for debug
   movementDown = false;
 })
 
@@ -1572,24 +1616,36 @@ afterInput(() => {
   const healingHeart = getFirst(healingheart)
   const spawnSprite = getFirst(spawn)
 
-
+checkCollisionforFireBalls()
   
   legend.set(player, frames[player][playerDir]);
   setLegend(...legend.values());
   
-  if (getAll(door).length > 0 && plr.x === doorSprite.x && plr.y === doorSprite.y) {
+  if (level === 0) { 
+    if (plr.x === 7 && plr.y === 5) {
+    console.log("tutorial")
+    tutorialCutscene();
+    }
+    if (plr.x === getFirst(advancetile).x && plr.y === getFirst(advancetile).y) {
+      resetMap();
+      clearText();
+      
+      addText("I: Surface", {x: 4,y: 5,color: color`8`})
+      setTimeout(() => {clearText()}, 2000)
+    }
+  } // tutorial and mentor
+  
+  if (plr.x === doorSprite.x && plr.y === doorSprite.y) {
     resetMap(); // Load the next level (mob levels)
   }
+  
   if (getAll(housedoor).length > 0 && plr.x === houseDoor.x && plr.y === houseDoor.y) {
     level = 0;
     setMap(levels[0]);
     clearText()
     plr = getFirst(currentPlayerType);
   } 
-  if (level === 0 && plr.x === 7 && plr.y === 5) {
-    console.log("tutorial")
-    tutorialCutscene();
-  }
+
 
 
   //heal 
@@ -1606,13 +1662,8 @@ if (healingHeart) {
   let spiderSprites = getAll(spider);
   let fireballSprites = getAll(fireball)
   let attacki = getFirst(sword);
-  
 
-fireballSprites.forEach(fireball => {
-    if (getFirst(player).x === fireball.x && getFirst(player).y === fireball.y) {
-      playerCollided();
-    }
-  });
+
   
   waterSprites.forEach(watersprite => {
     if (plr.x === watersprite.x && plr.y === watersprite.y)
@@ -1727,6 +1778,19 @@ if (spiderSprites) {
   //lvl traps
 
 
+
+//fireball checking (and other projectiles)
+function checkCollisionforFireBalls() {
+    let fireballSprites = getAll(fireball)
+fireballSprites.forEach(fireball => {
+    if (getFirst(player).x === fireball.x && getFirst(player).y === fireball.y) {
+      playerCollided();
+    }
+  });
+}
+
+
+
   
 
 
@@ -1736,8 +1800,10 @@ let spiderCounter = 0;
 
 
 var moveMobsInterval = setInterval(mobMoveAll, 750);
+var spawnMobsInterval = setInterval(mobSpawn, 1500);
 var moveGhostInterval = setInterval(ghostMoveAll, 1000);
 var moveSpiderInterval = setInterval (spiderMoveAll, 500);
+
 
 function mobMoveAll() {
   const options = ["up", "down", "left", "right"];
@@ -1771,7 +1837,7 @@ function mobMoveAll() {
     // Check for wall collision and player exclusion
     const spritesAtNextPos = getTile(newX, newY);
     const isWallCollision = spritesAtNextPos.some(sprite => [wall, wall2, wall3, bridge, water, fireshooter, spikes, crate, chest, fireshooter, fireball, mob, spider, ghost, heart, spawn, door].includes(sprite.type));
-    const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
+    const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);3
 
     // Move the mob sprite only if there is no wall collision and not colliding with the player
     if (!isWallCollision && !isPlayerCollision) {
@@ -1798,6 +1864,17 @@ function mobMoveAll() {
 
 }
 
+function mobSpawn() {
+  let mobSpawner = getAll(mobspawner);
+  mobSpawner.forEach(s => {
+    const spritesAtNextPos = getTile(s.x+1, s.y);
+    const isWallCollision = spritesAtNextPos.some(sprite => [mob, spider, ghost, player].includes(sprite.type));
+    if (!isWallCollision) {
+    addSprite(s.x, s.y, mob)
+    playTune(enemySpawn);
+    }
+  })
+}
 function ghostMoveAll() {
   const options = ["up", "down", "left", "right"];
 
@@ -1833,7 +1910,7 @@ moveLogic();
     
     // Check for wall collision and player exclusion
     const spritesAtNextPos = getTile(newX, newY);
-    const isWallCollision = spritesAtNextPos.some(sprite => [mob, spider, ghost, heart, spawn, door, chest].includes(sprite.type)); // GHOSTS r special (they can go thru walls)
+    const isWallCollision = spritesAtNextPos.some(sprite => [mob, spider, ghost, spikes, heart, spawn, door, chest].includes(sprite.type)); // GHOSTS r special (they can go thru walls)
     const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
 
     // Move the mob sprite only if there is no wall collision and not colliding with the player
@@ -1943,23 +2020,24 @@ function gainHealth() {
 }
 
 function playerCollided() { //collide with normal mob
-  let spawnSprite = getFirst(spawn)
-  getFirst(player).x = spawnSprite.x;
-  getFirst(player).y = spawnSprite.y;
-
   
+  let spawnSprite = getFirst(spawn)
+
+
   health--;
   handleHealthUI(health);
   createHeartsArray(health);
   
   playTune(hit);
   
-  checkGameOver()
-  
 
+  checkGameOver() // to get best grave placement
+  
+  getFirst(player).x = spawnSprite.x;
+  getFirst(player).y = spawnSprite.y;
 
   console.log("Spawn position: " + spawnSprite.x + ", " + spawnSprite.y) 
-  console.log("Reinitalize to spawn: " + plr.x + ", " + plr.y) // does not work on spawn x= 0; sprig bug?
+  console.log("Reinitalize to spawn: " + plr.x + ", " + plr.y) // does not work on spawn x= 0;  bug?
 
 
   cooldown = true;
