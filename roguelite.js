@@ -14,8 +14,8 @@ k: special
 
 
 /* bulletin 
-   add more mobs:
-   fire shooters
+    mob spawner
+    dash attack
 
    chests
    
@@ -108,7 +108,7 @@ const legendKeys = [
   spikes,
   water,
   warningtile,
-  advancetile,
+  advancetile
 ]
 
 
@@ -886,11 +886,11 @@ function setPlayerSprite(direction) {
 }
 
 
-setSolids([wall, wall2, wall3, crate, bridge, housewall, housewallleft, housewallright, roofbody, player, mentor, boss])
+setSolids([wall, wall2, wall3, fireshooter, crate, bridge, housewall, housewallleft, housewallright, roofbody, player, mentor, boss])
 
 const mentorDialogue = 
-    ["Slash: i",
-     "Turn: j/l",
+    ["Move: w,a,s,d",
+     "Attack: i,j,l",
      "Special: k",
      "\"Be careful,",
      "young one\""]
@@ -909,7 +909,7 @@ ccccccw.x
 ccccccwFx
 ccccccw.x
 ccccccwpx`,
-  //start lvl
+
   map`
 fffffv.vxw
 ffffffffff
@@ -918,7 +918,7 @@ jlqzkfffff
 feciffffff
 feniffffff
 ffffffffff
-ffpdffffff`,
+ffpdffffff`, //start
 
   // enemy lvls
   map`
@@ -938,15 +938,6 @@ wG.w..$.x
 wGZw..w.x
 wvxwvpwdx`,
   map`
-vxwvdDxwvx
-v........x
-vmv.w.mv.x
-v..xwZx..x
-v.......mx
-v..Zxw...x
-vm.Z..v..x
-v..xp..Z.x`,
-  map`
 wvdDxwvx
 wt...y.x
 w.$.$$.x
@@ -954,7 +945,19 @@ w.y...tx
 w...$$.x
 w.$....x
 w.$t$.$x
-wvxwvpvx`, //ghost graveyard
+wvxwvpvx`, 
+  map`vxwvxwvxwvxwvxw
+vfwdxfffffffffw
+vfgfgfffffffffw
+vfffffffffffffw
+vfggfgggfgffffw
+vfffffffffffffw
+vfffgfgfffffffw
+vfgfffffffffffw
+vfffffffffffvfw
+vffgfffgfgffvfw
+vfffffffffffvfw
+vxwvxwvxwvxwvpw`, //ghost graveyard
   map`
 wvdDxwvx
 w....y.x
@@ -966,12 +969,12 @@ w.$.$.$x
 wvxwvpvx`, //spider fire
   map`
 wvxwvdvxwv
-w..y....yv
-w.y....y.v
+vv.y$.y.vv
+w.y......v
 w....y...v
 wy.......v
-G......y.v
-G..y.....v
+w......y.v
+wv.y....vv
 wvxwvpvxwv`, // spiders lots
   map`
 wvdvGBv
@@ -1007,11 +1010,20 @@ v&Z....BBB
 vx.....BBB
 vxw....BBB
 vxwvxwdxBB`,
+  map`
+$$$$$$$$GG
+vxwvxpv.GB
+vxw.....BB
+vx..t...BB
+vmmm...tBB
+vx.t...tBB
+vxw....BBB
+vxwvxwdxBB`,
 ]
 let traptriggered = false;
 
 const randomPickBlacklist = [
-  0,1,9
+  9
 ]
 
 setMap(levels[level]); // only for init
@@ -1047,7 +1059,6 @@ function putGrassUnderRoofs() { // and under the player
 putGrassUnderRoofs() // and under the player
 
 function putGrassGraveyardLvl() {
-
   let tombstones = getAll(hurtplayer);
   tombstones.forEach(hurtplayer => {
     addSprite(hurtplayer.x, hurtplayer.y, grass);
@@ -1058,7 +1069,7 @@ function putGrassGraveyardLvl() {
 
 function levelSpecificStuff() {
   //decorative
-    if (level === 5) { // index 5 is gy lvl
+    if (level === 5) { // index 5 is gy lvl, but its sometimes 4??
     putGrassGraveyardLvl();
     }
     if (level === 4 || level === 7) {
@@ -1228,7 +1239,7 @@ let gameOver = false;
 let currentPlayerType = player;
 let plr = getFirst(currentPlayerType);
 let playerDir = "DOWN";
-let score = 0; // tracking when to change difficulty
+let score = 0; // tracking when to change difficulty (init 0)
 let mapJustChanged = true;
 
 // mob difficulties (changable through game perhaps)
@@ -1300,7 +1311,7 @@ let chosenLevels = [];
 
 function resetMap(n) {
   if (arguments.length === 0) 
-    level = Math.floor(Math.random() * levels.length); // random level above safe ones 
+    level = Math.floor(Math.random() * 9 + score); // random level above safe ones 
   else {
     level = n;
     setMap(levels[level])
@@ -1316,12 +1327,13 @@ if (arguments.length === 0) {
   console.log("Score: " + score);
 
   mapJustChanged = true;
-
+  
   if (!chosenLevels.includes(level))
     score++;
-  
+
+  chosenLevels.push(level)
+
   setMap(levels[level]);
-  chosenLevels.push(level);
   
   createHeartsArray(health);
   plr = getFirst(player);
@@ -1333,13 +1345,14 @@ if (arguments.length === 0) {
   
   addSprite(plr.x, plr.y, spawn); //spawn pad under player
   levelSpecificStuff();
+
   clearText();
   
 
 }
 
-var tempXToPreventSpawnSafetyAbuse;
-var tempYToPreventSpawnSafetyAbuse;
+var tempXToPreventSpawnSafetyAbuse = 0;
+var tempYToPreventSpawnSafetyAbuse = 0;
 
 function preventSpawnAbuse() {
   tempXToPreventSpawnSafetyAbuse = plr.x
@@ -1392,9 +1405,6 @@ onInput("d", () => {
 let cooldown = false; // init
 let cooldownTime = 400 // init; can get smaller
 let interacting = false; // init
-onInput("i", () => {
-  // tryInteract();
-  // let tempspawn = getFirst(spawn);
 function basicAttack() {
   let yOffset = 0;
   let xOffset = 0
@@ -1403,7 +1413,7 @@ function basicAttack() {
     if (playerDir === "RIGHT") {
         legend.set(sword, frames[sword].RIGHT)
      xOffset = 1;
-      yOffset = 0;
+    yOffset = 0;
     }
     if (playerDir === "LEFT") {
         legend.set(sword, frames[sword].LEFT)
@@ -1427,7 +1437,7 @@ function basicAttack() {
     //attack
 
 
- // Assuming the sword sprite is correctly defined in your game
+
     /* if (!cooldown) {
     console.log("triggered attack w/ i")
     // Check for collisions with enemies
@@ -1453,6 +1463,10 @@ function basicAttack() {
   }
      
 } 
+onInput("i", () => {
+  // tryInteract();
+  // let tempspawn = getFirst(spawn);
+  basicAttack()
   movementDown = false;
 });
 
@@ -1501,16 +1515,22 @@ onInput("j", () => { // RESET game if game over is on
       let tempdir = playerDir 
       if (tempdir === "UP") {
           playerDir = "LEFT"
+          basicAttack();
       }
       else if (tempdir === "LEFT") {
         playerDir = "DOWN"
+                  basicAttack();
       }
       else if (tempdir === "RIGHT") {
           playerDir = "UP"
+                  basicAttack();
       }
       if (tempdir === "DOWN") {
         playerDir = "RIGHT"
+                  basicAttack();
     }
+    plr.x = plr.x
+    plr.y = plr.y
   }
 });
 
@@ -1518,22 +1538,28 @@ onInput("l", () => {
     let tempdir = playerDir 
       if (tempdir === "UP") {
           playerDir = "RIGHT"
+                  basicAttack();
           
       }
       else if (tempdir === "LEFT") {
         playerDir = "UP"
+                  basicAttack();
       }
       else if (tempdir === "RIGHT") {
           playerDir = "DOWN"
+                  basicAttack();
       }
       if (tempdir === "DOWN") {
         playerDir = "LEFT"
+                  basicAttack();
     }
+      plr.x = plr.x
+    plr.y = plr.y
   movementDown = false;
 })
 
 onInput("k", () => {
-  resetMap(11)
+  //special
   movementDown = false;
 })
 
@@ -1546,6 +1572,8 @@ afterInput(() => {
   const healingHeart = getFirst(healingheart)
   const spawnSprite = getFirst(spawn)
 
+
+  
   legend.set(player, frames[player][playerDir]);
   setLegend(...legend.values());
   
@@ -1565,10 +1593,11 @@ afterInput(() => {
 
 
   //heal 
-if (healingHeart)
+if (healingHeart) {
   if (plr.x === healingHeart.x && plr.y === healingHeart.y)
     gainHealth();
-
+}
+  plr = getFirst(player)
   let crates = getAll(crate); // destroy on mob hit
   let waterSprites = getAll(water);
   let spikeSprites = getAll(spikes);
@@ -1579,6 +1608,16 @@ if (healingHeart)
   let attacki = getFirst(sword);
   
 
+fireballSprites.forEach(fireball => {
+    if (getFirst(player).x === fireball.x && getFirst(player).y === fireball.y) {
+      playerCollided();
+    }
+  });
+  
+  waterSprites.forEach(watersprite => {
+    if (plr.x === watersprite.x && plr.y === watersprite.y)
+      playerCollided();
+  })
 
 
 
@@ -1609,51 +1648,13 @@ crates.forEach(crate => {
     }
   });
 });
-
-if (spawnSprite) {
-if (plr.x === spawnSprite.x && plr.y === spawnSprite.y && mapJustChanged === false) {
-    plr.x = tempXToPreventSpawnSafetyAbuse;
-    plr.y = tempYToPreventSpawnSafetyAbuse;
-}
-}
-    //attack from mobs
-  
-  mobSprites.forEach(mob => {
-    if (plr.x === mob.x && plr.y === mob.y)
-      playerCollided();
-    if (attacki.x === mob.x && attacki.y === mob.y)
-      defeatEnemy(mob)
-  })
-  
-  ghostSprites.forEach(ghost => {
-    if (plr.x === ghost.x && plr.y === ghost.y)
-      playerCollided();
-    if (attacki.x === ghost.x && attacki.y === ghost.y)
-      defeatEnemy(ghost)
-  })
-  
-  spiderSprites.forEach(spider => {
-    if (plr.x === spider.x && plr.y === spider.y)
-      playerCollided();
-        if (attacki.x === spider.x && attacki.y === spider.y)
-      defeatEnemy(spider)
-  })
-  for (let i = 0; i < fireballSprites.length; i++) {
-    if (plr.x === fireballSprites[i].x && plr.y === fireballSprites[i].y) {
-      playerCollided();
-    }
-  }
-  
-  waterSprites.forEach(watersprite => {
-    if (plr.x === watersprite.x && plr.y === watersprite.y)
-      playerCollided();
-  })
-    spikeSprites.forEach(spike => {
+      spikeSprites.forEach(spike => {
     if (plr.x === spike.x && plr.y === spike.y && movementDown) {
       stillDamage();
       movementDown = false;
     }
     });
+
 
 if (level === 5 && plr.x === width() - 2 && plr.y === 8 && !traptriggered ) {
   let graves = getAll(hurtplayer)
@@ -1674,6 +1675,51 @@ if (portal && plr.x === portal.x && plr.y === portal.y) {
     resetMap(9)
   }
 }
+
+
+
+    //attack from mobs
+    // mobs below here bc glitchy
+  if (mobSprites) {
+  mobSprites.forEach(mob => {
+    if (plr.x === mob.x && plr.y === mob.y) {
+      playerCollided();
+    }
+  })
+  mobSprites.forEach(mob => {
+    if (attacki.x === mob.x && attacki.y === mob.y) {
+      defeatEnemy(mob)
+    }
+  })
+}
+
+if (ghostSprites) {
+  ghostSprites.forEach(ghost => {
+    if (plr.x === ghost.x && plr.y === ghost.y) {
+      playerCollided();
+    }
+  })
+  ghostSprites.forEach(ghost => {
+      if (attacki.x === ghost.x && attacki.y === ghost.y) {
+      defeatEnemy(ghost)
+    }
+  })
+}
+
+if (spiderSprites) {
+  spiderSprites.forEach(spider => {
+    if (plr.x === spider.x && plr.y === spider.y) {
+      playerCollided();
+    }
+  })
+  spiderSprites.forEach(spider => {
+    if (attacki.x === spider.x && attacki.y === spider.y) {
+      defeatEnemy(spider)
+        }
+  })
+}
+  
+
 
   
   })
@@ -1897,10 +1943,9 @@ function gainHealth() {
 }
 
 function playerCollided() { //collide with normal mob
-  let plr = getFirst(player)
-  const spawnSprite = getFirst(spawn)
-  plr.x = spawnSprite.x;
-  plr.y = spawnSprite.y;
+  let spawnSprite = getFirst(spawn)
+  getFirst(player).x = spawnSprite.x;
+  getFirst(player).y = spawnSprite.y;
 
   
   health--;
@@ -1915,6 +1960,12 @@ function playerCollided() { //collide with normal mob
 
   console.log("Spawn position: " + spawnSprite.x + ", " + spawnSprite.y) 
   console.log("Reinitalize to spawn: " + plr.x + ", " + plr.y) // does not work on spawn x= 0; sprig bug?
+
+
+  cooldown = true;
+  setTimeout(() => {
+  cooldown = false;
+}, "200");
 }
 
 
