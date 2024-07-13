@@ -923,9 +923,9 @@ ffpdffffff`,
   // enemy lvls
   map`
 xwvdvxw
-xw..mxw
+xwm.mxw
 x.....w
-xm....w
+xm..m.w
 xw...xw
 xw...xw
 xw.p.xw`, //goblin corridor
@@ -933,36 +933,32 @@ xw.p.xw`, //goblin corridor
 wvxwDxwvx
 w......tx
 w.$w..w.x
-w.....w.x
+w.t...w.x
 wG.w..$.x
 wGZw..w.x
 wvxwvpwdx`,
   map`
-vxwvdvxwvx
+vxwvdDxwvx
 v........x
-vmv.w..v.x
+vmv.w.mv.x
 v..xwZx..x
 v.......mx
 v..Zxw...x
-v..Z..v..x
-v..vp....x`,
+vm.Z..v..x
+v..xp..Z.x`,
   map`
-vxwvxwvxwvxwvxw
-vfwdxfffffffffw
-vfgfgfffffffffw
-vfffffffffffffw
-vfggfgggfgffffw
-vfffffffffffffw
-vfffgfgfffffffw
-vfgfffffffffffw
-vfffffffffffvfw
-vffgfffgfgffvfw
-vfffffffffffvfw
-vxwvxwvxwvxwvpw`, //ghost graveyard
+wvdDxwvx
+wt...y.x
+w.$.$$.x
+w.y...tx
+w...$$.x
+w.$....x
+w.$t$.$x
+wvxwvpvx`, //ghost graveyard
   map`
 wvdDxwvx
 w....y.x
-w.$.$$.x
+w.$.$$Gx
 w.y....x
 w...$$.x
 w.$....x
@@ -970,13 +966,13 @@ w.$.$.$x
 wvxwvpvx`, //spider fire
   map`
 wvxwvdvxwv
-w...$...yv
-w.y......v
+w..y....yv
+w.y....y.v
 w....y...v
 wy.......v
 G......y.v
 G..y.....v
-wvxwvpvxwv`,
+wvxwvpvxwv`, // spiders lots
   map`
 wvdvGBv
 BG..GBv
@@ -993,15 +989,15 @@ BB..!..BB
 BB.....BB
 BB..p..BB`, //water boss
   map`
-vdvxwvx
-BZm...x
+vdvDwvx
+BZ...Zx
+BZ...Zx
 BZ....x
 B.....x
-B.....x
-B.y...x
-B.....x
-Bm....x
-B.....x
+B....Zx
+B....vx
+B...Z.x
+Bm..ZZx
 xwvxwpx`, //crate blocking door LVL 10
   map`
 vxwvxpvBBB
@@ -1356,6 +1352,7 @@ onInput("s", () => {
     playerDir = "DOWN";
     mapJustChanged = false;
     plr.y += 1; // Move the player down
+      movementDown = true;
   }
 });
 onInput("w", () => {
@@ -1365,6 +1362,7 @@ onInput("w", () => {
     mapJustChanged = false;
 
     plr.y -= 1; // Move the player up
+      movementDown = true;
   }
 });
 onInput("a", () => {
@@ -1374,6 +1372,7 @@ onInput("a", () => {
     mapJustChanged = false;
 
     plr.x -= 1; // Move the player left
+      movementDown = true;
   }
 });
 onInput("d", () => {
@@ -1385,48 +1384,81 @@ onInput("d", () => {
     mapJustChanged = false;
 
     plr.x += 1; // Move the player right
+      movementDown = true;
   }
+
 });
 
-let cooldown = false;
-let interacting = false;
+let cooldown = false; // init
+let cooldownTime = 400 // init; can get smaller
+let interacting = false; // init
 onInput("i", () => {
   // tryInteract();
-  let tempspawn = getFirst(spawn);
+  // let tempspawn = getFirst(spawn);
+function basicAttack() {
+  let yOffset = 0;
+  let xOffset = 0
+  
   if (!gameOver && !cooldown && !interacting) {
     if (playerDir === "RIGHT") {
         legend.set(sword, frames[sword].RIGHT)
-      let swing = addSprite(plr.x+1, plr.y, sword)
-            playTune(slash);
+     xOffset = 1;
+      yOffset = 0;
     }
     if (playerDir === "LEFT") {
         legend.set(sword, frames[sword].LEFT)
-        let swing = addSprite(plr.x-1, plr.y, sword)
-            playTune(slash);
+       xOffset = -1;
+      yOffset = 0;
     }
     if (playerDir === "UP") {
     legend.set(sword, frames[sword].UP)
-    let swing = addSprite(plr.x, plr.y-1, sword)
-            playTune(slash);
+    xOffset = 0;
+    yOffset = -1;
     }
         if (playerDir === "DOWN") {
     legend.set(sword, frames[sword].DOWN)
-    let swing = addSprite(plr.x, plr.y+1, sword)
-                playTune(slash);
+          xOffset = 0;
+     yOffset = 1;
+
     }
-    cooldown = true;
+    playTune(slash);
+    let swing = addSprite(plr.x + xOffset, plr.y + yOffset, sword)
 
     //attack
-  
-  const swordPosition = tilesWith(sword);
-  console.log(swordPosition)
-  // Find sprites at the sword's position
-  const collisionSprites = getTile(swordPosition.x, swordPosition.y);
 
+
+ // Assuming the sword sprite is correctly defined in your game
+    /* if (!cooldown) {
+    console.log("triggered attack w/ i")
+    // Check for collisions with enemies
+    const collisionX = getFirst(sword).x 
+    const collisionY = getFirst(sword).y
+    const collisionSprites = getTile(collisionX, collisionY);
+    collisionSprites.forEach(sprite => {
+      if (enemyList.includes(sprite) && sprite.x === collisionX && sprite.y === collisionY) {
+        handleSwordAttack(sprite);
+      }
+    }); */
+
+    // Reset cooldown and remove sword
+    cooldown = true;
+    setTimeout(() => {
+        getFirst(sword).remove();
+        setTimeout(() => {
+            cooldown = false;
+        }, cooldownTime)
+    }, 100); 
+    
+
+  }
+     
+} 
+  movementDown = false;
+});
 
 
 // Function to handle sword attack on an enemy target
-function handleSwordAttack(enemy) {
+/* function handleSwordAttack(enemy) {
     console.log("found enemy at sword pos");
   // Apply damage to the enemy based on its type
   switch (enemy.type) {
@@ -1443,15 +1475,9 @@ function handleSwordAttack(enemy) {
   if (enemy.hp <= 0) {
     defeatEnemy(enemy); // Handle defeated enemy
   }
-}
+} */
 
-    
-    setTimeout(() => {
-    cooldown = false;
-    getFirst(sword).remove();
-}, 200);
-  }
-});
+
 onInput("j", () => { // RESET game if game over is on
   if (gameOver) {
     level = 1
@@ -1492,6 +1518,7 @@ onInput("l", () => {
     let tempdir = playerDir 
       if (tempdir === "UP") {
           playerDir = "RIGHT"
+          
       }
       else if (tempdir === "LEFT") {
         playerDir = "UP"
@@ -1502,11 +1529,15 @@ onInput("l", () => {
       if (tempdir === "DOWN") {
         playerDir = "LEFT"
     }
+  movementDown = false;
 })
 
 onInput("k", () => {
   resetMap(11)
+  movementDown = false;
 })
+
+var movementDown = false; // init
 
 afterInput(() => {
   const doorSprite = getFirst(door);
@@ -1540,11 +1571,15 @@ if (healingHeart)
 
   let crates = getAll(crate); // destroy on mob hit
   let waterSprites = getAll(water);
-  let mobSprites = getAll(mob); // collision via player movement check
   let spikeSprites = getAll(spikes);
+  let mobSprites = getAll(mob); // collision via player movement chec
   let ghostSprites = getAll(ghost);
   let spiderSprites = getAll(spider);
   let fireballSprites = getAll(fireball)
+  let attacki = getFirst(sword);
+  
+
+
 
 
 if (mobSprites) {
@@ -1581,39 +1616,44 @@ if (plr.x === spawnSprite.x && plr.y === spawnSprite.y && mapJustChanged === fal
     plr.y = tempYToPreventSpawnSafetyAbuse;
 }
 }
-    //attack
+    //attack from mobs
   
   mobSprites.forEach(mob => {
     if (plr.x === mob.x && plr.y === mob.y)
       playerCollided();
+    if (attacki.x === mob.x && attacki.y === mob.y)
+      defeatEnemy(mob)
   })
   
   ghostSprites.forEach(ghost => {
     if (plr.x === ghost.x && plr.y === ghost.y)
       playerCollided();
+    if (attacki.x === ghost.x && attacki.y === ghost.y)
+      defeatEnemy(ghost)
   })
   
   spiderSprites.forEach(spider => {
     if (plr.x === spider.x && plr.y === spider.y)
       playerCollided();
+        if (attacki.x === spider.x && attacki.y === spider.y)
+      defeatEnemy(spider)
   })
-  for (let i = 0; i < spikeSprites.length; i++) {
-    if (plr.x === spikeSprites[i].x && plr.y === spikeSprites[i].y) {
-      stillDamage();
-    }
   for (let i = 0; i < fireballSprites.length; i++) {
     if (plr.x === fireballSprites[i].x && plr.y === fireballSprites[i].y) {
       playerCollided();
     }
   }
-  }
+  
   waterSprites.forEach(watersprite => {
     if (plr.x === watersprite.x && plr.y === watersprite.y)
       playerCollided();
-
   })
-
-  //lvl traps
+    spikeSprites.forEach(spike => {
+    if (plr.x === spike.x && plr.y === spike.y && movementDown) {
+      stillDamage();
+      movementDown = false;
+    }
+    });
 
 if (level === 5 && plr.x === width() - 2 && plr.y === 8 && !traptriggered ) {
   let graves = getAll(hurtplayer)
@@ -1628,13 +1668,21 @@ if (level === 5 && plr.x === width() - 2 && plr.y === 8 && !traptriggered ) {
   
   //doors for specific lvls levelspecific stuff
 const portal = getFirst(advancetile);
+plr = getFirst(player);
 if (portal && plr.x === portal.x && plr.y === portal.y) {
   if (level === 8) { // water realm
     resetMap(9)
   }
 }
+
   
-});
+  })
+
+  //lvl traps
+
+
+  
+
 
 let mobCounter = 0;
 let ghostCounter = 0; 
@@ -1822,11 +1870,11 @@ setInterval(fireShoot, 500);
 
 
 function defeatEnemy(enemy) {
-  console.log("enemy defeated")
   enemy.remove();
     playTune(killEnemy);
+  }
 
-}
+
 
 function gainHealth() {
   if (health < maxhealth) {  
@@ -1851,7 +1899,9 @@ function gainHealth() {
 function playerCollided() { //collide with normal mob
   let plr = getFirst(player)
   const spawnSprite = getFirst(spawn)
-  console.log("Collided: " + plr.x + ", " + plr.y) 
+  plr.x = spawnSprite.x;
+  plr.y = spawnSprite.y;
+
   
   health--;
   handleHealthUI(health);
@@ -1862,12 +1912,14 @@ function playerCollided() { //collide with normal mob
   checkGameOver()
   
 
-  plr.x = spawnSprite.x;
-  plr.y = spawnSprite.y;
 
   console.log("Spawn position: " + spawnSprite.x + ", " + spawnSprite.y) 
   console.log("Reinitalize to spawn: " + plr.x + ", " + plr.y) // does not work on spawn x= 0; sprig bug?
 }
+
+
+
+
 
 function stillDamage() { // same but without resetting to spawn
   health--;
