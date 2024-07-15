@@ -71,6 +71,8 @@ const chest = "E"
 const mentor = "F"
 const bridge = "G"
 const mobspawner = "H"
+const mobegg = "I"
+const invincibility = "J"
 
 
 const legendKeys = [
@@ -79,6 +81,7 @@ const legendKeys = [
   roofright,
   roofoverhangleft,
   roofoverhangright,
+  invincibility,
   sword,
   player,
   mentor,
@@ -731,7 +734,40 @@ legend.set(advancetile, [advancetile, bitmap`
 0L000000000000L0
 0LLLLLLLLLLLLLL0
 0000000000000000`]) // use for an open world feel in lvls, advancing to a lvl that is not in rotation, but expands upon the prev then goes into rotation
-
+legend.set(mobegg, [mobegg, bitmap`
+................
+......0000......
+....00DDDD00....
+...0DDDDDDD40...
+...0DDDDDDDD0...
+...0DDD4DDDD0...
+..0DDD44DDDDD0..
+..0DDD44DDDDD0..
+..0DDDDDDD4DD0..
+..0DDDDDD44DD0..
+..0DD4DDD4DDD0..
+..0DD44DDDDDD0..
+..0DDD4DDDDDD0..
+...0DDDDDDDD0...
+....0DDDDDD0....
+.....000000.....`])
+legend.set(invincibility, [invincibility, bitmap`
+..777777777777..
+.7.2........2.7.
+7.2.........22.7
+72.............7
+72.............7
+7..............7
+7..............7
+7..............7
+7..............7
+7..............7
+7..............7
+7..............7
+7..............7
+7..............7
+.7............7.
+..777777777777..`])
 
 const frames = {
   [player]: {
@@ -1050,10 +1086,10 @@ v..m..v
 v.....v
 v..p..v`, // double static chamber
   map`
-xwvxwAxwvxw
+xwvxw$xwvxw
+x.........w
 x....b....w
 x.........w
-H.........w
 x.........w
 x.........w
 x.........w
@@ -1275,6 +1311,7 @@ let bgm = playTune(villagebgm, Infinity);
 setPushables({
   [player]: [crate],
     [crate]: [mob],
+  [invincibility]: [mob]
 })
 
 
@@ -1603,7 +1640,7 @@ onInput("l", () => {
 })
 
 onInput("k", () => {
-  // resetMap(12) // for debug
+  resetMap(14) // for debug
   movementDown = false;
 })
 
@@ -1616,6 +1653,10 @@ afterInput(() => {
   const healingHeart = getFirst(healingheart)
   const spawnSprite = getFirst(spawn)
 
+  if (plr.x === spawnSprite.x && plr.y === spawnSprite.y) {
+    plr.x = tempXToPreventSpawnSafetyAbuse;
+    plr.y = tempYToPreventSpawnSafetyAbuse;
+  }
 checkCollisionforFireBalls()
   
   legend.set(player, frames[player][playerDir]);
@@ -1634,10 +1675,11 @@ checkCollisionforFireBalls()
       setTimeout(() => {clearText()}, 2000)
     }
   } // tutorial and mentor
-  
+if (doorSprite) {
   if (plr.x === doorSprite.x && plr.y === doorSprite.y) {
     resetMap(); // Load the next level (mob levels)
   }
+}
   
   if (getAll(housedoor).length > 0 && plr.x === houseDoor.x && plr.y === houseDoor.y) {
     level = 0;
@@ -1647,6 +1689,13 @@ checkCollisionforFireBalls()
   } 
 
 
+if (invincible) {
+  getFirst(invincibility).remove();
+  addSprite(plr.x,plr.y,invincibility);
+} else {
+  let invinciblestuff = getAll(invincibility)
+  invinciblestuff.forEach(e => {e.remove();})
+}
 
   //heal 
 if (healingHeart) {
@@ -1863,7 +1912,6 @@ function mobMoveAll() {
   });
 
 }
-
 function mobSpawn() {
   let mobSpawner = getAll(mobspawner);
   mobSpawner.forEach(s => {
@@ -1875,6 +1923,7 @@ function mobSpawn() {
     }
   })
 }
+
 function ghostMoveAll() {
   const options = ["up", "down", "left", "right"];
 
@@ -1988,9 +2037,43 @@ function fireShoot() {
     }
   });
 }
-
 setInterval(fireShoot, 500);
 
+function goblinBossAttack() {
+  let gobBoss = getFirst(boss);
+  const options = ["surroundXaoe", "eggSummon", "sideaoe"];
+  let randomIndex = Math.floor(Math.random() * options.length);
+  let choice = options[randomIndex];
+  if (choice === "surroundXaoe") {
+    for (let i = -1; i < 2; i++) {
+      for (let j = -1; j < 3; j++) {
+        addSprite(gobBoss.x+i,gobBoss.y+j,warningtile);
+      }
+    }
+      addSprite(gobBoss.x-2, gobBoss.y, warningtile);
+      addSprite(gobBoss.x-2, gobBoss.y+1, warningtile);
+      addSprite(gobBoss.x+2, gobBoss.y, warningtile);
+      addSprite(gobBoss.x+2, gobBoss.y+1, warningtile);
+
+        setTimeout(() => {
+        let warningtiles = getAll(warningtile)
+        warningtiles.forEach(tile => {
+          if (plr.x === tile.x && plr.y === tile.y) {
+            playerCollided()
+          }
+          tile.remove();
+          // animation? 
+        })
+        
+        }, 1000);
+  }
+  if (choice === "eggSummon") {
+    let xchoices = [2, 3, 4, 6, 7, 8]
+    let ychoices = [3, 4]
+  }
+
+}
+var bossAttackInterval = setInterval(goblinBossAttack, 2000)
 
 function defeatEnemy(enemy) {
   enemy.remove();
@@ -2019,31 +2102,56 @@ function gainHealth() {
   }
 }
 
+let invincible = false;
 function playerCollided() { //collide with normal mob
-  
-  let spawnSprite = getFirst(spawn)
+if (!invincible) {
 
 
+  invincible = true;
   health--;
   handleHealthUI(health);
   createHeartsArray(health);
-  
+  checkGameOver() // to get best grave placement
   playTune(hit);
   
 
-  checkGameOver() // to get best grave placement
+if (!gameOver) {
+setTimeout(() => {
+    if (playerDir === "RIGHT") {
+      plr.x--;
+      addSprite(plr.x,plr.y,invincibility);
+    }
+    if (playerDir === "LEFT") {
+      plr.x++;
+      addSprite(plr.x,plr.y,invincibility);
+    }
+    if (playerDir === "UP") {
+      plr.y++;
+      addSprite(plr.x,plr.y,invincibility);
+    }
+        if (playerDir === "DOWN") {
+          plr.y--;
+          addSprite(plr.x,plr.y,invincibility);
+    }
+}, 75);
+}
+
   
-  getFirst(player).x = spawnSprite.x;
-  getFirst(player).y = spawnSprite.y;
+  // getFirst(player).x = spawnSprite.x;
+  // getFirst(player).y = spawnSprite.y;
+  // console.log("Spawn position: " + spawnSprite.x + ", " + spawnSprite.y) 
+  // console.log("Reinitalize to spawn: " + plr.x + ", " + plr.y) // does not work on spawn x= 0;  bug?
 
-  console.log("Spawn position: " + spawnSprite.x + ", " + spawnSprite.y) 
-  console.log("Reinitalize to spawn: " + plr.x + ", " + plr.y) // does not work on spawn x= 0;  bug?
-
-
+  
   cooldown = true;
   setTimeout(() => {
   cooldown = false;
-}, "200");
+  }, "200");
+  setTimeout(() => {
+  invincible = false;
+  getFirst(invincibility).remove();
+  }, "800");
+}
 }
 
 
@@ -2061,7 +2169,11 @@ function stillDamage() { // same but without resetting to spawn
 function checkGameOver() {
   if (health === 0) {
     const plrgrave = addSprite(plr.x, plr.y, hurtplayer);
+    
     plr.remove();
+    if (getFirst(invincibility))
+      getFirst(invincibility).remove();
+    
     gameOver = true;
     
     bgm.end()
