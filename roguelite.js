@@ -2015,6 +2015,22 @@ afterInput(() => {
     })
   }
 
+const hpPotion = getFirst(hppotion);
+if (hpPotion) {
+if (plr.x === hpPotion.x && plr.y === hpPotion.y) {
+  addItem(hppotion)
+  hpPotion.remove();
+}
+}
+
+if (itemSprite) 
+  itemSprite.remove();
+if (heldItem)
+  itemSprite = addSprite(0,0,heldItem)
+})
+
+
+//lvl traps
 
 
 
@@ -2103,7 +2119,23 @@ function mobMoveAll() {
 
 }
 
+var itemSprite; //init
+function addItem(pickup) {
+  if (heldItem === undefined) {
+    playTune(getItem);
+    heldItem = pickup
 
+  }
+  else if (heldItem) {
+    console.log('capacity max')
+    addText("capacity full", { 
+  x: 4,
+  y: 4,
+  color: color`3`
+})
+  }
+  itemSprite = addSprite(0,0,pickup)
+}
 
 function mobSpawn() {
   let mobSpawner = getAll(mobspawner);
