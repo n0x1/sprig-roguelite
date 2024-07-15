@@ -7,19 +7,20 @@
 
 /* ABOUT:
 
-Explore randomly generated dungeons, defeat enemies, upgrade your gear, and find a way to the core of the planet. 
+Explore a procedurally generated dungeon, defeat enemies, upgrade your gear, and find a way to the core of the planet. 
 
 */
 
 
 /* bulletin 
-    mob spawner
     dash attack
 
    chests
    
    boss attack pattern
-   attack for player & direction changes
+   boss rush mode
+   able to attack bosses
+
 
    then add scroller lvls & difficulty curve (with score var
 
@@ -74,6 +75,7 @@ const mobspawner = "H"
 const mobegg = "I"
 const invincibility = "J"
 const bossslash = "K"
+const item = "L"
 
 
 const legendKeys = [
@@ -109,6 +111,7 @@ const legendKeys = [
   housewallright,
   roofbody,
   housedoor,
+  item,
   crate,
   healingheart,
   spikes,
@@ -297,20 +300,20 @@ legend.set(mobboss, [mobboss, bitmap`
 ...DDDD..DDDD...`])
 legend.set(bossslash, [bossslash, bitmap`
 ..............00
-.........222000.
-.......2220000..
-......220000....
-......20000.....
-.....22000......
-....22000.......
-....2000........
-...2000.........
-...000..........
-..000...........
-.0000...........
-.00.............
-000.............
-00..............
+....2....222000.
+....2222220000..
+...22.220000..22
+..202.20000..22.
+.2..002000..2.2.
+.2..00000..2..2.
+.2..0000..2..2..
+.2.2000.022..2..
+...0000000..2...
+..000000...2....
+.00000....22....
+.00...0.......22
+000...0....222..
+00......222.....
 0...............`])
 legend.set(mob, [mob, bitmap`
 ................
@@ -789,6 +792,7 @@ legend.set(invincibility, [invincibility, bitmap`
 .7............7.
 ..777777777777..`])
 
+
 const frames = {
   [player]: {
 
@@ -930,11 +934,48 @@ const frames = {
 ................
 ................
 ................`]
-  }
+  },
+  [item]: {
+    "hppot": [item, bitmap`
+................
+......0000......
+....00099000....
+...0111991110...
+...0...11...0...
+....000..000....
+.....0....0.....
+...0003333000...
+..003333322300..
+.00333333323300.
+.03333334333330.
+.03323344433330.
+.00323334333300.
+..032333333330..
+..002233333300..
+....00000000....`],
+    "curse": [item, bitmap`
+......0000......
+....00....00....
+..00LL66666606..
+..0LL666666330..
+..0L6336663333..
+..0L3333366333..
+..603333663333..
+..663333366333..
+..663333663333..
+..666333366336..
+..666633666636..
+..666666666666..
+..633336333366..
+..366636366363..
+..363336366636..
+..663666333663..`],
+  },
 
 }
 legend.set(player, frames[player].DOWN)
 legend.set(sword, frames[sword].DOWN)
+legend.set(item, frames[item].hppot)
 
 setLegend(...legend.values())
 
@@ -964,11 +1005,13 @@ function setPlayerSprite(direction) {
 
 setSolids([wall, wall2, wall3, fireshooter, crate, bridge, housewall, housewallleft, housewallright, roofbody, player, mentor, mobboss, mobegg])
 
-const mentorDialogue = ["Move: w,a,s,d",
-  "Attack: i,j,l",
-  "Special: k",
-  "\"Be careful,",
-  "young one\""
+const mentorDialogue = [
+  "Move: w,a,s,d",
+  "Sword: i,j,l",
+  "Item: k",
+  "Face enemies,",
+  "collect items,",
+  "grow stronger."
 ]
 
 
@@ -980,11 +1023,11 @@ const levels = [ // easy lvls, possibly create a seperate array for next difficu
   map`
 ccccccccc
 ccccccccc
-ccccccccc
-ccccccwAx
-ccccccwFx
-ccccccw.x
-ccccccwpx`,
+cccccciAe
+cccccci.e
+cccccciFe
+cccccci.e
+ccccccipe`,
 
   map`
 fffffv.vxw
@@ -999,9 +1042,9 @@ ffpdffffff`, //start
   // enemy lvls
   map`
 xwvdvxw
-xwm.mxw
-x.....w
-xm..m.w
+xwfmmxw
+xff...w
+xfm.m.w
 xw...xw
 xw...xw
 xw.p.xw`, //goblin corridor
@@ -1045,7 +1088,7 @@ w$$.$.$x
 wvxwvpvx`,
   map`
 wvxwvdvxwv
-vv.y$.y.vv
+vv....y.vv
 w.y......v
 w....y...v
 wy.......v
@@ -1053,20 +1096,20 @@ w......y.v
 wv.y....vv
 wvxwvpvxwv`, // spiders lots
   map`
-wvdvGBv
+wvdDGBv
 BG..GBv
 BG..ABv
 BG..GBv
-wvpvxwv`, // water chamber
-  map`
-BBBBdBBBB
-BB.Z.Z.BB
+wvpvxwv`,
+map`
+BBtvdvtBB
+BB.....BB
+BB..L..BB
+BB.....BB
+BBt...tBB
 BB.....BB
 BB.....BB
-BB.....BB
-BB..!..BB
-BB.....BB
-BB..p..BB`, //water boss
+BB..p..BB`, 
 
   map`
 vdvvwvx
@@ -1102,7 +1145,7 @@ vt...tv
 v.t.t.v
 v.....v
 vxw.xwv
-vm.y.mv
+vm...mv
 v.m.m.v
 v..m..v
 v.....v
@@ -1124,7 +1167,7 @@ xwvxwpxwvxw`, // first boss; levels.length
 let traptriggered = false;
 
 const randomPickBlacklist = [
-  9
+  0, 1, 9
 ]
 
 setMap(levels[level]); // only for init
@@ -1186,6 +1229,10 @@ function levelSpecificStuff() {
     addSprite(width() - 1, 4, candle);
     addSprite(width() - 1, 6, candle);
   }
+  if (level === 13) {
+    addSprite(2, 4, candle);
+        addSprite(4, 4, candle);
+  }
   /*  if (level < 9) {
 let decowall = getAll(wall2);
      for (let i = 0; i < 3; i++) {
@@ -1216,6 +1263,7 @@ const killEnemy = tune`
 104.8951048951049: C5^104.8951048951049,
 104.8951048951049: A4^104.8951048951049,
 2517.4825174825173`
+const killBoss = tune``
 const enemySpawn = tune`
 112.78195488721805: B4^112.78195488721805 + C4^112.78195488721805 + G4^112.78195488721805 + E5^112.78195488721805,
 112.78195488721805: D4^112.78195488721805 + A4^112.78195488721805 + C5~112.78195488721805 + F5^112.78195488721805,
@@ -1300,9 +1348,9 @@ const villagebgm = tune`
 const hardbgm = tune`
 476.1904761904762: A5-476.1904761904762 + C5-476.1904761904762 + B4^476.1904761904762 + C4/476.1904761904762,
 476.1904761904762: B5-476.1904761904762 + C5-476.1904761904762 + B4^476.1904761904762 + D4^476.1904761904762 + C4^476.1904761904762,
-476.1904761904762: C5-476.1904761904762 + A5-476.1904761904762 + B4^476.1904761904762 + C4/476.1904761904762,
-476.1904761904762: G5-476.1904761904762 + C5-476.1904761904762 + B4^476.1904761904762 + D4^476.1904761904762 + C4^476.1904761904762,
-476.1904761904762: A5-476.1904761904762 + C5-476.1904761904762 + B4^476.1904761904762 + C4/476.1904761904762,
+476.1904761904762: C5-476.1904761904762 + A5-476.1904761904762 + B4^476.1904761904762 + C4/476.1904761904762 + B5-476.1904761904762,
+476.1904761904762: G5-476.1904761904762 + B4^476.1904761904762 + D4^476.1904761904762 + C4^476.1904761904762 + A5-476.1904761904762,
+476.1904761904762: A5-476.1904761904762 + B4^476.1904761904762 + C4/476.1904761904762 + G5-476.1904761904762,
 476.1904761904762: F5-476.1904761904762 + C5-476.1904761904762 + B4^476.1904761904762 + D4^476.1904761904762 + C4^476.1904761904762,
 476.1904761904762: E5-476.1904761904762 + C5-476.1904761904762 + B4^476.1904761904762 + C4/476.1904761904762,
 476.1904761904762: C4/476.1904761904762 + B4^476.1904761904762 + C5-476.1904761904762,
@@ -1333,6 +1381,8 @@ const hardbgm = tune`
 
 
 let bgm = playTune(villagebgm, Infinity);
+
+// (if boss level, play hard bgm)
 
 setPushables({
   [player]: [crate],
@@ -1398,20 +1448,24 @@ function levelOneSetDeco() {
 }
 levelOneSetDeco() // init, call whenever returning
 
-async function tutorialCutscene() {
+let tutorialPlayed = false;
+async function tutorialCutscene(tutorialPlayed) {
   function wait(ms) {
     return new Promise(resolve => {
       setTimeout(resolve, ms);
     });
   }
-
-  for (let i = 0; i < mentorDialogue.length - 2; i++) {
+if (!tutorialPlayed) {
+  for (let i = 0; i < mentorDialogue.length - 3; i++) {
     addText(mentorDialogue[i], { x: 1, y: 3 + i, color: color`0` })
-    await wait(400)
+    await wait(350)
   }
   addText(mentorDialogue[3], { x: 1, y: 8, color: color`0` })
   addText(mentorDialogue[4], { x: 1, y: 9, color: color`0` })
-  getFirst(mentor).y = getFirst(mentor).y + 2
+    addText(mentorDialogue[5], { x: 1, y: 10, color: color`0` })
+    getFirst(mentor).y = getFirst(mentor).y + 2
+  tutorialPlayed = true;
+}
 }
 
 let chosenLevels = [];
@@ -1426,7 +1480,7 @@ function resetMap(n) {
   }
   // idea: random range increases as score increases - maybe add score to lvl length
   if (arguments.length === 0) {
-    if (level === 0 || level === 1 || chosenLevels.includes(level) || randomPickBlacklist.includes(level)) { // add more lvlvs as scrollers added 
+    if (chosenLevels.includes(level) || randomPickBlacklist.includes(level)) { // add more lvlvs as scrollers added 
       resetMap() //recursively call until its a dungeon lvl
     }
   }
@@ -1453,7 +1507,7 @@ function resetMap(n) {
 
   addSprite(plr.x, plr.y, spawn); //spawn pad under player
   levelSpecificStuff();
-
+  
   clearText();
 
 
@@ -1669,6 +1723,15 @@ afterInput(() => {
   const gobBossSprite = getFirst(mobboss);
   const healingHeart = getFirst(healingheart)
   const spawnSprite = getFirst(spawn)
+  let crates = getAll(crate); // destroy on mob hit
+  let waterSprites = getAll(water);
+  let spikeSprites = getAll(spikes);
+  let mobSprites = getAll(mob); // collision via player movement chec
+  let ghostSprites = getAll(ghost);
+  let spiderSprites = getAll(spider);
+  let fireballSprites = getAll(fireball)
+  let attacki = getFirst(sword);
+  let mobEggs = getAll(mobegg);
 
   checkIfOnSpawnPos()
   checkCollisionforFireBalls()
@@ -1679,13 +1742,16 @@ afterInput(() => {
   if (level === 0) {
     if (plr.x === 7 && plr.y === 5) {
       console.log("tutorial")
+      tutorialPlayed = true;
       tutorialCutscene();
+      
     }
     if (plr.x === getFirst(advancetile).x && plr.y === getFirst(advancetile).y) {
+        clearText();
       resetMap();
-      clearText();
-
-      addText("I: Surface", { x: 4, y: 5, color: color`8` })
+      setTimeout(() => {  clearText(); }, 50)
+      setTimeout(() => {  addText("I: Surface", { x: 4, y: 3, color: color`8` }) }, 100)
+     
       setTimeout(() => { clearText() }, 2000)
     }
   } // tutorial and mentor
@@ -1717,15 +1783,7 @@ afterInput(() => {
       gainHealth();
   }
   plr = getFirst(player)
-  let crates = getAll(crate); // destroy on mob hit
-  let waterSprites = getAll(water);
-  let spikeSprites = getAll(spikes);
-  let mobSprites = getAll(mob); // collision via player movement chec
-  let ghostSprites = getAll(ghost);
-  let spiderSprites = getAll(spider);
-  let fireballSprites = getAll(fireball)
-  let attacki = getFirst(sword);
-  let mobEggs = getAll(mobegg);
+
 
 
 
@@ -1773,6 +1831,12 @@ afterInput(() => {
     }
   });
 
+  if (gobBossSprite) {
+    if (attacki.x === gobBossSprite.x && attacki.y === gobBossSprite.y)
+      gobBossHp--;
+    if (gobBossHp <= 0)
+      defeatBoss(gobBossSprite)
+  }
 
   if (level === 5 && plr.x === width() - 2 && plr.y === 8 && !traptriggered) {
     let graves = getAll(hurtplayer)
@@ -1780,7 +1844,7 @@ afterInput(() => {
 
     graves.forEach(grave => {
       playTune(danger);
-
+  
       addSprite(grave.x, grave.y, ghost)
     })
   }
@@ -2067,45 +2131,33 @@ setInterval(fireShoot, 500);
 
 let eggCount = 0; // init
 let eggOpenTime = 2500; // init
-let gobBossHp = 12; // init
+let gobBossHp = 15; // init
 async function goblinBossAttack() {
   let gobBoss = getFirst(mobboss);
   let choice;
   if (gobBoss) {
-    const options = ["sideaoe"]; // "surroundXaoe", "eggSummon",  
+    const options = ["surroundXaoe", "eggSummon",  "sideaoe"];
     let randomIndex = Math.floor(Math.random() * options.length);
-
-        // if ((plr.x === gobBoss.x+1 && plr.y === gobBoss.y ) ||(plr.x === gobBoss.x-1 && plr.y === gobBoss.y ) || (plr.x === gobBoss.x && plr.y === gobBoss.y+1 ))
-           // choice = "surroundXaoe"
     
            choice = options[randomIndex];
-
     
     if (choice === "surroundXaoe") {
       for (let i = -1; i < 2; i++) {
         for (let j = -1; j < 3; j++) {
-          addSprite(gobBoss.x + i, gobBoss.y + j, warningtile);
+          addSprite(gobBoss.x + i, gobBoss.y + j, warningtile);1
         }
       }
       addSprite(gobBoss.x - 2, gobBoss.y, warningtile);
       addSprite(gobBoss.x - 2, gobBoss.y + 1, warningtile);
       addSprite(gobBoss.x + 2, gobBoss.y, warningtile);
       addSprite(gobBoss.x + 2, gobBoss.y + 1, warningtile);
-      if (gobBossHp < 7) {
+      if (gobBossHp < 8) {
         addSprite(gobBoss.x -2 , gobBoss.y -1 , warningtile);
                 addSprite(gobBoss.x +2 , gobBoss.y -1 , warningtile);
         addSprite(gobBoss.x, gobBoss.y +3, warningtile);
       }
       setTimeout(() => {
-        let warningtiles = getAll(warningtile)
-        warningtiles.forEach(tile => {
-          if (plr.x === tile.x && plr.y === tile.y) {
-            playerCollided()
-          }
-          tile.remove();
-          // animation? 
-        })
-
+        startslashing();
       }, 1000);
     }
     if (choice === "eggSummon") {
@@ -2119,7 +2171,7 @@ async function goblinBossAttack() {
       addSprite(xchoices[randomx], ychoices[randomy], mobegg)
       eggCount++;
 
-      if (gobBossHp === 12) { // harder after 50% hp
+      if (gobBossHp < 8) { // harder after 50% hp
         randomx =  Math.floor(Math.random() * xchoices.length)
         randomy = Math.floor(Math.random() * ychoices.length)
         addSprite(xchoices[randomx], ychoices[randomy], mobegg)
@@ -2158,42 +2210,55 @@ async function goblinBossAttack() {
       addSprite(4, height()-2, warningtile)
       addSprite(6, height()-2, warningtile)
       setTimeout(() => {
-          let slashanimInterval = setInterval(slashWarningTiles, 75)
-      }, 1500)
+          startslashing()
+      }, 1000)
     }
   }
 }
-let runcount = 1
-async function slashWarningTiles() {
-  let mapheight = height()
 
+function startslashing() {
+  let slashanimInterval = setInterval(slashWarningTiles, 65)
+  let runcount = 0
+  slashWarningTiles()
+  function slashWarningTiles() {
+  let mapheight = height()
   let warningtiles = getAll(warningtile)
   
   warningtiles.forEach(tile => {
 
     if (tile.y === runcount) {
-          addSprite(tile.x,tile.y,bossslash)
-              tile.remove();
-setTimeout(() => {
+          addSprite(tile.x,tile.y, bossslash)
+          playTune(slash)
+          tile.remove();
         let slashes = getAll(bossslash)
         slashes.forEach(s => {
-          if (plr.x === s.x && plr.y === s.y)
+          if (plr.x === s.x && plr.y === s.y) {
+            clearAllSlashes();
             playerCollided();
-          s.remove();
-        })
-        runcount++;
-      }, 100)
+          }
 
-  } 
-    
+          if (s.y + 1 === runcount)
+            s.remove();
         })
+  } 
+})
+runcount++;
 if (runcount >= mapheight) {
   runcount = 0;
   clearInterval(slashanimInterval)
+  clearAllSlashes();
+}
+}
 }
 
+function clearAllSlashes() {
+let slashes = getAll(bossslash)
+slashes.forEach(s => {
+  s.remove();
+})
 }
-setInterval(goblinBossAttack, 2200)
+
+setInterval(goblinBossAttack, 1600)
 
 
 function defeatEnemy(enemy) {
@@ -2201,6 +2266,11 @@ function defeatEnemy(enemy) {
   playTune(killEnemy);
 }
 
+function defeatBoss(boss) {
+  boss.remove()
+  playTune(killBoss)
+  getFirst(door.. ) replace with thing)
+}
 
 
 function gainHealth() {
@@ -2313,8 +2383,10 @@ function checkGameOver() {
 }
 
 let damageincrement = 1 // init
+let heldItem = undefined; // init
 function initGame() { //  used for restart after death
     level = 1
+    heldItem = undefined
     setMap(levels[level]);
     clearText();
     levelOneSetDeco();
