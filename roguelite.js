@@ -73,6 +73,7 @@ const bridge = "G"
 const mobspawner = "H"
 const mobegg = "I"
 const invincibility = "J"
+const bossslash = "K"
 
 
 const legendKeys = [
@@ -81,8 +82,9 @@ const legendKeys = [
   roofright,
   roofoverhangleft,
   roofoverhangright,
-  invincibility,
+  bossslash,
   sword,
+  invincibility,
   player,
   mentor,
   heart,
@@ -293,6 +295,23 @@ legend.set(mobboss, [mobboss, bitmap`
 ......DDDD......
 ....DDD..DDD....
 ...DDDD..DDDD...`])
+legend.set(bossslash, [bossslash, bitmap`
+..............00
+.........222000.
+.......2220000..
+......220000....
+......20000.....
+.....22000......
+....22000.......
+....2000........
+...2000.........
+...000..........
+..000...........
+.0000...........
+.00.............
+000.............
+00..............
+0...............`])
 legend.set(mob, [mob, bitmap`
 ................
 ................
@@ -2051,10 +2070,17 @@ let eggOpenTime = 2500; // init
 let gobBossHp = 12; // init
 async function goblinBossAttack() {
   let gobBoss = getFirst(mobboss);
+  let choice;
   if (gobBoss) {
-    const options = ["surroundXaoe", "eggSummon", "sideaoe"];
+    const options = ["sideaoe"]; // "surroundXaoe", "eggSummon",  
     let randomIndex = Math.floor(Math.random() * options.length);
-    let choice = options[randomIndex];
+
+        // if ((plr.x === gobBoss.x+1 && plr.y === gobBoss.y ) ||(plr.x === gobBoss.x-1 && plr.y === gobBoss.y ) || (plr.x === gobBoss.x && plr.y === gobBoss.y+1 ))
+           // choice = "surroundXaoe"
+    
+           choice = options[randomIndex];
+
+    
     if (choice === "surroundXaoe") {
       for (let i = -1; i < 2; i++) {
         for (let j = -1; j < 3; j++) {
@@ -2065,11 +2091,10 @@ async function goblinBossAttack() {
       addSprite(gobBoss.x - 2, gobBoss.y + 1, warningtile);
       addSprite(gobBoss.x + 2, gobBoss.y, warningtile);
       addSprite(gobBoss.x + 2, gobBoss.y + 1, warningtile);
-      if (gobBossHp === 12) {
-        addSprite(gobBoss.x + 3, gobBoss.y + 1, warningtile);
-        addSprite(gobBoss.x - 3, gobBoss.y + 1, warningtile);
-        addSprite(gobBoss.x + 3, gobBoss.y, warningtile);
-        addSprite(gobBoss.x - 3, gobBoss.y , warningtile);
+      if (gobBossHp < 7) {
+        addSprite(gobBoss.x -2 , gobBoss.y -1 , warningtile);
+                addSprite(gobBoss.x +2 , gobBoss.y -1 , warningtile);
+        addSprite(gobBoss.x, gobBoss.y +3, warningtile);
       }
       setTimeout(() => {
         let warningtiles = getAll(warningtile)
@@ -2099,6 +2124,7 @@ async function goblinBossAttack() {
         randomy = Math.floor(Math.random() * ychoices.length)
         addSprite(xchoices[randomx], ychoices[randomy], mobegg)
         eggCount++;
+        eggOpenTime = 2000;
       }
     }
       if (eggCount > 0) {
@@ -2110,9 +2136,65 @@ async function goblinBossAttack() {
         eggCount--;
       }
     }
+    if (choice === "sideaoe") {
+      for (let i = 1; i < 3; i++) {
+        for (let j = 1; j < 7; j++) {
+          addSprite(i, j, warningtile);
+        }
+      }
+        for (let i = 8; i < 10; i++) {
+        for (let j = 1; j < 7; j++) {
+          addSprite(i, j, warningtile);
+        }
+      }
+      clearTile(1,1)
+      clearTile(1,height()-2)
+      clearTile(width()-2,1)
+      clearTile(width()-2,height()-2)
+      addSprite(3, height()-2, warningtile)
+      addSprite(7, height()-2, warningtile)
+      addSprite(3, height()-3, warningtile)
+      addSprite(7, height()-3, warningtile)
+      addSprite(4, height()-2, warningtile)
+      addSprite(6, height()-2, warningtile)
+      setTimeout(() => {
+          let slashanimInterval = setInterval(slashWarningTiles, 75)
+      }, 1500)
+    }
   }
 }
-setInterval(goblinBossAttack, 1700)
+let runcount = 1
+async function slashWarningTiles() {
+  let mapheight = height()
+
+  let warningtiles = getAll(warningtile)
+  
+  warningtiles.forEach(tile => {
+
+    if (tile.y === runcount) {
+          addSprite(tile.x,tile.y,bossslash)
+              tile.remove();
+setTimeout(() => {
+        let slashes = getAll(bossslash)
+        slashes.forEach(s => {
+          if (plr.x === s.x && plr.y === s.y)
+            playerCollided();
+          s.remove();
+        })
+        runcount++;
+      }, 100)
+
+  } 
+    
+        })
+if (runcount >= mapheight) {
+  runcount = 0;
+  clearInterval(slashanimInterval)
+}
+
+}
+setInterval(goblinBossAttack, 2200)
+
 
 function defeatEnemy(enemy) {
   enemy.remove();
@@ -2231,3 +2313,32 @@ function checkGameOver() {
 }
 
 let damageincrement = 1 // init
+function initGame() { //  used for restart after death
+    level = 1
+    setMap(levels[level]);
+    clearText();
+    levelOneSetDeco();
+
+
+    health = maxhealth;
+    heartsArray = [];
+
+
+    plr = getFirst(currentPlayerType);
+    plr.x = 2;
+    plr.y = 7;
+    playerDir = "DOWN";
+
+    gameOver = false;
+
+  //reset buffs
+    damageincrement = 1 
+    cooldown = false; // init
+    cooldownTime = 400 // init; can get smaller
+    interacting = false; // init
+  
+    // reset bosses stats
+     eggCount = 0; 
+    eggOpenTime = 2500; 
+    gobBossHp = 12; 
+}
