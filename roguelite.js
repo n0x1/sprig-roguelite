@@ -90,10 +90,10 @@ const legendKeys = [
   bossslash,
   sword,
   invincibility,
-  
+
   hppotion,
   curse,
-  
+
   player,
   mentor,
   heart,
@@ -850,7 +850,7 @@ legend.set(hppotion, [hppotion, bitmap`
 ..032333333330..
 ..002233333300..
 ....00000000....`])
-legend.set(curse, [curse,  bitmap`
+legend.set(curse, [curse, bitmap`
 ......0000......
 ....00....00....
 ..00LL66666606..
@@ -1022,7 +1022,7 @@ const items = [
 ]
 
 
-          
+
 legend.set(player, frames[player].DOWN)
 legend.set(sword, frames[sword].DOWN)
 
@@ -1151,7 +1151,7 @@ BG..GBv
 BG..ABv
 BG..GBv
 wvpvxwv`,
-map`
+  map`
 BBtvdvtBB
 BB.....BB
 BB..M..BB
@@ -1159,7 +1159,7 @@ BB.....BB
 BBt...tBB
 BB.....BB
 BB.....BB
-BB..p..BB`,  // hp pot chamber
+BB..p..BB`, // hp pot chamber
 
   map`
 vdvvwvx
@@ -1282,7 +1282,7 @@ function levelSpecificStuff() {
   }
   if (level === 13) {
     addSprite(2, 4, candle);
-        addSprite(4, 4, candle);
+    addSprite(4, 4, candle);
   }
   /*  if (level < 9) {
 let decowall = getAll(wall2);
@@ -1450,12 +1450,12 @@ let bgm = playTune(villagebgm, Infinity); // init
 
 function playbgm() { // plays bgm appropriate to lvl
   let currentbgm;
-if (level === 14) {
+  if (level === 14) {
     bgm.end();
     bgm = playTune(hardbgm, Infinity)
   }
 
-  
+
 }
 
 
@@ -1533,17 +1533,17 @@ async function tutorialCutscene(tutorialPlayed) {
       setTimeout(resolve, ms);
     });
   }
-if (!tutorialPlayed) {
-  for (let i = 0; i < mentorDialogue.length - 3; i++) {
-    addText(mentorDialogue[i], { x: 1, y: 3 + i, color: color`0` })
-    await wait(350)
-  }
-  addText(mentorDialogue[3], { x: 1, y: 8, color: color`0` })
-  addText(mentorDialogue[4], { x: 1, y: 9, color: color`0` })
+  if (!tutorialPlayed) {
+    for (let i = 0; i < mentorDialogue.length - 3; i++) {
+      addText(mentorDialogue[i], { x: 1, y: 3 + i, color: color`0` })
+      await wait(350)
+    }
+    addText(mentorDialogue[3], { x: 1, y: 8, color: color`0` })
+    addText(mentorDialogue[4], { x: 1, y: 9, color: color`0` })
     addText(mentorDialogue[5], { x: 1, y: 10, color: color`0` })
     getFirst(mentor).y = getFirst(mentor).y + 2
-  tutorialPlayed = true;
-}
+    tutorialPlayed = true;
+  }
 }
 
 let chosenLevels = [];
@@ -1576,7 +1576,7 @@ function resetMap(n) {
   setMap(levels[level]);
 
   playbgm()
-  
+
   createHeartsArray(health);
   plr = getFirst(player);
 
@@ -1588,11 +1588,11 @@ function resetMap(n) {
   addSprite(plr.x, plr.y, spawn); //spawn pad under player
   levelSpecificStuff();
 
-  
+
   clearText();
-  
+
   if (itemSprite)
-    itemSprite = addSprite(0,0,heldItem)
+    itemSprite = addSprite(0, 0, heldItem)
 
 
 }
@@ -1712,7 +1712,7 @@ onInput("i", () => {
   // let tempspawn = getFirst(spawn);
   basicAttack()
   movementDown = false;
-  
+
 });
 
 
@@ -1739,7 +1739,7 @@ onInput("i", () => {
 
 onInput("j", () => { // RESET game if game over is on
   if (gameOver) {
-  initGame();
+    initGame();
   } else { // turn player 90 deg
     let tempdir = playerDir
     if (tempdir === "UP") {
@@ -1792,7 +1792,7 @@ onInput("k", () => {
 })
 
 function useItem() {
-//heal if hp pot
+  //heal if hp pot
 }
 
 var movementDown = false; // init
@@ -1812,11 +1812,11 @@ afterInput(() => {
   const doorSprite = getFirst(door);
   const houseDoor = getFirst(housedoor);
   const gobBossSprite = getFirst(mobboss);
-  
+
   let healingHeart = getFirst(healingheart);
-  
-  
-  
+
+
+
   const spawnSprite = getFirst(spawn)
   let crates = getAll(crate); // destroy on mob hit
   let waterSprites = getAll(water);
@@ -1839,14 +1839,14 @@ afterInput(() => {
       console.log("tutorial")
       tutorialPlayed = true;
       tutorialCutscene();
-      
+
     }
     if (plr.x === getFirst(advancetile).x && plr.y === getFirst(advancetile).y) {
-        clearText();
+      clearText();
       resetMap();
-      setTimeout(() => {  clearText(); }, 50)
-      setTimeout(() => {  addText("I: Surface", { x: 4, y: 3, color: color`8` }) }, 100)
-     
+      setTimeout(() => { clearText(); }, 50)
+      setTimeout(() => { addText("I: Surface", { x: 4, y: 3, color: color`8` }) }, 100)
+
       setTimeout(() => { clearText() }, 2000)
     }
   } // tutorial and mentor
@@ -1855,7 +1855,7 @@ afterInput(() => {
       resetMap(); // Load the next level (mob levels)
     }
   }
-  
+
   if (getAll(housedoor).length > 0 && plr.x === houseDoor.x && plr.y === houseDoor.y) {
     level = 0;
     setMap(levels[0]);
@@ -1945,7 +1945,7 @@ afterInput(() => {
 
     graves.forEach(grave => {
       playTune(danger);
-  
+
       addSprite(grave.x, grave.y, ghost)
     })
   }
@@ -1970,11 +1970,11 @@ afterInput(() => {
       }
     })
     if (attacki) {
-    mobSprites.forEach(mob => {
-      if (attacki.x === mob.x && attacki.y === mob.y) {
-        defeatEnemy(mob)
-      }
-    })
+      mobSprites.forEach(mob => {
+        if (attacki.x === mob.x && attacki.y === mob.y) {
+          defeatEnemy(mob)
+        }
+      })
     }
   }
 
@@ -1985,11 +1985,11 @@ afterInput(() => {
       }
     })
     if (attacki) {
-    ghostSprites.forEach(ghost => {
-      if (attacki.x === ghost.x && attacki.y === ghost.y) {
-        defeatEnemy(ghost)
-      }
-    })
+      ghostSprites.forEach(ghost => {
+        if (attacki.x === ghost.x && attacki.y === ghost.y) {
+          defeatEnemy(ghost)
+        }
+      })
     }
   }
 
@@ -2000,11 +2000,11 @@ afterInput(() => {
       }
     })
     if (attacki) {
-    spiderSprites.forEach(spider => {
-      if (attacki.x === spider.x && attacki.y === spider.y) {
-        defeatEnemy(spider)
-      }
-    })
+      spiderSprites.forEach(spider => {
+        if (attacki.x === spider.x && attacki.y === spider.y) {
+          defeatEnemy(spider)
+        }
+      })
     }
   }
 
@@ -2015,18 +2015,18 @@ afterInput(() => {
     })
   }
 
-const hpPotion = getFirst(hppotion);
-if (hpPotion) {
-if (plr.x === hpPotion.x && plr.y === hpPotion.y) {
-  addItem(hppotion)
-  hpPotion.remove();
-}
-}
+  const hpPotion = getFirst(hppotion);
+  if (hpPotion) {
+    if (plr.x === hpPotion.x && plr.y === hpPotion.y) {
+      addItem(hppotion)
+      hpPotion.remove();
+    }
+  }
 
-if (itemSprite) 
-  itemSprite.remove();
-if (heldItem)
-  itemSprite = addSprite(0,0,heldItem)
+  if (itemSprite)
+    itemSprite.remove();
+  if (heldItem)
+    itemSprite = addSprite(0, 0, heldItem)
 })
 
 
@@ -2125,16 +2125,15 @@ function addItem(pickup) {
     playTune(getItem);
     heldItem = pickup
 
-  }
-  else if (heldItem) {
+  } else if (heldItem) {
     console.log('capacity max')
-    addText("capacity full", { 
-  x: 4,
-  y: 4,
-  color: color`3`
-})
+    addText("capacity full", {
+      x: 4,
+      y: 4,
+      color: color`3`
+    })
   }
-  itemSprite = addSprite(0,0,pickup)
+  itemSprite = addSprite(0, 0, pickup)
 }
 
 function mobSpawn() {
@@ -2274,15 +2273,16 @@ async function goblinBossAttack() {
     gobBossEnraged = true;
   }
   if (gobBoss) {
-    const options = ["surroundXaoe", "eggSummon",  "sideaoe"];
+    const options = ["surroundXaoe", "eggSummon", "sideaoe"];
     let randomIndex = Math.floor(Math.random() * options.length);
-    
-           choice = options[randomIndex];
-    
+
+    choice = options[randomIndex];
+
     if (choice === "surroundXaoe") {
       for (let i = -1; i < 2; i++) {
         for (let j = -1; j < 3; j++) {
-          addSprite(gobBoss.x + i, gobBoss.y + j, warningtile);1
+          addSprite(gobBoss.x + i, gobBoss.y + j, warningtile);
+          1
         }
       }
       addSprite(gobBoss.x - 2, gobBoss.y, warningtile);
@@ -2290,9 +2290,9 @@ async function goblinBossAttack() {
       addSprite(gobBoss.x + 2, gobBoss.y, warningtile);
       addSprite(gobBoss.x + 2, gobBoss.y + 1, warningtile);
       if (gobBossEnraged) {
-        addSprite(gobBoss.x -2 , gobBoss.y -1 , warningtile);
-                addSprite(gobBoss.x +2 , gobBoss.y -1 , warningtile);
-        addSprite(gobBoss.x, gobBoss.y +3, warningtile);
+        addSprite(gobBoss.x - 2, gobBoss.y - 1, warningtile);
+        addSprite(gobBoss.x + 2, gobBoss.y - 1, warningtile);
+        addSprite(gobBoss.x, gobBoss.y + 3, warningtile);
       }
       setTimeout(() => {
         startslashing("down", 45);
@@ -2301,24 +2301,24 @@ async function goblinBossAttack() {
     if (choice === "eggSummon") {
       let xchoices = [2, 3, 4, 6, 7, 8]
       let ychoices = [3, 4]
-    
+
       let randomx = Math.floor(Math.random() * xchoices.length)
       let randomy = Math.floor(Math.random() * ychoices.length)
-      
-    if (eggCount < 6) {
-      addSprite(xchoices[randomx], ychoices[randomy], mobegg)
-      eggCount++;
-      addSprite(xchoices[randomx], ychoices[randomy], mobegg)
-      eggCount++;
 
-      if (gobBossEnraged) { // harder after 50% hp
-        randomx =  Math.floor(Math.random() * xchoices.length)
-        randomy = Math.floor(Math.random() * ychoices.length)
+      if (eggCount < 6) {
         addSprite(xchoices[randomx], ychoices[randomy], mobegg)
         eggCount++;
-        eggOpenTime = 500;
+        addSprite(xchoices[randomx], ychoices[randomy], mobegg)
+        eggCount++;
+
+        if (gobBossEnraged) { // harder after 50% hp
+          randomx = Math.floor(Math.random() * xchoices.length)
+          randomy = Math.floor(Math.random() * ychoices.length)
+          addSprite(xchoices[randomx], ychoices[randomy], mobegg)
+          eggCount++;
+          eggOpenTime = 500;
+        }
       }
-    }
       if (eggCount > 0) {
         setTimeout(() => {
           let egg = getFirst(mobegg)
@@ -2334,20 +2334,20 @@ async function goblinBossAttack() {
           addSprite(i, j, warningtile);
         }
       }
-        for (let i = 8; i < 10; i++) {
+      for (let i = 8; i < 10; i++) {
         for (let j = 1; j < 7; j++) {
           addSprite(i, j, warningtile);
         }
       }
-      addSprite(3, height()-2, warningtile)
-      addSprite(7, height()-2, warningtile)
-      addSprite(3, height()-3, warningtile)
-      addSprite(7, height()-3, warningtile)
-      addSprite(4, height()-2, warningtile)
-      addSprite(6, height()-2, warningtile)
+      addSprite(3, height() - 2, warningtile)
+      addSprite(7, height() - 2, warningtile)
+      addSprite(3, height() - 3, warningtile)
+      addSprite(7, height() - 3, warningtile)
+      addSprite(4, height() - 2, warningtile)
+      addSprite(6, height() - 2, warningtile)
       setTimeout(() => {
-          startslashing("down", 25)
-          if (gobBossEnraged) { sideslashsecondattack() }
+        startslashing("down", 25)
+        if (gobBossEnraged) { sideslashsecondattack() }
       }, 900)
     }
   }
@@ -2357,84 +2357,86 @@ function startslashing(dir, delayBetweenSlashMs) {
   let slashanimInterval = setInterval(slashWarningTiles, delayBetweenSlashMs)
   let runcount = 0
   slashWarningTiles()
+
   function slashWarningTiles() {
-  let mapheight = height()
-  let warningtiles = getAll(warningtile)
-  if (dir === "down") {
-  warningtiles.forEach(tile => {
+    let mapheight = height()
+    let warningtiles = getAll(warningtile)
+    if (dir === "down") {
+      warningtiles.forEach(tile => {
 
-    if (tile.y === runcount) {
-          addSprite(tile.x,tile.y, bossslash)
+        if (tile.y === runcount) {
+          addSprite(tile.x, tile.y, bossslash)
           playTune(slash)
           tile.remove();
-        let slashes = getAll(bossslash)
-        slashes.forEach(s => {
-          if (plr.x === s.x && plr.y === s.y) {
-            clearAllSlashes();
-            playerCollided();
-          }
+          let slashes = getAll(bossslash)
+          slashes.forEach(s => {
+            if (plr.x === s.x && plr.y === s.y) {
+              clearAllSlashes();
+              playerCollided();
+            }
 
-          if (s.y + 1 === runcount)
-            s.remove();
-        })
-  } 
-})
-runcount++;
+            if (s.y + 1 === runcount)
+              s.remove();
+          })
+        }
+      })
+      runcount++;
 
-  if (runcount >= mapheight) {
-  runcount = 0;
-  clearInterval(slashanimInterval)
-  clearAllSlashes();
-}
-  }
-  if (dir === "up") { 
-    let cc = (mapheight - runcount);
-    warningtiles.forEach(tile => {
+      if (runcount >= mapheight) {
+        runcount = 0;
+        clearInterval(slashanimInterval)
+        clearAllSlashes();
+      }
+    }
+    if (dir === "up") {
+      let cc = (mapheight - runcount);
+      warningtiles.forEach(tile => {
 
-    if (tile.y === cc) {
-          addSprite(tile.x,tile.y, bossslash)
+        if (tile.y === cc) {
+          addSprite(tile.x, tile.y, bossslash)
           playTune(slash)
           tile.remove();
-        let slashes = getAll(bossslash)
-        slashes.forEach(s => {
-          if (plr.x === s.x && plr.y === s.y) {
-            clearAllSlashes();
-            playerCollided();
-          }
+          let slashes = getAll(bossslash)
+          slashes.forEach(s => {
+            if (plr.x === s.x && plr.y === s.y) {
+              clearAllSlashes();
+              playerCollided();
+            }
 
-          if (s.y - 1 === runcount)
-            s.remove();
-        })
-  } 
-})
-runcount++;
-  if (cc <= 0) {
-  runcount = 0;
-  clearInterval(slashanimInterval)
-  clearAllSlashes();
-}
+            if (s.y - 1 === runcount)
+              s.remove();
+          })
+        }
+      })
+      runcount++;
+      if (cc <= 0) {
+        runcount = 0;
+        clearInterval(slashanimInterval)
+        clearAllSlashes();
+      }
+    }
+
   }
-
-}
 }
 
 function sideslashsecondattack() {
-    setTimeout(() => {
-        for (let i = 2; i < 7; i++) {
-            addSprite(4, i, warningtile);
-        }
-        for (let i = 2; i < 7; i++) {
-            addSprite(6, i, warningtile);
-        }
-      setTimeout(() => {startslashing("up", 50);}, 500)
-        
-    }, 150);
+  setTimeout(() => {
+    for (let i = 2; i < 7; i++) {
+      addSprite(4, i, warningtile);
+    }
+    for (let i = 2; i < 7; i++) {
+      addSprite(6, i, warningtile);
+    }
+    setTimeout(() => { startslashing("up", 50); }, 500)
+
+  }, 150);
 }
+
 function clearAllSlashes() {
-let slashes = getAll(bossslash)
-slashes.forEach(s => {
-  s.remove();
-})
+  let slashes = getAll(bossslash)
+  slashes.forEach(s => {
+    s.remove();
+  })
 }
 
 setInterval(goblinBossAttack, 2000)
@@ -2451,11 +2453,11 @@ function defeatBoss(boss) {
   let exit = getFirst(lockeddoor)
   addSprite(exit.x, exit.y, door) // heal player after defeated boss
   exit.remove();
-  
+
   let attackwarners = getAll(warningtile)
   let slashes = getAll(bossslash)
   attackwarners.forEach(tile => { tile.remove() })
-  slashes.forEach(s => {s.remove();})
+  slashes.forEach(s => { s.remove(); })
   playTune(killEnemy);
   bgm.end();
   playTune(killBoss);
@@ -2521,7 +2523,7 @@ function playerCollided() { //collide with normal mob
 
     // getFirst(player).x = spawnSprite.x;
     // getFirst(player).y = spawnSprite.y;
-    
+
 
     cooldown = true;
     setTimeout(() => {
@@ -2576,32 +2578,32 @@ let damageincrement = 1 // init
 
 
 function initGame() { //  used for restart after death
-    level = 1
+  level = 1
 
-    setMap(levels[level]);
-    clearText();
-    levelOneSetDeco();
-
-
-    health = maxhealth;
-    heartsArray = [];
+  setMap(levels[level]);
+  clearText();
+  levelOneSetDeco();
 
 
-    plr = getFirst(currentPlayerType);
-    plr.x = 2;
-    plr.y = 7;
-    playerDir = "DOWN";
+  health = maxhealth;
+  heartsArray = [];
 
-    gameOver = false;
+
+  plr = getFirst(currentPlayerType);
+  plr.x = 2;
+  plr.y = 7;
+  playerDir = "DOWN";
+
+  gameOver = false;
 
   //reset buffs
-    damageincrement = 1 
-    cooldown = false; // init
-    cooldownTime = 400 // init; can get smaller
-    interacting = false; // init
-  
-    // reset bosses stats
-   eggCount = 0; 
-    eggOpenTime = 2500; 
-    gobBossHp = 12; 
+  damageincrement = 1
+  cooldown = false; // init
+  cooldownTime = 400 // init; can get smaller
+  interacting = false; // init
+
+  // reset bosses stats
+  eggCount = 0;
+  eggOpenTime = 2500;
+  gobBossHp = 12;
 }
