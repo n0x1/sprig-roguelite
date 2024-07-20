@@ -1015,12 +1015,6 @@ const frames = {
 }
 
 
-const items = [
-  { type: "none", id: 0 },
-  { type: "hppotion", id: 1 },
-  { type: "curse", id: 2 },
-]
-
 
 
 legend.set(player, frames[player].DOWN)
@@ -1221,7 +1215,7 @@ const randomPickBlacklist = [
 ]
 
 setMap(levels[level]); // only for init
-let heldItem;
+
 
 function putGrassUnderRoofs() { // and under the player 
   let grassUnderRoof = getAll(rooftip);
@@ -1485,6 +1479,7 @@ let mapJustChanged = true;
 let maxhealth = 3;
 var health = maxhealth;
 let heartsArray = [];
+let itemsArray = []
 
 function createHeartsArray(health) {
   heartsArray = [];
@@ -1591,8 +1586,7 @@ function resetMap(n) {
 
   clearText();
 
-  if (itemSprite)
-    itemSprite = addSprite(0, 0, heldItem)
+  addSprite(0, 0, itemsArray[0])
 
 
 }
@@ -1762,7 +1756,7 @@ onInput("j", () => { // RESET game if game over is on
 });
 
 onInput("l", () => {
-  let tempdir = playerDir
+  /* let tempdir = playerDir
   if (tempdir === "UP") {
     playerDir = "RIGHT"
     basicAttack();
@@ -1780,19 +1774,33 @@ onInput("l", () => {
   }
   plr.x = plr.x
   plr.y = plr.y
-  movementDown = false;
+  movementDown = false; */
+  
+        resetMap(9) //  debug
+      movementDown = false;
 })
 
 onInput("k", () => {
+  
 
-  resetMap(9) // for debug
+  if (itemsArray[0]) {
+    useItem()
+  }
+
+
   movementDown = false;
 
-  if (heldItem) {}
+
 })
 
 function useItem() {
-  //heal if hp pot
+  if (heldItem === hppotion) {
+    potionHeal();
+    heldItem = undefined;
+  }
+
+  console.log(itemsArray)
+  itemsArray.pop()
 }
 
 var movementDown = false; // init
@@ -1878,7 +1886,7 @@ afterInput(() => {
   //heal 
   if (healingHeart) {
     if (plr.x === healingHeart.x && plr.y === healingHeart.y)
-      gainHealth();
+      heartPickup();
   }
   plr = getFirst(player)
 
@@ -2015,20 +2023,28 @@ afterInput(() => {
     })
   }
 
+  //ITEMSSYSTEM
+  
   const hpPotion = getFirst(hppotion);
+// check if plr has contacted item and handle add  if so
   if (hpPotion) {
     if (plr.x === hpPotion.x && plr.y === hpPotion.y) {
-      addItem(hppotion)
-      hpPotion.remove();
+      addItem(hppotion, hpPotion)
     }
   }
+  
 
-  if (itemSprite)
-    itemSprite.remove();
-  if (heldItem)
-    itemSprite = addSprite(0, 0, heldItem)
+
+refreshItemDisplay()
+
+
 })
-
+function refreshItemDisplay () {
+  if (itemSprite) // remove
+    itemSprite.remove();
+  if (itemsArray[0]) // readd item instantenously
+    itemSprite = addSprite(0, 0, itemsArray[0])
+}
 
 //lvl traps
 
@@ -2120,20 +2136,27 @@ function mobMoveAll() {
 }
 
 var itemSprite; //init
-function addItem(pickup) {
-  if (heldItem === undefined) {
+function addItem(pickup, groundspritetoremove) {
+  if (!itemsArray[0]) {
     playTune(getItem);
-    heldItem = pickup
-
-  } else if (heldItem) {
+    itemsArray.push(pickup)
+    itemSprite = addSprite(0, 0, pickup)
+    groundspritetoremove.remove();
+  } else if (itemsArray[0]) {
     console.log('capacity max')
-    addText("capacity full", {
+        addText("capacity full", {
       x: 4,
       y: 4,
       color: color`3`
     })
+  setTimeout(() => {clearText()}, 1000)
+    
+
+        /* addSprite(pickup.x, pickup.y, heldItem) // if u wanna auto swap but this is harder to implement i think
+    itemSprite.remove();
+    itemSprite = addSprite(0,0,heldItem */
   }
-  itemSprite = addSprite(0, 0, pickup)
+
 }
 
 function mobSpawn() {
@@ -2465,7 +2488,7 @@ function defeatBoss(boss) {
 }
 
 
-function gainHealth() {
+function heartPickup() {
   if (health < maxhealth) {
     health++;
     playTune(heal)
@@ -2473,6 +2496,25 @@ function gainHealth() {
     createHeartsArray(health);
     getFirst(healingheart).remove();
   } else {
+    addText("max health: " + maxhealth, {
+      x: (width() / 2),
+      y: 3,
+      color: color`3`
+    })
+    setTimeout(() => {
+      clearText();
+    }, 2000);
+
+  }
+}
+function potionHeal() {
+  if (health < maxhealth) {
+    health++;
+    playTune(heal)
+    handleHealthUI(health);
+    createHeartsArray(health);
+  }
+  else {
     addText("max health: " + maxhealth, {
       x: (width() / 2),
       y: 3,
@@ -2549,7 +2591,7 @@ function stillDamage() { // same but without resetting to spawn
 }
 
 function checkGameOver() {
-  if (health === 0) {
+  if (health === 0) { 
     const plrgrave = addSprite(plr.x, plr.y, hurtplayer);
 
     plr.remove();
@@ -2574,7 +2616,7 @@ function checkGameOver() {
   }
 }
 
-let damageincrement = 1 // init
+let damageincrement = 1 // init plr dmg per sword attack
 
 
 function initGame() { //  used for restart after death
@@ -2587,8 +2629,8 @@ function initGame() { //  used for restart after death
 
   health = maxhealth;
   heartsArray = [];
-
-
+  
+  
   plr = getFirst(currentPlayerType);
   plr.x = 2;
   plr.y = 7;
@@ -2601,6 +2643,9 @@ function initGame() { //  used for restart after death
   cooldown = false; // init
   cooldownTime = 400 // init; can get smaller
   interacting = false; // init
+
+  //reset item
+  itemsArray = [];
 
   // reset bosses stats
   eggCount = 0;
