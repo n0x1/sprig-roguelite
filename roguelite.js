@@ -289,23 +289,6 @@ legend.set(ghost, [ghost, bitmap`
 ..022002022020..
 ..020.0200200...
 ...0...0..0.....`])
-legend.set(mobboss, [mobboss, bitmap`
-......6.6.6.....
-......66366.....
-......DDDDD.....
-.....D0DD0D.....
-..00.DDDDDD.00..
-..000.DD0D.000..
-...066DDDDDD0...
-...DD666DDDDD...
-..DDDDD66DDDDD..
-.DDDDDDD66DDDDD.
-.DD.DDDDD66D.DD.
-.DDD.CC66CC.DDD.
-..DD.CCCCCC.DD..
-......DDDD......
-....DDD..DDD....
-...DDDD..DDDD...`])
 legend.set(bossslash, [bossslash, bitmap`
 ..............00
 ....2....222000.
@@ -851,26 +834,25 @@ legend.set(hppotion, [hppotion, bitmap`
 ..002233333300..
 ....00000000....`])
 legend.set(curse, [curse, bitmap`
-......0000......
-....00....00....
-..00LL66666606..
-..0LL666666330..
-..0L6336663333..
-..0L3333366333..
-..603333663333..
-..663333366333..
-..663333663333..
-..666333366336..
-..666633666636..
-..666666666666..
+......1111......
+....11....11....
+..FFLL66666FF6..
+..FLL006600FFF..
+..FL00000000FF..
+..FL000000000F..
+..6F00000000FF..
+..6FF000000FFF..
+..6FF000000FFF..
+..66LF0000LFFF..
+..666LF00F6LFF..
+..6666LLF666L6..
 ..633336333366..
-..366636366363..
-..363336366636..
-..663666333663..`])
+..3FF636366363..
+..3FF3363FFF36..
+..FFFFFF333FF3..`])
 
 const frames = {
   [player]: {
-
     "LEFT": [player, bitmap`
 ................
 ................
@@ -1010,7 +992,43 @@ const frames = {
 ................
 ................`]
   },
-
+  [mobboss]: {
+    "NORM": [mobboss, bitmap`
+......6.6.6.....
+......66366.....
+......DDDDD.....
+.....D0DD0D.....
+..00.DDDDDD.00..
+..000.DD0D.000..
+...066DDDDDD0...
+...DD666DDDDD...
+..DDDDD66DDDDD..
+.DDDDDDD66DDDDD.
+.DD.DDDDD66D.DD.
+.DDD.CC66CC.DDD.
+..DD.CCCCCC.DD..
+......DDDD......
+....DDD..DDD....
+...DDDD..DDDD...`],
+    "RAGE": [mobboss, bitmap`
+......6.6.6.....
+......66366.....
+......DDDDD.....
+.....D3DD3D.....
+..00.3DDDD3.00..
+..000.DD0D.000..
+...066DDDD4D0...
+.DDDD666444DDDD.
+.DDDDDD44DDDDDDD
+DDDDDD4466DDDDDD
+DDD.DD4DD66D.DDD
+DDDD.C466CC.DDDD
+DDDD.4CCCCC.DDDD
+.DDD.DDDDDD.DDD.
+....DDDDDDDD....
+...DDDD..DDDD...`],
+    
+  }
 
 }
 
@@ -1019,6 +1037,7 @@ const frames = {
 
 legend.set(player, frames[player].DOWN)
 legend.set(sword, frames[sword].DOWN)
+legend.set(mobboss, frames[mobboss].NORM)
 
 
 setLegend(...legend.values())
@@ -1086,12 +1105,12 @@ ffpdffffff`, //start
   // enemy lvls
   map`
 xwvdvxw
-xwfmmxw
-xff...w
+xw.mmxw
+xf....w
 xfm.m.w
-xw...xw
-xw...xw
-xw.p.xw`, //goblin corridor
+xwf..xw
+xwf..xw
+xwfp.xw`, //goblin corridor
   map`
 wvxwDxwvx
 w......tx
@@ -1102,12 +1121,12 @@ wGZw..w.x
 wvxwvpwdx`,
   map`
 wvdvxwvx
-wt.....x
+wt....mx
 w.$.$$.x
-w$....tx
+w$..y..x
 w...$$.x
 w.$....x
-w.$t$.$x
+w.$.$.$x
 wvxwvpvx`,
   map`vxwvxwvxwvxwvxw
 vfwdxfffffffffw
@@ -1140,18 +1159,21 @@ w......y.v
 wv.y....vv
 wvxwvpvxwv`, // spiders lots
   map`
-wvdDGBv
-BG..GBv
-BG..ABv
-BG..GBv
-wvpvxwv`,
+BBtvdvtBB
+BB..y..BB
+BB..M..BB
+BB.fvf.BB
+BBtvtvtBB
+BB.fvf.BB
+BB.....BB
+BB..p..BB`,
   map`
 BBtvdvtBB
-BB.....BB
+BB..y..BB
 BB..M..BB
-BB.....BB
-BBt...tBB
-BB.....BB
+BB..v..BB
+BBtvtvtBB
+BB..v..BB
 BB.....BB
 BB..p..BB`, // hp pot chamber
 
@@ -1170,18 +1192,18 @@ xwvxwpx`, // 10  spawenr of mobs crates
 vxwvxpvBBB
 vxwBB.BBBB
 vxBBB.BBBB
-v&Z....BBB
-vx.....BBB
+v..m...BBB
+vx...m.BBB
 vxw....BBB
-vxwvxwdxBB`, //heart pickup
+vxwvxwdxBB`, //heart pickup 11 
   map`
 GGGGGGGGGG
 vxwvxpv.GB
-vxwm...mBB
+vxw....mBB
 vx...m..BB
 vH......BB
 vx......BB
-vxw....GBB
+vxw.y..GBB
 vxwvxwdGGG`, //  spawner of mobs smaller chamber
   map`
 vxwdxwv
@@ -1205,7 +1227,7 @@ x.........w
 x.........w
 x.........w
 x.........w
-xwvxwpxwvxw`, // first boss; levels.length
+xwvxwpxwvxw`, // first boss; levels.length-1
 
 ]
 let traptriggered = false;
@@ -1308,6 +1330,8 @@ const killEnemy = tune`
 104.8951048951049: C5^104.8951048951049,
 104.8951048951049: A4^104.8951048951049,
 2517.4825174825173`
+const bossRage = tune`
+16000`
 const killBoss = tune`
 211.26760563380282: G4-211.26760563380282 + B4-211.26760563380282 + D5-211.26760563380282 + F5-211.26760563380282,
 211.26760563380282: F5-211.26760563380282 + D5-211.26760563380282 + B4-211.26760563380282 + G4-211.26760563380282,
@@ -1444,7 +1468,7 @@ let bgm = playTune(villagebgm, Infinity); // init
 
 function playbgm() { // plays bgm appropriate to lvl
   let currentbgm;
-  if (level === 14) {
+  if (level === levels.length - 1) {
     bgm.end();
     bgm = playTune(hardbgm, Infinity)
   }
@@ -1545,17 +1569,21 @@ let chosenLevels = [];
 // random pick blacklist defined under map bitmaps
 
 function resetMap(n) {
-  if (arguments.length === 0)
+  if (arguments.length === 0) // completely random set
     level = (Math.floor(Math.random() * levels.length / 2) + score); // random level above safe ones 
-  else {
+  else if (arguments.length === 1) { // set for specific continuations (calling with n)
     level = n;
     setMap(levels[level])
   }
-  // idea: random range increases as score increases - maybe add score to lvl length
-  if (arguments.length === 0) {
+
+  if (arguments.length === 0) { 
     if (chosenLevels.includes(level) || randomPickBlacklist.includes(level)) { // add more lvlvs as scrollers added 
       resetMap() //recursively call until its a dungeon lvl
     }
+  }
+  
+  if (score === 10) { // after ten lvls, set to boss
+    resetMap(levels.length)
   }
 
   console.log("Level: " + level);
@@ -1585,9 +1613,9 @@ function resetMap(n) {
 
 
   clearText();
-
+  
+if (itemsArray[0]) 
   addSprite(0, 0, itemsArray[0])
-
 
 }
 
@@ -1710,7 +1738,7 @@ onInput("i", () => {
 });
 
 
-// Function to handle sword attack on an enemy target
+// Function to handle sword attack on an enemy target deprecated tho
 /* function handleSwordAttack(enemy) {
     console.log("found enemy at sword pos");
   // Apply damage to the enemy based on its type
@@ -1776,13 +1804,14 @@ onInput("l", () => {
   plr.y = plr.y
   movementDown = false; */
   
-        resetMap(9) //  debug
-      movementDown = false;
+         resetMap(14) //  debug
+      movementDown = false; 
 })
 
 onInput("k", () => {
   
-
+  console.log(itemsArray)
+  
   if (itemsArray[0]) {
     useItem()
   }
@@ -1794,21 +1823,39 @@ onInput("k", () => {
 })
 
 function useItem() {
-  if (heldItem === hppotion) {
+let itemTile = getTile(0,0)
+let lgn = itemTile.length - 1
+let tmpblock = itemTile[1]
+let currentItem = itemsArray[0]
+let currentItemSprite = getFirst(currentItem)
+
+  console.log(currentItemSprite);
+
+
+  if (currentItem === hppotion) {
     potionHeal();
-    heldItem = undefined;
+
+
   }
 
-  console.log(itemsArray)
+
   itemsArray.pop()
+
+  if (itemsArray.length === 0) { // remove items from screen
+    console.log("item array empty")
+      itemTile.forEach(sprite => {
+      if (sprite.x === 0 && sprite.y === 0 && sprite.type === currentItemSprite.type) {
+        sprite.remove();
+    }
+    })
+  }
+
 }
 
 var movementDown = false; // init
 
 function checkIfOnSpawnPos() {
-  if (getFirst(spawn) && getFirst(player).x === getFirst(spawn).x && getFirst(player).y === getFirst(spawn).y) {
-    plr.x = tempXToPreventSpawnSafetyAbuse;
-    plr.y = tempYToPreventSpawnSafetyAbuse;
+  if (movementDown === true && getFirst(spawn) && getFirst(player).x === getFirst(spawn).x && getFirst(player).y === getFirst(spawn).y) {
     return false;
   } else {
     return true;
@@ -1836,7 +1883,11 @@ afterInput(() => {
   let attacki = getFirst(sword);
   let mobEggs = getAll(mobegg);
 
-  checkIfOnSpawnPos()
+  if (checkIfOnSpawnPos() === false) {
+    plr.x = tempXToPreventSpawnSafetyAbuse;
+    plr.y = tempYToPreventSpawnSafetyAbuse;
+  }
+  
   checkCollisionforFireBalls()
 
   legend.set(player, frames[player][playerDir]);
@@ -2035,16 +2086,10 @@ afterInput(() => {
   
 
 
-refreshItemDisplay()
 
 
 })
-function refreshItemDisplay () {
-  if (itemSprite) // remove
-    itemSprite.remove();
-  if (itemsArray[0]) // readd item instantenously
-    itemSprite = addSprite(0, 0, itemsArray[0])
-}
+
 
 //lvl traps
 
@@ -2107,7 +2152,7 @@ function mobMoveAll() {
     moveLogic();
     // Check for wall collision and player exclusion
     const spritesAtNextPos = getTile(newX, newY);
-    const isWallCollision = spritesAtNextPos.some(sprite => [hppotion, curse, mobegg, wall, wall2, wall3, bridge, water, fireshooter, spikes, crate, chest, fireshooter, fireball, mob, spider, ghost, heart, spawn, door].includes(sprite.type));
+    const isWallCollision = spritesAtNextPos.some(sprite => [hppotion, mobboss, curse, mobegg, wall, wall2, wall3, bridge, water, fireshooter, spikes, crate, chest, fireshooter, fireball, mob, spider, ghost, heart, spawn, door].includes(sprite.type));
     const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
     3
 
@@ -2140,7 +2185,7 @@ function addItem(pickup, groundspritetoremove) {
   if (!itemsArray[0]) {
     playTune(getItem);
     itemsArray.push(pickup)
-    itemSprite = addSprite(0, 0, pickup)
+    itemSprite = addSprite(0, 0, itemsArray[0])
     groundspritetoremove.remove();
   } else if (itemsArray[0]) {
     console.log('capacity max')
@@ -2152,9 +2197,6 @@ function addItem(pickup, groundspritetoremove) {
   setTimeout(() => {clearText()}, 1000)
     
 
-        /* addSprite(pickup.x, pickup.y, heldItem) // if u wanna auto swap but this is harder to implement i think
-    itemSprite.remove();
-    itemSprite = addSprite(0,0,heldItem */
   }
 
 }
@@ -2206,7 +2248,7 @@ function ghostMoveAll() {
 
     // Check for wall collision and player exclusion
     const spritesAtNextPos = getTile(newX, newY);
-    const isWallCollision = spritesAtNextPos.some(sprite => [mob, spider, ghost, spikes, heart, spawn, door, chest].includes(sprite.type)); // GHOSTS r special (they can go thru walls)
+    const isWallCollision = spritesAtNextPos.some(sprite => [hppotion, mob, spider, ghost, spikes, heart, spawn, door, chest].includes(sprite.type)); // GHOSTS r special (they can go thru walls)
     const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
 
     // Move the mob sprite only if there is no wall collision and not colliding with the player
@@ -2294,6 +2336,7 @@ async function goblinBossAttack() {
   let choice;
   if (gobBossHp < 10) {
     gobBossEnraged = true;
+    legend.set(mobboss, frames[mobboss].RAGE)
   }
   if (gobBoss) {
     const options = ["surroundXaoe", "eggSummon", "sideaoe"];
@@ -2450,6 +2493,7 @@ function sideslashsecondattack() {
     for (let i = 2; i < 7; i++) {
       addSprite(6, i, warningtile);
     }
+    addSprite(5, 3, warningtile);
     setTimeout(() => { startslashing("up", 50); }, 500)
 
   }, 150);
@@ -2513,17 +2557,6 @@ function potionHeal() {
     playTune(heal)
     handleHealthUI(health);
     createHeartsArray(health);
-  }
-  else {
-    addText("max health: " + maxhealth, {
-      x: (width() / 2),
-      y: 3,
-      color: color`3`
-    })
-    setTimeout(() => {
-      clearText();
-    }, 2000);
-
   }
 }
 
