@@ -80,6 +80,7 @@ const lockeddoor = "L"
 const hppotion = "M"
 const curse = "O"
 const energydrink = "P"
+const boostparticles = "Q"
 
 const legendKeys = [
   rooftip,
@@ -89,7 +90,9 @@ const legendKeys = [
   roofoverhangright,
   bossslash,
   sword,
+  
   invincibility,
+  boostparticles,
 
   hppotion,
   curse,
@@ -817,6 +820,23 @@ legend.set(hiddenadvance, [hiddenadvance, bitmap`
 ................
 ................
 ................`])
+legend.set(boostparticles, [boostparticles, bitmap`
+................
+................
+.............6..
+..6...........6.
+.6..............
+..6..........6..
+................
+................
+................
+................
+................
+................
+................
+..6F...6F...6F..
+...6F...6..F6...
+....6......6....`])
 legend.set(hppotion, [hppotion, bitmap`
 ................
 ......0000......
@@ -1210,10 +1230,10 @@ xwvxwpx`, // 10  spawenr of mobs crates
 vxwvxpvBBB
 vxwBB.BBBB
 vxBBB.BBBB
-v..m...BBB
+vP.m...BBB
 vx...m.BBB
 vxw....BBB
-vxwvxwdxBB`, //heart pickup 11 
+vxwvxwdxBB`, //edrink pickup 11 
   map`
 GGGGGGGGGG
 vxwvxpv.GB
@@ -1234,7 +1254,13 @@ v.m.m.v
 v..m..v
 v.....v
 v..p..v`, // double static chamber
-
+  map`
+vdvxwvxw
+v......w
+v..&E..w
+v......w
+vF.....w
+vvvxwvpw`, // mid level
 
   //bosses
   map`
@@ -1561,6 +1587,17 @@ const hardbgm = tune`
 let bgm = playTune(villagebgm, Infinity);
 
 
+function successivetracks() {
+  if (level > 1) {
+    bgm.end();
+    bgm = playTune(surbgm1)
+    setTimeout(() => {
+      bgm.end();
+      bgm = playTune(surbgm2)
+    }, 16 * 1000) // 16 seconds; 32 sections per thing and each half is a beat
+  }
+}
+
 
 
 function playbgm() { // plays bgm appropriate to lvl
@@ -1667,14 +1704,14 @@ let chosenLevels = [];
 
 function resetMap(n) {
   if (arguments.length === 0) // completely random set
-    level = (Math.floor(Math.random() * levels.length / 2) + score); // random level above safe ones 
+    level = (Math.floor(Math.random() * levels.length / 2 ) + score); // random level above safe ones 
   else if (arguments.length === 1) { // set for specific continuations (calling with n)
     level = n;
     setMap(levels[level])
   }
 
   if (arguments.length === 0) { 
-    if (chosenLevels.includes(level) || randomPickBlacklist.includes(level)) { // add more lvlvs as scrollers added 
+    if (chosenLevels.includes(level) || randomPickBlacklist.includes(level) || level > levels.length) { // add more lvlvs as scrollers added 
       resetMap() //recursively call until its a dungeon lvl
     }
   }
@@ -1896,9 +1933,9 @@ onInput("l", () => {
   }
   plr.x = plr.x
   plr.y = plr.y
-  movementDown = false; 
+  movementDown = false;
   
-         /* resetMap(14) //  debug
+       /* resetMap(14) //  debug
       movementDown = false;  */
 })
 
@@ -2015,13 +2052,23 @@ afterInput(() => {
     plr = getFirst(currentPlayerType);
   }
 
-
+if (getFirst(invincibility)) {
   if (invincible) {
     getFirst(invincibility).remove();
     addSprite(plr.x, plr.y, invincibility);
   } else {
     let invinciblestuff = getAll(invincibility)
     invinciblestuff.forEach(e => { e.remove(); })
+  }
+}
+
+  if (boostactive === true) {
+    if (getFirst(boostparticles))
+      getFirst(boostparticles).remove();
+    const bp = addSprite(plr.x,plr.y,boostparticles)
+  } else {
+    let boosts = getAll(boostparticles)
+    boosts.forEach(b => { b.remove(); })
   }
 
 
@@ -2081,9 +2128,13 @@ afterInput(() => {
     }
   });
 
-  if (gobBossSprite) {
-    if (attacki.x === gobBossSprite.x && attacki.y === gobBossSprite.y)
-      gobBossHp--;
+  if (gobBossSprite) { // dmg boss
+
+    if (attacki && attacki.x === gobBossSprite.x && attacki.y === gobBossSprite.y && arbitrarySecondCd === false) {
+        gobBossHp--;
+        arbitrarySecondCd = true;
+        setTimeout(() => {arbitrarySecondCd = false},100)
+    }
     if (gobBossHp <= 0) {
       defeatBoss(gobBossSprite)
       let eggstoclear = getAll(mobegg)
@@ -2188,7 +2239,16 @@ afterInput(() => {
   }
   
 
+// BOSS HP BARS
 
+  if (gobBossSprite && gobBossHp > 0) {
+    clearText();
+    addText("HP: " + gobBossHp, {
+      x: 2,
+      y:1,
+    color:color`4`
+    })
+  }
 
 
 })
@@ -2430,14 +2490,15 @@ function fireShoot() {
 }
 setInterval(fireShoot, 500);
 
+var arbitrarySecondCd = false;
 let eggCount = 0; // init
-let eggOpenTime = 700; // init
-let gobBossHp = 18; // init
+let eggOpenTime = 1000; // init
+let gobBossHp = 25; // init
 let gobBossEnraged = false; // init
 async function goblinBossAttack() {
   let gobBoss = getFirst(mobboss);
   let choice;
-  if (gobBossHp < 10) {
+  if (gobBossHp < 13) {
     if (gobBossEnraged === false) {
       playTune(bossRage, 1); 
     }
@@ -2446,7 +2507,7 @@ async function goblinBossAttack() {
     legend.set(mobboss, frames[mobboss].RAGE)
   }
   if (gobBoss) {
-    const options = ["surroundXaoe", "eggSummon", "sideaoe"];
+    const options = ["surroundXaoe", "surroundXaoe", "eggSummon", "sideaoe"];
     let randomIndex = Math.floor(Math.random() * options.length);
 
     choice = options[randomIndex];
@@ -2473,7 +2534,7 @@ async function goblinBossAttack() {
     }
     if (choice === "eggSummon") {
       let xchoices = [2, 3, 4, 6, 7, 8]
-      let ychoices = [3, 4]
+      let ychoices = [3, 4, 6]
 
       let randomx = Math.floor(Math.random() * xchoices.length)
       let randomy = Math.floor(Math.random() * ychoices.length)
@@ -2481,24 +2542,28 @@ async function goblinBossAttack() {
       if (eggCount < 6) {
         addSprite(xchoices[randomx], ychoices[randomy], mobegg)
         eggCount++;
+          randomx = Math.floor(Math.random() * xchoices.length)
+          randomy = Math.floor(Math.random() * ychoices.length)
         addSprite(xchoices[randomx], ychoices[randomy], mobegg)
         eggCount++;
 
-        if (gobBossEnraged) { // harder after 50% hp
+        if (gobBossEnraged === true) { // harder after 50% hp
           randomx = Math.floor(Math.random() * xchoices.length)
           randomy = Math.floor(Math.random() * ychoices.length)
           addSprite(xchoices[randomx], ychoices[randomy], mobegg)
           eggCount++;
-          eggOpenTime = 500;
+          eggOpenTime = 700;
         }
       }
       if (eggCount > 0) {
+      for (let i = 0; i <= eggCount; i++) {
         setTimeout(() => {
           let egg = getFirst(mobegg)
           addSprite(egg.x, egg.y, mob)
           egg.remove();
         }, eggOpenTime)
         eggCount--;
+        }
       }
     }
     if (choice === "sideaoe") {
@@ -2636,6 +2701,7 @@ function defeatBoss(boss) {
   slashes.forEach(s => { s.remove(); })
   playTune(killEnemy);
   bgm.end();
+  clearText();
   playTune(killBoss);
   //getFirst(door.. ) replace with thing)
 }
@@ -2668,12 +2734,19 @@ function potionHeal() {
     createHeartsArray(health);
   }
 }
+let boostactive = false;
 function boostAttackSpeed(timeActive) {
-  cooldownTime = 230
+  let tempCdTime = cooldownTime
+  cooldownTime = (tempCdTime - 200)
+  boostactive = true;
+  addSprite(plr.x, plr.y, boostparticles)
   playTune(boostStart);
   setTimeout(() => {
-    cooldownTime = 400; 
+    cooldownTime = tempCdTime; 
     playTune(boostEnd);
+    boostactive = false;
+    let pxp = getAll(boostparticles)
+    pxp.forEach(p => {p.remove();})
   }, timeActive)
 }
 
