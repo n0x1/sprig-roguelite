@@ -88,6 +88,9 @@ const energydrink = "P"
 const boostparticles = "Q"
 const dummy = "T"
 const black = "U"
+const rarechest = "V"
+const strengthparticles = "W"
+const rocks = "X"
 
 
 const legendKeys = [
@@ -101,6 +104,7 @@ const legendKeys = [
   sword,
   
   invincibility,
+  strengthparticles,
   boostparticles,
 
   hppotion,
@@ -122,10 +126,12 @@ const legendKeys = [
   wall,
   wall2,
   wall3,
+  rocks,
   mobboss,
   mob,
   spider,
   commonchest,
+  rarechest,
   hurtplayer,
   spawn,
   grass,
@@ -695,6 +701,23 @@ legend.set(commonchest, [commonchest, bitmap`
 0CCCCCCCCCCCCCC0
 01CCCCCCCCCCCC10
 0000000000000000`])
+legend.set(rarechest, [rarechest, bitmap`
+....00000000....
+...0999999990...
+..099999999990..
+.09999999999990.
+0669999999999660
+0996669999666990
+0999996666999990
+0999996996999990
+0LLLL666666LLLL0
+0999966996699990
+0999966666699990
+0999699999969990
+0966999999996690
+0699999999999960
+0L999999999999L0
+0000000000000000`])
 legend.set(bridge, [bridge, bitmap`
 CC999CC999CC99CC
 C1999CC999CC991C
@@ -899,6 +922,23 @@ legend.set(boostparticles, [boostparticles, bitmap`
 ..6F...6F...6F..
 ...6F...6..F6...
 ....6......6....`])
+legend.set(strengthparticles, [strengthparticles, bitmap`
+...........3...3
+3.............9.
+.9..............
+................
+................
+..............9.
+...............3
+.3..............
+................
+................
+3...............
+................
+..............3.
+...........3....
+..3......393....
+.3.3......9...3.`])
 legend.set(hppotion, [hppotion, bitmap`
 ................
 ......0000......
@@ -950,6 +990,23 @@ legend.set(energydrink, [energydrink, bitmap`
 ..099996629990..
 ..099996299990..
 ...0000000000...`])
+legend.set(rocks, [rocks, bitmap`
+LLLLLLLLLLLLLLLL
+LLLLLLLLLLLLL11L
+LL11LL110LL001LL
+LL11LL1000LL00LL
+L111000L01111LLL
+LLL100LLL11LLLLL
+LLL10LLLLLLLLLLL
+LL01LLLLLLLL0LLL
+LL0LL11100LL00LL
+L01111L0001111LL
+L0111LL1100LLLLL
+LLLLLLLL1LLL1LLL
+LLLLLLLLL111L1LL
+LL11000000LLL0LL
+LLL10LLLL000L00L
+LLLLLLLLLLLLLLLL`])
 
 
 const frames = {
@@ -1168,7 +1225,7 @@ function setPlayerSprite(direction) {
 }
 
 
-setSolids([dummy, wall, wall2, wall3, fireshooter, crate, housewall, housewallleft, housewallright, roofbody, player, mentor, mobboss, mobegg])
+setSolids([dummy,lockeddoor, rocks, wall, wall2, wall3, fireshooter, crate, housewall, housewallleft, housewallright, roofbody, player, mentor, mobboss, mobegg])
 
 const mentorDialogue = [
   "Move: w,a,s,d",
@@ -1352,31 +1409,34 @@ xwvxwpxwvxw`, // first boss; 17
 const caverns = [
   map`
 vAvxwvxw
-v..&E..w
+v..&V..w
 v......w
 v......w
 v......w
 vvvxwvpw`, // transition level 0
   map`
-wdxDxwvx
-w...$$$x
-w$$.$$$x
+wdxDXXXX
+w...$$XX
+w$$.$$$X
 w$$....x
 w$$.$$$x
-w$$....x
-w$$.$.$x
-wvxwvpvx`, // 1
+X$$....x
+XX$.$.$x
+XXXwvpvx`, // 1 fire shooter
   map`
-p`,
-    map`
-p`,
-    map`
-p`,
+wvdvxXXXXX
+XX$...CCCX
+.....CCC.X
+.Z..CCC..X
+XX.CCC.Z.R
+X.CCC....X
+XRXXXXXvpv`, // crate push to remove fire
+
 ] 
 let traptriggered = false;
 let crateonplate = false;
 
-const randomPickBlacklist = [
+let randomPickBlacklist = [
   0, 1, 9, 14, 15, 17
 ]
 
@@ -1439,29 +1499,31 @@ function levelSpecificStuff() {
         }
   }
   if (level === 4 || level === 7) {
+    if (stage === 1) {
     addSprite(width() - 1, 4, candle);
     addSprite(4, 0, candle);
     addSprite(0, 3, candle);
+    }
   }
-  if (level === 2) {
+  if (level === 2 && stage === 1 ) {
     addSprite(width() - 2, 4, candle);
     addSprite(1, 4, candle);
   }
-  if (level === 10) {
+  if (level === 10 && stage === 1 ) {
     addSprite(width() - 1, 4, candle);
     addSprite(width() - 1, 6, candle);
   }
-  if (level === 13) {
+  if (level === 13 && stage === 1 ) {
     addSprite(2, 4, candle);
     addSprite(4, 4, candle);
   }
-  if (level === 16)
+  if (level === 16 && stage === 1)
     addSprite(3,1,candle);
-  /* if (level === 16) { //caverns lvl tho with the fireshooter
+  if (level === 0 && stage === 2) { //caverns lvl tho with the fireshooter
     addSprite(0, 1, candle);
     addSprite(7, 3, candle);
     addSprite(4, 5, candle);
-  } */
+  }
   /*  if (level < 9) {
 let decowall = getAll(wall2);
      for (let i = 0; i < 3; i++) {
@@ -1828,21 +1890,25 @@ let chosenLevels = [];
 
 function resetMap(n) {
   if (arguments.length === 0) { // completely random set
-    if (score < 100)
+    if (stage === 1) {
       level = (Math.floor(Math.random() * levels.length)); // random level 
-    if (score > 100 && score < 200)
+      
+      if (chosenLevels.includes(level) || randomPickBlacklist.includes(level)) {
+        console.log("recursive") // check if lvl has been chosen already
+        resetMap() //recursively call until its a not picked/dungeon lvl
+      }
+    }
+    if (stage === 2) {
       level = (Math.floor(Math.random() * caverns.length));
-    
-  if (chosenLevels.includes(level) || randomPickBlacklist.includes(level)) {
-      console.log("recursive") // check if lvl has been chosen already
-      resetMap() //recursively call until its a not picked/dungeon lvl
+      if (level === 0)
+        resetMap()
     }
   }
-  if (arguments.length === 1) { // set for specific continuations (calling with n)
+  else if (arguments.length === 1) { // set for specific continuations (calling with n)
     level = n;
-    if (score < 100) 
+    if (stage === 1) 
       setMap(levels[n])
-    else if (score < 200) {
+    else if (stage === 2) {
       setMap(caverns[level])
     }
   }
@@ -1861,6 +1927,7 @@ if (!chosenLevels.includes(level) && arguments.length === 0)
     score++;
 
 chosenLevels.push(level)
+console.log("CHOSEN LEVELS: " + chosenLevels)
   
 if (arguments.length === 0) {
   if (score === 8) {
@@ -1868,9 +1935,9 @@ if (arguments.length === 0) {
       setMap(levels[level])
   }
     
-  if (score < 100)
+  if (stage === 1)
     setMap(levels[level]);  
-  if (score > 100 && score < 200)  
+  if (stage === 2)  
     setMap(caverns[level]);
   
 }
@@ -2075,8 +2142,8 @@ onInput("l", () => {
   plr.x = plr.x
   plr.y = plr.y
   movementDown = false; */
-  
-   resetMap(17) //  debug
+    stage = 2
+   resetMap(0) //  debug
 
 })
 
@@ -2108,6 +2175,16 @@ let currentItemSprite = getFirst(currentItem)
     potionHeal();
   if (currentItem === energydrink)
     boostAttackSpeed(30000)//ms arg
+  if (currentItem === curse) {
+    if (health > 1) {
+      playerCollided();
+    }
+    else 
+      playTune(hit);
+    swordDmg++;
+    strbuff = true;
+  }
+
 
 
   itemsArray.pop()
@@ -2143,7 +2220,7 @@ afterInput(() => {
 
   const spawnSprite = getFirst(spawn)
   const comChst= getFirst(commonchest)
-  //const rare chest
+  const rrChst = getFirst(rarechest)
   //const epic chest
   const hidnAdvcs = getAll(hiddenadvance)
   
@@ -2168,7 +2245,7 @@ afterInput(() => {
   legend.set(player, frames[player][playerDir]);
   setLegend(...legend.values());
 
-  if (level === 0) {
+  if (level === 0 && stage === 1) {
     if (plr.x === 7 && plr.y === 5) {
       console.log("tutorial")
       tutorialPlayed = true;
@@ -2216,6 +2293,11 @@ if (getFirst(invincibility)) {
     let boosts = getAll(boostparticles)
     boosts.forEach(b => { b.remove(); })
   }
+  if (strbuff === true) {
+    if (getFirst(strengthparticles))
+        getFirst(strengthparticles).remove();
+    const sp = addSprite(plr.x,plr.y,strengthparticles)
+  }
 
 
 
@@ -2241,7 +2323,7 @@ crates.forEach(crate => { //pressureplate n door stuff
       playTune(cratebreak);
     }
     if (getFirst(pressureplate) && crate.x === getFirst(pressureplate).x && crate.y === getFirst(pressureplate).y) { // pressureplate Mechanics
-      if (level === 6 && crateonplate === false) {
+      if (level === 6 && stage === 1 && crateonplate === false) {
         playTune(secret)
         for (let i = 1; i < 4; i++) {
           for (let j = 3; j < 5; j++) {
@@ -2251,13 +2333,31 @@ crates.forEach(crate => { //pressureplate n door stuff
         }
         crateonplate = true
       }
-      if (level === 16 && crateonplate === false) {
+      if (level === 16 && stage === 1 && crateonplate === false) {
         playTune(secret)
         getFirst(spikes).remove();
         crateonplate = true;
       }
     }
-  });
+});
+
+if (level === 2 && stage === 2) {
+  let cL = crates[0]
+  let cR = crates[1]
+  let pps = getAll(pressureplate)
+  let pL = pps[1]
+  let pR = pps[0]
+
+  if (cR.x === pR.x && cR.y === pR.y) {
+    console.log("tt")
+    fireballSprites.forEach(f => {
+      f.remove();
+    })
+    playTune(secret)
+  }
+}
+
+iffireballSprites
 
   if (mobSprites) {
     //modify pushable sprites
@@ -2354,14 +2454,20 @@ crates.forEach(crate => { //pressureplate n door stuff
   const portal = getFirst(advancetile);
   plr = getFirst(player);
   if (portal && plr.x === portal.x && plr.y === portal.y) {
-    if (level === 8) // water realm
+    if (level === 8) { // water realm 
       resetMap(9)
-    if (level === 0 && score > 100)
+    }
+    if (level === 0 && stage === 2) {
+      console.log("transition")
+      chosenLevels = [0]
+      randomPickBlacklist = [0] // blacklist for caverns
       resetMap()
+    
       setTimeout(() => { clearText(); }, 50)
       setTimeout(() => { addText("II: Caverns", { x: 4, y: 3, color: color`C` }) }, 100)
 
       setTimeout(() => { clearText() }, 2000)
+    }
   }
 
   // hidden advance tiles
@@ -2476,6 +2582,14 @@ crates.forEach(crate => { //pressureplate n door stuff
       playTune(getItem);
     }
   }
+  if (rrChst && plr.x === rrChst.x && plr.y === rrChst.y) {
+    let rndId = Math.floor(Math.random() * rareLootPool.length)
+    let fcall = addItem(rareLootPool[rndId]);
+    if (fcall === true) {
+      rrChst.remove();
+      playTune(getItem);
+    }
+  }
   
   // BOSS HP BARS
 
@@ -2553,7 +2667,7 @@ function mobMoveAll() {
     moveLogic();
     // Check for wall collision and player exclusion
     const spritesAtNextPos = getTile(newX, newY);
-    const isWallCollision = spritesAtNextPos.some(sprite => [dummy, pressureplate, hppotion, mobboss, curse, mobegg, wall, wall2, wall3, water, fireshooter, spikes, crate, commonchest, fireshooter, heart, fireball, mob, spider, ghost, heart, spawn, door].includes(sprite.type));
+    const isWallCollision = spritesAtNextPos.some(sprite => [rocks, dummy, lockeddoor, pressureplate, hppotion, mobboss, curse, mobegg, wall, wall2, wall3, water, fireshooter, spikes, crate, commonchest, fireshooter, heart, fireball, mob, spider, ghost, heart, spawn, door].includes(sprite.type));
     const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
     3
 
@@ -2593,6 +2707,9 @@ function addItem(pickup, groundspritetoremove) {
       addText("Attack Speed+", {x:3,y:1,color:color`6`})
     if (pickup === hppotion)
       addText("Health Potion", {x:3,y:1,color:color`8`})
+    if (pickup === curse) 
+      addText("Sacrifice Heart", {x:2,y:1,color:color`6`})
+    
     setTimeout(() => {clearText()}, 1000)
 
     return true;
@@ -2936,10 +3053,7 @@ function defeatEnemy(enemy) {
 
 function defeatBoss(boss) {
   boss.remove()
-  score += 100;
-  chosenLevels = [9,10]
-  if (score > 100 && score < 200)
-  randomPickBlacklist = [3,4] // blacklist for caverns
+  score +=10;
   
   let exit = getFirst(lockeddoor)
   addSprite(exit.x, exit.y, door) // heal player after defeated boss
@@ -3004,7 +3118,6 @@ let invincible = false;
 
 function playerCollided() { //collide with normal mob
   if (!invincible) {
-
 
     invincible = true;
     health--;
@@ -3100,7 +3213,8 @@ function checkGameOver() {
 }
 
 let stage = 1;
-let damageincrement = 1 // init plr dmg per sword attack ; can grow
+let strbuff = false;
+let swordDmg = 1 // init plr dmg per sword attack ; can grow
 function initGame() { //  used for restart after death
   level = 1
   stage = 1
@@ -3123,7 +3237,7 @@ function initGame() { //  used for restart after death
   gameOver = false;
 
   //reset buffs
-  damageincrement = 1
+  swordDmg = 1
   cooldown = false; // init
   cooldownTime = 400 // init; (can get smaller)
   interacting = false; // init
@@ -3137,6 +3251,8 @@ function initGame() { //  used for restart after death
   gobBossHp = 25;
   gobBossEnraged = false;
 
+  strbuff = false;
+  
   plr = getFirst(player)
 }
 
