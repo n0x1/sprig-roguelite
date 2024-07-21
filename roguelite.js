@@ -9,6 +9,10 @@
 
 Explore a procedurally generated dungeon, defeat enemies, upgrade your gear, and find a way to the core of the planet. 
 
+STAGES
+I: Surface
+II: Caverns
+III: Hallows
 */
 
 
@@ -82,6 +86,7 @@ const hppotion = "M"
 const curse = "O"
 const energydrink = "P"
 const boostparticles = "Q"
+const dummy = "T"
 
 
 const legendKeys = [
@@ -107,6 +112,7 @@ const legendKeys = [
   lockeddoor,
   mobegg,
   ghost,
+  dummy,
   candle,
   fireball,
   fireshooter,
@@ -314,6 +320,23 @@ legend.set(bossslash, [bossslash, bitmap`
 000...0....222..
 00......222.....
 0...............`])
+legend.set(dummy, [dummy, bitmap`
+................
+................
+......9999......
+.....909999.....
+....99009009....
+....99999099....
+.....999999.....
+......9999......
+.......33.......
+.....93L139.....
+....9931L399....
+....99.33.99....
+....99.99.99....
+.......99.......
+.....999999.....
+.....99..99.....`])
 legend.set(mob, [mob, bitmap`
 ................
 ................
@@ -1127,7 +1150,7 @@ function setPlayerSprite(direction) {
 }
 
 
-setSolids([wall, wall2, wall3, fireshooter, crate, housewall, housewallleft, housewallright, roofbody, player, mentor, mobboss, mobegg])
+setSolids([dummy, wall, wall2, wall3, fireshooter, crate, housewall, housewallleft, housewallright, roofbody, player, mentor, mobboss, mobegg])
 
 const mentorDialogue = [
   "Move: w,a,s,d",
@@ -1142,7 +1165,7 @@ const mentorDialogue = [
 
 
 let level = 1 // starting level (index 1 in this case)
-const levels = [ // easy lvls, possibly create a seperate array for next difficulties
+const levels = [ // surface lvls
   // mentor (interior) lvls
   map`
 ccccccccc
@@ -1157,7 +1180,7 @@ ccccccipe`,
 fffffv.vxw
 ffffffffff
 ffafffffff
-jlqzkfffff
+jlqzkffTff
 feciffffff
 feniffffff
 ffffffffff
@@ -1251,7 +1274,7 @@ xwvxwpx`, // 10  spawenr of mobs crates
 vxwvxpvBBB
 vxwBB.BBBB
 vxBBB.BBBB
-...m...BBB
+N..m...BBB
 v....m.BBB
 vxw....BB.
 vxwvxwdxB.`, //pickup to edrink or continue  11 
@@ -1265,13 +1288,13 @@ vxw.y..vZ
 vxwvxwdvZ`, //  spawner of mobs smaller chamber 12
   map`
 vxwdxwv
-v.....v
-v.....v
-v.....v
+vT...Tv
+v..m..v
+vT...Tv
 vxw.xwv
 vm...mv
 v.m.m.v
-v..m..v
+v.....v
 v.....v
 v..p..v`, // double static chamber with dummies 13 
   map`
@@ -1282,9 +1305,18 @@ x$.t.$w
 x$...$w
 xwvpvxw`, // hidden advance connector from 3 (14) 
   map `
-w......x
-dP.....p
-w......x`, // hidden advance from 11 (15)
+wvxwvxwv
+w$$$$y.v
+dE$$$..p
+w.y$$$.v
+wvxwvxwv`, // hidden advance from 11 (15)
+  map`
+vdvxwvx
+v$vxwRx
+m....mx
+..Z...x
+......x
+vpvxwvx`, //crate to get rid spikes, but u have goblins
 
   //caverns
   map`
@@ -1320,7 +1352,7 @@ let traptriggered = false;
 let crateonplate = false;
 
 const randomPickBlacklist = [
-  0, 1, 9, 14, levels.length-1, levels.length-2, 
+  0, 1, 9, 14, 15, levels.length-1, levels.length-2, 
 ]
 
 setMap(levels[level]); // only for init
@@ -1398,11 +1430,13 @@ function levelSpecificStuff() {
     addSprite(2, 4, candle);
     addSprite(4, 4, candle);
   }
-  if (level === 15) {
+  if (level === 16)
+    addSprite(3,1,candle);
+  /* if (level === 16) { //caverns lvl tho with the fireshooter
     addSprite(0, 1, candle);
     addSprite(7, 3, candle);
     addSprite(4, 5, candle);
-  }
+  } */
   /*  if (level < 9) {
 let decowall = getAll(wall2);
      for (let i = 0; i < 3; i++) {
@@ -1683,7 +1717,7 @@ setPushables({
   [player]: [crate],
   [crate]: [mob],
   [invincibility]: [mob]
-})
+}) 
 
 
 let gameOver = false;
@@ -1928,8 +1962,8 @@ function basicAttack() {
 onInput("i", () => {
   // tryInteract();
   // let tempspawn = getFirst(spawn);
-  basicAttack()
   movementDown = false;
+  basicAttack()
 
 });
 
@@ -1959,6 +1993,7 @@ onInput("j", () => { // RESET game if game over is on
   if (gameOver) {
     initGame();
   } else { // turn player 90 deg
+    movementDown = false;
     let tempdir = playerDir
     if (tempdir === "UP") {
       playerDir = "LEFT"
@@ -1980,6 +2015,7 @@ onInput("j", () => { // RESET game if game over is on
 });
 
 onInput("l", () => {
+  movementDown = false;  
  /* let tempdir = playerDir
   if (tempdir === "UP") {
     playerDir = "RIGHT"
@@ -2000,12 +2036,12 @@ onInput("l", () => {
   plr.y = plr.y
   movementDown = false; */
   
-       resetMap(11) //  debug
-      movementDown = false;  
+   resetMap(16) //  debug
+
 })
 
 onInput("k", () => {
-  
+  movementDown = false;
   console.log(itemsArray)
   
   if (itemsArray[0]) {
@@ -2013,7 +2049,7 @@ onInput("k", () => {
   }
 
 
-  movementDown = false;
+
 
 
 })
@@ -2082,6 +2118,7 @@ afterInput(() => {
   let fireballSprites = getAll(fireball)
   let attacki = getFirst(sword);
   let mobEggs = getAll(mobegg);
+  let dummies = getAll(dummy)
 
   if (checkIfOnSpawnPos() === false) {
     plr.x = tempXToPreventSpawnSafetyAbuse;
@@ -2174,8 +2211,10 @@ crates.forEach(crate => { //pressureplate n door stuff
             removing[0].remove();
           }
         }
-
         crateonplate = true
+      }
+      if (level === 16 && crateonplate === false) {
+        ...
       }
     }
   });
@@ -2210,6 +2249,13 @@ crates.forEach(crate => { //pressureplate n door stuff
     }
   });
 
+  if (dummies && attacki) {
+    dummies.forEach(dm => {
+      if (dm.x === attacki.x && dm.y === attacki.y)
+        playTune(hitEnemy)
+    })
+  }
+
   if (gobBossSprite) { // dmg boss
 
     if (attacki && attacki.x === gobBossSprite.x && attacki.y === gobBossSprite.y && arbitrarySecondCd === false) {
@@ -2233,6 +2279,35 @@ crates.forEach(crate => { //pressureplate n door stuff
 
       addSprite(grave.x, grave.y, ghost)
     })
+  }
+  if (level === 15) {
+    if (movementDown === true) {
+      function randomSpikes() {
+        let sps = getAll(spikes)
+        if (sps.length >= 2) 
+          sps.forEach(sp => {sp.remove();})
+        let rndx = Math.floor(Math.random()*5+1)
+        let rndy = Math.floor(Math.random()*2+1)
+
+        if (comChst && rndx === comChst.x && rndy === comChst.y)
+          randomSpikes()
+        else if (rndx === plr.x && rndy === plr.y)
+          randomSpikes()
+      /*  if (spiderSprites) {
+          spiderSprites.forEach(spdr => {
+            if (spdr.x === rndx && spdr.y === rndy)
+              randomSpikes()
+          }) 
+        } */
+        else
+          addSprite(rndx,rndy,spikes)
+      }
+      if (comChst) {
+      randomSpikes()
+      randomSpikes()
+      playTune(danger);
+      }
+    }
   }
 
   //doors for specific lvls levelspecific stuff
@@ -2261,8 +2336,10 @@ crates.forEach(crate => { //pressureplate n door stuff
       })
     }
     if (level === 11) {
-      if (isTouching(getFirst(advancetile))) { // i implemented it at last
-        restMap(15)
+      let adv = getFirst(hiddenadvance)
+      let advy = getFirst(hiddenadvance).y
+      if (plrTouching(adv)) { // i implemented it at last
+        resetMap(15)
       }
     }
   }
@@ -2428,7 +2505,7 @@ function mobMoveAll() {
     moveLogic();
     // Check for wall collision and player exclusion
     const spritesAtNextPos = getTile(newX, newY);
-    const isWallCollision = spritesAtNextPos.some(sprite => [hppotion, mobboss, curse, mobegg, wall, wall2, wall3, water, fireshooter, spikes, crate, commonchest, fireshooter, heart, fireball, mob, spider, ghost, heart, spawn, door].includes(sprite.type));
+    const isWallCollision = spritesAtNextPos.some(sprite => [dummy, hppotion, mobboss, curse, mobegg, wall, wall2, wall3, water, fireshooter, spikes, crate, commonchest, fireshooter, heart, fireball, mob, spider, ghost, heart, spawn, door].includes(sprite.type));
     const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
     3
 
@@ -2995,8 +3072,8 @@ function initGame() { //  used for restart after death
   gobBossHp = 12;
 }
 
-function isTouching(obj) {
-  if (getFirst(player).x === obj.x && getFirst(player).y === obj.y)
+function plrTouching(obj) {
+  if (plr.x === obj.x && plr.y === obj.y)
     return true;
   else
     return false
