@@ -92,7 +92,8 @@ const rarechest = "V"
 const strengthparticles = "W"
 const rocks = "X"
 const lavafish = "Y"
-
+const brokenrocks = "@"
+const bomb = "#"
 
 const legendKeys = [
   black,
@@ -111,6 +112,7 @@ const legendKeys = [
   hppotion,
   curse,
   energydrink,
+  bomb,
 
   player,
   mentor,
@@ -119,6 +121,7 @@ const legendKeys = [
   lockeddoor,
   mobegg,
   ghost,
+  lavafish,
   dummy,
   candle,
   fireball,
@@ -130,7 +133,6 @@ const legendKeys = [
   rocks,
   mobboss,
   mob,
-  lavafish,
   spider,
   commonchest,
   rarechest,
@@ -150,6 +152,7 @@ const legendKeys = [
   mobspawner,
   pressureplate,
   hiddenadvance,
+  brokenrocks,
 
 ]
 
@@ -975,6 +978,23 @@ legend.set(curse, [curse, bitmap`
 ..3FF636366363..
 ..3FF3363FFF36..
 ..FFFFFF333FF3..`])
+legend.set(bomb, [bomb, bitmap`
+....333.........
+..9933CC........
+..693.33C.......
+....33.000......
+.....1000000....
+....112000000L..
+...11200000000L.
+...12000000000L.
+...12000000000L.
+...00000000000L.
+...00000000000L.
+...00000000000L.
+....000000000L..
+....L0000000L...
+.....LLLLLLL....
+................`])
 legend.set(energydrink, [energydrink, bitmap`
 ................
 ......017.......
@@ -1009,13 +1029,30 @@ LLLLLLLLL111L1LL
 LL11000000LLL0LL
 LLL10LLLL000L00L
 LLLLLLLLLLLLLLLL`])
+legend.set(brokenrocks, [brokenrocks, bitmap`
+................
+..LL............
+......1..L.LLL..
+L.....1...L.0L..
+................
+................
+.......L........
+..0.....L.......
+.............L..
+................
+.0..............
+............1...
+.............1..
+..110.LLLL......
+...1.....L...00.
+................`])
 legend.set(lavafish, [lavafish, bitmap`
 ................
-.....000000.....
-....00300300....
-...0003003000...
-...0303333030...
-...0300330030...
+.....888888.....
+....88388388....
+...8883883888...
+...8383333838...
+...8388338838...
 ...3333333333...
 ...3399339933...
 ...3399339933...
@@ -1233,7 +1270,7 @@ const enemyStats = {
 }; 
 
 const commonLootPool = [hppotion, energydrink]
-const rareLootPool = [curse]
+const rareLootPool = [curse, bomb]
 const epicLootPool = []
 
 const breakablesArray = getAll(mobegg)
@@ -1451,13 +1488,22 @@ XX.CCC.Z.R
 XXCCC....X
 XRCCXXXvpv`, // crate push to remove fire
   map`
-vdXXXXXDX
-v.YX....X
+vdXXXXXXX
+v..X.Y.DX
 vX......X
 vXXXXXX.X
-vX..Y...X
+vX......X
 X.......X
 XXpXXXXXX`,
+  map`
+wvdDXXXXXX
+fff..X&XXX
+BfX.XXXXAX
+Bff.XX.y.X
+Bff..y...X
+fXX......X
+XXX.....gX
+XXXXXXpXXX`, // 4 advance portal to secret? also bombs can blow up rocks to reveal heart
 ] 
 let traptriggered = false;
 let crateonplate = false;
@@ -1625,6 +1671,16 @@ const danger = tune`
 161.29032258064515: G5/161.29032258064515 + C5/161.29032258064515 + A5/161.29032258064515 + B5/161.29032258064515 + B4/161.29032258064515,
 161.29032258064515: D5-161.29032258064515 + E5-161.29032258064515 + B4-161.29032258064515 + C5-161.29032258064515 + F5-161.29032258064515,
 4516.129032258064`
+const bombTick = tune`
+340.90909090909093: D4~340.90909090909093 + C4~340.90909090909093,
+340.90909090909093,
+340.90909090909093: C4~340.90909090909093 + D4~340.90909090909093,
+340.90909090909093,
+340.90909090909093: D4~340.90909090909093 + C4~340.90909090909093,
+340.90909090909093,
+340.90909090909093: F4^340.90909090909093,
+340.90909090909093: B4-340.90909090909093 + C5-340.90909090909093 + A4/340.90909090909093 + B5/340.90909090909093 + G4/340.90909090909093,
+8181.818181818182`
 
 const heal = tune`
 223.88059701492537: E4^223.88059701492537 + C4~223.88059701492537,
@@ -1810,14 +1866,19 @@ function successivetracks() {
   }
 }
 
-
-
 function playbgm() { // plays bgm appropriate to lvl
 
   if (level === 17) {
     bgm.end();
     bgm = playTune(hardbgm, Infinity)
   }
+
+  
+  /* if (arguments[0] === "r") {
+    bgm.end();
+    bgm = playTune(villagebgm, Infinity)
+  }*/
+
 
   
 }
@@ -1978,8 +2039,9 @@ if (arguments.length === 0) {
 
   playTune(advancelvl);
 
-
+if (stage === 1 && level != 0)
   addSprite(plr.x, plr.y, spawn); //spawn pad under player
+  
   levelSpecificStuff();
   clearText();
   
@@ -2213,6 +2275,10 @@ let currentItemSprite = getFirst(currentItem)
     swordDmg++;
     strbuff = true;
   }
+  if (currentItem === bomb) {
+    let pbomb = addSprite(plr.x,plr.y,bomb)
+    bombExplosion(pbomb)
+  }
 
 
 
@@ -2381,11 +2447,15 @@ if (level === 2 && stage === 2) {
     fireballSprites.forEach(f => {
       f.remove();
     })
+  if (!crateonplate) {
     playTune(secret)
+    crateonplate = true;
   }
-  if (cL.x === pL.x && cL.y === pL.y) {
+  }
+  if (pL && cL.x === pL.x && cL.y === pL.y) {
     getFirst(spikes).remove();
     playTune(secret);
+    pL.remove();
   }
 }
 
@@ -2439,6 +2509,13 @@ if (fireballSprites) {
     })
   }
 
+  if (getFirst(lavafish)) {
+    let lvf = getFirst(lavafish)
+
+    if (plr.x === lvf.x && plr.y === lvf.y)
+      playerCollided()
+  }
+  
   if (gobBossSprite) { // dmg boss
 
     if (attacki && attacki.x === gobBossSprite.x && attacki.y === gobBossSprite.y && arbitrarySecondCd === false) {
@@ -2751,7 +2828,9 @@ function addItem(pickup, groundspritetoremove) {
     if (pickup === hppotion)
       addText("Health Potion", {x:3,y:1,color:color`8`})
     if (pickup === curse) 
-      addText("Sacrifice Heart", {x:2,y:1,color:color`6`})
+      addText("Sacrifice", {x:2,y:1,color:color`6`})
+    if (pickup === bomb) 
+      addText("Bomb", {x:3,y:1,color:color`4`})
     
     setTimeout(() => {clearText()}, 1000)
 
@@ -2855,7 +2934,7 @@ function spiderMoveAll() {
     }
 
     const spritesAtNextPos = getTile(spiderSprite.x, spiderSprite.y);
-    const isWallCollision = spritesAtNextPos.some(sprite => [wall, wall2, wall3, water, commonchest, crate, heart, fireball, mob, ghost, spikes].includes(sprite.type));
+    const isWallCollision = spritesAtNextPos.some(sprite => [rocks, wall, wall2, wall3, water, commonchest, crate, heart, fireball, mob, ghost, spikes].includes(sprite.type));
     const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
 
     if (isWallCollision) {
@@ -2878,7 +2957,7 @@ function fireShoot() {
     addSprite(fiya.x, fiya.y, fireball);
     let fireproj = getFirst(fireball);
     const spritesAtNextPos = getTile(fireproj.x, fireproj.y + 1);
-    const isWallCollision = spritesAtNextPos.some(sprite => [wall, wall2, wall3, heart, spawn, door, crate, commonchest, spider, mob, ghost, spikes].includes(sprite.type));
+    const isWallCollision = spritesAtNextPos.some(sprite => [rocks, wall, wall2, wall3, heart, spawn, door, crate, commonchest, spider, mob, ghost, spikes].includes(sprite.type));
     const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
 
     if (!isWallCollision && !isPlayerCollision)
@@ -2906,26 +2985,27 @@ function moveEnemiesTowardsPlayer(thingtomove, playerX, playerY) {
         const directionX = Math.sign(dx); // sign returns 1, 0, -1
         const directionY = Math.sign(dy);
         
-
-        if (getTile(enemy.x + directionX, enemy.y).some(sprite => sprite.type === "p")) {
-
+        // Check for collisions with player DELETE COMMENTS
+        if (getTile(enemy.x + directionX, enemy.y + directionY).some(sprite => sprite.type === "r")) {
+              return
         } else {
-
-            if (tilesWith("w").some(tile => tile.x === enemy.x + directionX && tile.y === enemy.y + directionY)) {
-
-            } else {
-
-                enemy.x += directionX;
-                enemy.y += directionY;
-            }
+          if (enemy.x != plr.x) {
+            enemy.x += directionX;
+          } else {
+            enemy.y += directionY;
+          }
         }
+      if (plr.x === enemy.x && plr.y === enemy.y) {
+        playerCollided()
+      }
     });
 }
 
 // Call the function with the player's position
 
 function lavaFishMove() {
-moveEnemiesTowardsPlayer(lavafish, plr.x, plr.y);
+if (getFirst(player))
+  moveEnemiesTowardsPlayer(lavafish, plr.x, plr.y);
 }
 
 
@@ -3189,6 +3269,15 @@ function boostAttackSpeed(timeActive) {
     let pxp = getAll(boostparticles)
     pxp.forEach(p => {p.remove();})
   }, timeActive)
+}
+
+function bombExplosion(bmb) {
+  bgm.end();
+  playTune(bombTick);
+  setTimeout(() => {
+    bgm = playTune(villagebgm, Infinity)
+  }, 2790)
+  
 }
 
 let invincible = false;
