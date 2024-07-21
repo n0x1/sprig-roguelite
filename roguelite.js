@@ -91,6 +91,7 @@ const black = "U"
 const rarechest = "V"
 const strengthparticles = "W"
 const rocks = "X"
+const lavafish = "Y"
 
 
 const legendKeys = [
@@ -129,6 +130,7 @@ const legendKeys = [
   rocks,
   mobboss,
   mob,
+  lavafish,
   spider,
   commonchest,
   rarechest,
@@ -1007,6 +1009,23 @@ LLLLLLLLL111L1LL
 LL11000000LLL0LL
 LLL10LLLL000L00L
 LLLLLLLLLLLLLLLL`])
+legend.set(lavafish, [lavafish, bitmap`
+................
+.....000000.....
+....00300300....
+...0003003000...
+...0303333030...
+...0300330030...
+...3333333333...
+...3399339933...
+...3399339933...
+...3333333333...
+...L..L..L..L...
+...L.L.L..L.L...
+..LL.L.LL.L.LL..
+..L..L..L.L..L..
+..L..L..L.L..L..
+........L.......`])
 
 
 const frames = {
@@ -1429,9 +1448,16 @@ XX$...CCCX
 .....CCC.X
 .Z..CCC..X
 XX.CCC.Z.R
-X.CCC....X
-XRXXXXXvpv`, // crate push to remove fire
-
+XXCCC....X
+XRCCXXXvpv`, // crate push to remove fire
+  map`
+vdXXXXXDX
+v.YX....X
+vX......X
+vXXXXXX.X
+vX..Y...X
+X.......X
+XXpXXXXXX`,
 ] 
 let traptriggered = false;
 let crateonplate = false;
@@ -1809,8 +1835,7 @@ setPushables({
 
 let gameOver = false;
 
-let currentPlayerType = player;
-let plr = getFirst(currentPlayerType);
+let plr = getFirst(player);
 let playerDir = "DOWN";
 let score = 0; // tracking when to change difficulty (init 0)
 let mapJustChanged = true;
@@ -1902,7 +1927,11 @@ function resetMap(n) {
       level = (Math.floor(Math.random() * caverns.length));
       if (level === 0)
         resetMap()
-    }
+      if (chosenLevels.includes(level) || randomPickBlacklist.includes(level)) {
+        console.log("recursive") // check if lvl has been chosen already
+        resetMap() //recursively call until its a not picked/dungeon lvl
+      }
+    }   
   }
   else if (arguments.length === 1) { // set for specific continuations (calling with n)
     level = n;
@@ -2271,7 +2300,7 @@ afterInput(() => {
     level = 0;
     setMap(levels[0]);
     clearText()
-    plr = getFirst(currentPlayerType);
+    plr = getFirst(player);
   }
   
 
@@ -2349,15 +2378,29 @@ if (level === 2 && stage === 2) {
   let pR = pps[0]
 
   if (cR.x === pR.x && cR.y === pR.y) {
-    console.log("tt")
     fireballSprites.forEach(f => {
       f.remove();
     })
     playTune(secret)
   }
+  if (cL.x === pL.x && cL.y === pL.y) {
+    getFirst(spikes).remove();
+    playTune(secret);
+  }
 }
 
-iffireballSprites
+if (fireballSprites) {
+  if (crates) {
+    crates.forEach(crate => {
+      fireballSprites.forEach(fb => {
+        if (crate.x === fb.x && crate.y === fb.y) {
+          crate.remove();
+          playTune(cratebreak)
+        }
+      })
+    })
+  }
+}
 
   if (mobSprites) {
     //modify pushable sprites
@@ -2634,7 +2677,7 @@ var moveMobsInterval = setInterval(mobMoveAll, 750);
 var spawnMobsInterval = setInterval(mobSpawn, 1500);
 var moveGhostInterval = setInterval(ghostMoveAll, 1000);
 var moveSpiderInterval = setInterval(spiderMoveAll, 500);
-
+var moveLavafishInterval = setInterval(lavaFishMove, 1000)
 
 function mobMoveAll() {
   const options = ["up", "down", "left", "right"];
@@ -2852,6 +2895,40 @@ function fireShoot() {
   });
 }
 setInterval(fireShoot, 500);
+
+function moveEnemiesTowardsPlayer(thingtomove, playerX, playerY) {
+    const enemies = getAll(thingtomove); 
+    
+    enemies.forEach(enemy => {
+        const dx = playerX - enemy.x;
+        const dy = playerY - enemy.y;
+        
+        const directionX = Math.sign(dx); // sign returns 1, 0, -1
+        const directionY = Math.sign(dy);
+        
+
+        if (getTile(enemy.x + directionX, enemy.y).some(sprite => sprite.type === "p")) {
+
+        } else {
+
+            if (tilesWith("w").some(tile => tile.x === enemy.x + directionX && tile.y === enemy.y + directionY)) {
+
+            } else {
+
+                enemy.x += directionX;
+                enemy.y += directionY;
+            }
+        }
+    });
+}
+
+// Call the function with the player's position
+
+function lavaFishMove() {
+moveEnemiesTowardsPlayer(lavafish, plr.x, plr.y);
+}
+
+
 
 var arbitrarySecondCd = false;
 let eggCount = 0; // init
