@@ -910,6 +910,7 @@ legend.set(energydrink, [energydrink, bitmap`
 ..099996299990..
 ...0000000000...`])
 
+
 const frames = {
   [player]: {
     "LEFT": [player, bitmap`
@@ -1166,19 +1167,19 @@ Pfpdffffff`, //start
   map`
 xwvdvxw
 xw.mmxw
-xf....w
-xfm.m.w
-xwf..xw
-xwf..xw
-xwfp.xw`, //goblin corridor
+x.....w
+x.m.m.w
+xw...xw
+xw...xw
+xw.p.xw`, //goblin corridor 2
   map`
-wvxwDxwvx
+wNNNNxwvx
 w......tx
 w.$w..w.x
 w.t...w.x
-wG.w..$.x
+w..w..$.x
 wGZw..w.x
-wvxwvpwdx`,
+wvxwvpwdx`, // first hidden advnace 3
   map`
 wvdvxwvx
 wt....mx
@@ -1204,11 +1205,11 @@ vxwvxwvxwvxwvpw`, //ghost graveyard 5
 fBBBdvxw
 BBBfffff
 BBfffmff
-vBGGffff
-vBGGBBBB
+vGGGffff
+vGGGBBBB
 vfffBBBB
 RfZfffff
-vxwvpfff`, // river bridge down 6
+vxwvpfff`, // river bridge down with pressureplate 6
   map`
 wvxwvdvxwv
 vv....y.vv
@@ -1219,22 +1220,21 @@ w......y.v
 wv.y....vv
 wvxwvpvxwv`, // spiders lots
   map`
+BBBB
 wvxw
-wvxw
-wA.w
+wAdw
 wy.w
 w..w
-w..w
-p..d`, // hp chamber entrance
+p..w`,
   map`
-BBtvdvtBB
-BB..y..BB
-BB..M..BB
+BxwvdvxwB
+Bx..y..wB
+BBt...tBB
 BB..v..BB
-BBtvtvtBB
-BB..v..BB
+BB.vEv.BB
+BBt...tBB
 BB.....BB
-BB..p..BB`, // hp pot chamber
+BB..p..BB`, // hp pot chamber 9 
 
   map`
 vdvvwvx
@@ -1251,30 +1251,40 @@ xwvxwpx`, // 10  spawenr of mobs crates
 vxwvxpvBBB
 vxwBB.BBBB
 vxBBB.BBBB
-vP.m...BBB
-vx...m.BBB
-vxw....BBG
-vxwvxwdxBG`, //edrink pickup 11 
+...m...BBB
+v....m.BBB
+vxw....BB.
+vxwvxwdxB.`, //pickup to edrink or continue  11 
   map`
-BBBBBBBBBB
-vxwvxp..BB
-vxw....mBB
-vx...m..BB
-vH......BB
-vx...xwvBB
-vxw.y..vBB
-vxwvxwdvBB`, //  spawner of mobs smaller chamber
+vxwvxpwvZ
+vxw....mZ
+vx...m..Z
+vH......Z
+vx...xwvZ
+vxw.y..vZ
+vxwvxwdvZ`, //  spawner of mobs smaller chamber 12
   map`
 vxwdxwv
-vt...tv
-v.t.t.v
+v.....v
+v.....v
 v.....v
 vxw.xwv
 vm...mv
 v.m.m.v
 v..m..v
 v.....v
-v..p..v`, // double static chamber
+v..p..v`, // double static chamber with dummies 13 
+  map`
+xwvdvxw
+x$...$w
+x$.E.$w
+x$.t.$w
+x$...$w
+xwvpvxw`, // hidden advance connector from 3 (14) 
+  map `
+w......x
+dP.....p
+w......x`, // hidden advance from 11 (15)
 
   //caverns
   map`
@@ -1307,9 +1317,10 @@ xwvxwpxwvxw`, // first boss; levels.length-1
 
 ]
 let traptriggered = false;
+let crateonplate = false;
 
 const randomPickBlacklist = [
-  0, 1, 9, levels.length-1, levels.length-2, 
+  0, 1, 9, 14, levels.length-1, levels.length-2, 
 ]
 
 setMap(levels[level]); // only for init
@@ -1364,7 +1375,7 @@ function levelSpecificStuff() {
     let c = getFirst(crate)
     addSprite(z.x,z.y,grass)
     addSprite(c.x,c.y,grass)
-        for (let i = 2; i < 4; i++) {
+        for (let i = 1; i < 4; i++) {
           for (let j = 3; j < 5; j++) {
             addSprite(i,j,water)
           }
@@ -1387,7 +1398,7 @@ function levelSpecificStuff() {
     addSprite(2, 4, candle);
     addSprite(4, 4, candle);
   }
-  if (level === 14) {
+  if (level === 15) {
     addSprite(0, 1, candle);
     addSprite(7, 3, candle);
     addSprite(4, 5, candle);
@@ -1989,7 +2000,7 @@ onInput("l", () => {
   plr.y = plr.y
   movementDown = false; */
   
-       resetMap(14) //  debug
+       resetMap(11) //  debug
       movementDown = false;  
 })
 
@@ -2058,6 +2069,10 @@ afterInput(() => {
 
   const spawnSprite = getFirst(spawn)
   const comChst= getFirst(commonchest)
+  //const rare chest
+  //const epic chest
+  const hidnAdvcs = getAll(hiddenadvance)
+  
   let crates = getAll(crate); // destroy on mob hit
   let waterSprites = getAll(water);
   let spikeSprites = getAll(spikes);
@@ -2151,10 +2166,16 @@ crates.forEach(crate => { //pressureplate n door stuff
       playTune(cratebreak);
     }
     if (getFirst(pressureplate) && crate.x === getFirst(pressureplate).x && crate.y === getFirst(pressureplate).y) { // pressureplate Mechanics
-      if (level === 6) {
+      if (level === 6 && crateonplate === false) {
         playTune(secret)
-        let pp = getTile(3,4)
-        console.log(pp)
+        for (let i = 1; i < 4; i++) {
+          for (let j = 3; j < 5; j++) {
+            let removing = getTile(i,j)
+            removing[0].remove();
+          }
+        }
+
+        crateonplate = true
       }
     }
   });
@@ -2228,6 +2249,23 @@ crates.forEach(crate => { //pressureplate n door stuff
       setTimeout(() => { clearText() }, 2000)
   }
 
+  // hidden advance tiles
+  if (hidnAdvcs) {
+    if (level === 3) {
+      hidnAdvcs.forEach(tl => {
+      if (plr.x === tl.x && plr.y === tl.y) { // im maaking a function for touch detection next time omg
+        playTune(secret)
+        resetMap(14)
+
+      }
+      })
+    }
+    if (level === 11) {
+      if (isTouching(getFirst(advancetile))) { // i implemented it at last
+        restMap(15)
+      }
+    }
+  }
 
 
   //attack from mobs
@@ -2287,6 +2325,7 @@ crates.forEach(crate => { //pressureplate n door stuff
   //GROUND ITEM PICKUPS
   const hpPotion = getAll(hppotion);
   const energyDrink = getAll(energydrink)
+  const curses = getAll(curse)
 
   if (hpPotion) {
     hpPotion.forEach(pot => {
@@ -2306,9 +2345,11 @@ crates.forEach(crate => { //pressureplate n door stuff
   //RANDOM ITEMS FROM CHEST
   if (comChst && plr.x === comChst.x && plr.y === comChst.y) {
     let rndId = Math.floor(Math.random() * commonLootPool.length)
-    addItem(commonLootPool[rndId])
-    playTune(getItem);
-    comChst.remove();
+    let fcall = addItem(commonLootPool[rndId]);
+    if (fcall === true) {
+      comChst.remove();
+      playTune(getItem);
+    }
   }
   
   // BOSS HP BARS
@@ -2387,7 +2428,7 @@ function mobMoveAll() {
     moveLogic();
     // Check for wall collision and player exclusion
     const spritesAtNextPos = getTile(newX, newY);
-    const isWallCollision = spritesAtNextPos.some(sprite => [hppotion, mobboss, curse, mobegg, wall, wall2, wall3, water, fireshooter, spikes, crate, commonchest, fireshooter, fireball, mob, spider, ghost, heart, spawn, door].includes(sprite.type));
+    const isWallCollision = spritesAtNextPos.some(sprite => [hppotion, mobboss, curse, mobegg, wall, wall2, wall3, water, fireshooter, spikes, crate, commonchest, fireshooter, heart, fireball, mob, spider, ghost, heart, spawn, door].includes(sprite.type));
     const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
     3
 
@@ -2423,16 +2464,23 @@ function addItem(pickup, groundspritetoremove) {
     itemSprite = addSprite(0, 0, itemsArray[0])
     if (arguments.length === 2)
       groundspritetoremove.remove();
+    if (pickup === energydrink)
+      addText("Attack Speed+", {x:3,y:1,color:color`6`})
+    if (pickup === hppotion)
+      addText("Health Potion", {x:3,y:1,color:color`8`})
+    setTimeout(() => {clearText()}, 1000)
+
+    return true;
   } else if (itemsArray[0]) {
-    console.log('capacity max')
-        addText("capacity full", {
+    console.log('item capacity max') // prob keep 1 entire game so its easier
+        addText("at item max", {
       x: 4,
       y: 4,
       color: color`3`
     })
   setTimeout(() => {clearText()}, 1000)
     
-
+  return false;
   }
 
 }
@@ -2441,7 +2489,7 @@ function mobSpawn() {
   let mobSpawner = getAll(mobspawner);
   mobSpawner.forEach(s => {
     const spritesAtNextPos = getTile(s.x + 1, s.y);
-    const isWallCollision = spritesAtNextPos.some(sprite => [hppotion, curse, mob, spider, ghost, player].includes(sprite.type));
+    const isWallCollision = spritesAtNextPos.some(sprite => [hppotion, curse, mob, spider, ghost, player, heart].includes(sprite.type));
     if (!isWallCollision) {
       addSprite(s.x, s.y, mob)
       playTune(enemySpawn);
@@ -2945,4 +2993,11 @@ function initGame() { //  used for restart after death
   eggCount = 0;
   eggOpenTime = 2500;
   gobBossHp = 12;
+}
+
+function isTouching(obj) {
+  if (getFirst(player).x === obj.x && getFirst(player).y === obj.y)
+    return true;
+  else
+    return false
 }
