@@ -68,7 +68,7 @@ const sword = "S"
 const water = "B"
 const fireball = "C"
 const fireshooter = "D"
-const chest = "E"
+const commonchest = "E"
 const mentor = "F"
 const bridge = "G"
 const mobspawner = "H"
@@ -114,7 +114,7 @@ const legendKeys = [
   mobboss,
   mob,
   spider,
-  chest,
+  commonchest,
   hurtplayer,
   spawn,
   grass,
@@ -633,7 +633,7 @@ legend.set(crate, [crate, bitmap`
 0CCCCCCCCC11CCC0
 01CCCCCCCCCCCC10
 0000000000000000`])
-legend.set(chest, [chest, bitmap`
+legend.set(commonchest, [commonchest, bitmap`
 ....00000000....
 ...0CCCCCCCC0...
 ..0CCCCCCCCCC0..
@@ -1070,9 +1070,6 @@ DDDD.4CCCCC.DDDD
 
 }
 
-
-
-
 legend.set(player, frames[player].DOWN)
 legend.set(sword, frames[sword].DOWN)
 legend.set(mobboss, frames[mobboss].NORM)
@@ -1081,7 +1078,7 @@ legend.set(mobboss, frames[mobboss].NORM)
 setLegend(...legend.values())
 
 const enemyList = ["mob", "ghost", "spider", "fireball"];
-/* const enemyStats = {
+const enemyStats = {
   mob: {
     hp: 2
   },
@@ -1094,7 +1091,11 @@ const enemyList = ["mob", "ghost", "spider", "fireball"];
   fireball: {
     hp: 100
   },
-}; */
+}; 
+
+const commonLootPool = [hppotion, energydrink]
+const rareLootPool = [curse]
+const epicLootPool = []
 
 const breakablesArray = getAll(mobegg)
 
@@ -1254,14 +1255,15 @@ v.m.m.v
 v..m..v
 v.....v
 v..p..v`, // double static chamber
+
+  
   map`
-vdvxwvxw
-v......w
+vAvxwvxw
 v..&E..w
 v......w
-vF.....w
-vvvxwvpw`, // mid level
-
+v......w
+v......w
+vvvxwvpw`, // transition level 1 length - 2 
   //bosses
   map`
 xwvxwLxwvxw
@@ -1277,7 +1279,7 @@ xwvxwpxwvxw`, // first boss; levels.length-1
 let traptriggered = false;
 
 const randomPickBlacklist = [
-  0, 1, 9
+  0, 1, 9, levels.length-1, levels.length-2, 
 ]
 
 setMap(levels[level]); // only for init
@@ -1344,6 +1346,11 @@ function levelSpecificStuff() {
     addSprite(2, 4, candle);
     addSprite(4, 4, candle);
   }
+  if (level === 14) {
+    addSprite(0, 1, candle);
+    addSprite(7, 3, candle);
+    addSprite(4, 5, candle);
+  }
   /*  if (level < 9) {
 let decowall = getAll(wall2);
      for (let i = 0; i < 3; i++) {
@@ -1370,10 +1377,7 @@ const killEnemy = tune`
 104.8951048951049: C5~104.8951048951049 + B4^104.8951048951049 + C4/104.8951048951049 + G4/104.8951048951049 + B5/104.8951048951049,
 104.8951048951049: F5/104.8951048951049,
 104.8951048951049: E5^104.8951048951049,
-104.8951048951049,
-104.8951048951049: C5^104.8951048951049,
-104.8951048951049: A4^104.8951048951049,
-2517.4825174825173`
+2832.1678321678323`
 const bossRage = tune`
 326.0869565217391: D5^326.0869565217391 + G4^326.0869565217391 + C5-326.0869565217391 + B4-326.0869565217391 + A4-326.0869565217391,
 326.0869565217391: A5-326.0869565217391 + G5-326.0869565217391 + F5-326.0869565217391 + E5^326.0869565217391 + B5^326.0869565217391,
@@ -1915,7 +1919,7 @@ onInput("j", () => { // RESET game if game over is on
 });
 
 onInput("l", () => {
- let tempdir = playerDir
+ /* let tempdir = playerDir
   if (tempdir === "UP") {
     playerDir = "RIGHT"
     basicAttack();
@@ -1933,10 +1937,10 @@ onInput("l", () => {
   }
   plr.x = plr.x
   plr.y = plr.y
-  movementDown = false;
+  movementDown = false; */
   
-       /* resetMap(14) //  debug
-      movementDown = false;  */
+       resetMap(14) //  debug
+      movementDown = false;  
 })
 
 onInput("k", () => {
@@ -2003,6 +2007,7 @@ afterInput(() => {
 
 
   const spawnSprite = getFirst(spawn)
+  const comChst= getFirst(commonchest)
   let crates = getAll(crate); // destroy on mob hit
   let waterSprites = getAll(water);
   let spikeSprites = getAll(spikes);
@@ -2062,7 +2067,7 @@ if (getFirst(invincibility)) {
   }
 }
 
-  if (boostactive === true) {
+  if (boostactive === true) { //speedboost logic
     if (getFirst(boostparticles))
       getFirst(boostparticles).remove();
     const bp = addSprite(plr.x,plr.y,boostparticles)
@@ -2072,7 +2077,6 @@ if (getFirst(invincibility)) {
   }
 
 
-  // item
 
   //heal 
   if (healingHeart) {
@@ -2141,7 +2145,7 @@ if (getFirst(invincibility)) {
       eggstoclear.forEach(e => { e.remove() })
     }
   }
-
+//lvl specific traps
   if (level === 5 && plr.x === width() - 2 && plr.y === 8 && !traptriggered) {
     let graves = getAll(hurtplayer)
     traptriggered = true;
@@ -2157,9 +2161,10 @@ if (getFirst(invincibility)) {
   const portal = getFirst(advancetile);
   plr = getFirst(player);
   if (portal && plr.x === portal.x && plr.y === portal.y) {
-    if (level === 8) { // water realm
+    if (level === 8) // water realm
       resetMap(9)
-    }
+    if (level === 14)
+      resetMap(n)
   }
 
 
@@ -2218,8 +2223,7 @@ if (getFirst(invincibility)) {
     })
   }
 
-  //ITEMSSYSTEM
-  
+  //GROUND ITEM PICKUPS
   const hpPotion = getAll(hppotion);
   const energyDrink = getAll(energydrink)
 
@@ -2237,9 +2241,16 @@ if (getFirst(invincibility)) {
     }
     })
   }
-  
 
-// BOSS HP BARS
+  //RANDOM ITEMS FROM CHEST
+  if (plr.x === comChst.x && plr.y === comChst.y) {
+    let rndId = Math.floor(Math.random() * commonLootPool.length)
+    addItem(commonLootPool[rndId])
+    playTune(getItem);
+    comChst.remove();
+  }
+  
+  // BOSS HP BARS
 
   if (gobBossSprite && gobBossHp > 0) {
     clearText();
@@ -2254,7 +2265,7 @@ if (getFirst(invincibility)) {
 })
 
 
-//lvl traps
+
 
 
 
@@ -2315,7 +2326,7 @@ function mobMoveAll() {
     moveLogic();
     // Check for wall collision and player exclusion
     const spritesAtNextPos = getTile(newX, newY);
-    const isWallCollision = spritesAtNextPos.some(sprite => [hppotion, mobboss, curse, mobegg, wall, wall2, wall3, bridge, water, fireshooter, spikes, crate, chest, fireshooter, fireball, mob, spider, ghost, heart, spawn, door].includes(sprite.type));
+    const isWallCollision = spritesAtNextPos.some(sprite => [hppotion, mobboss, curse, mobegg, wall, wall2, wall3, bridge, water, fireshooter, spikes, crate, commonchest, fireshooter, fireball, mob, spider, ghost, heart, spawn, door].includes(sprite.type));
     const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
     3
 
@@ -2349,7 +2360,8 @@ function addItem(pickup, groundspritetoremove) {
     playTune(getItem);
     itemsArray.push(pickup)
     itemSprite = addSprite(0, 0, itemsArray[0])
-    groundspritetoremove.remove();
+    if (arguments.length === 2)
+      groundspritetoremove.remove();
   } else if (itemsArray[0]) {
     console.log('capacity max')
         addText("capacity full", {
@@ -2411,7 +2423,7 @@ function ghostMoveAll() {
 
     // Check for wall collision and player exclusion
     const spritesAtNextPos = getTile(newX, newY);
-    const isWallCollision = spritesAtNextPos.some(sprite => [hppotion, mob, spider, ghost, spikes, heart, spawn, door, chest].includes(sprite.type)); // GHOSTS r special (they can go thru walls)
+    const isWallCollision = spritesAtNextPos.some(sprite => [hppotion, mob, spider, ghost, spikes, heart, spawn, door, commonchest].includes(sprite.type)); // GHOSTS r special (they can go thru walls)
     const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
 
     // Move the mob sprite only if there is no wall collision and not colliding with the player
@@ -2449,7 +2461,7 @@ function spiderMoveAll() {
     }
 
     const spritesAtNextPos = getTile(spiderSprite.x, spiderSprite.y);
-    const isWallCollision = spritesAtNextPos.some(sprite => [wall, wall2, wall3, bridge, water, chest, crate, heart, fireball, mob, ghost, spikes].includes(sprite.type));
+    const isWallCollision = spritesAtNextPos.some(sprite => [wall, wall2, wall3, bridge, water, commonchest, crate, heart, fireball, mob, ghost, spikes].includes(sprite.type));
     const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
 
     if (isWallCollision) {
@@ -2472,7 +2484,7 @@ function fireShoot() {
     addSprite(fiya.x, fiya.y, fireball);
     let fireproj = getFirst(fireball);
     const spritesAtNextPos = getTile(fireproj.x, fireproj.y + 1);
-    const isWallCollision = spritesAtNextPos.some(sprite => [wall, wall2, wall3, heart, spawn, door, crate, chest, spider, mob, ghost, spikes].includes(sprite.type));
+    const isWallCollision = spritesAtNextPos.some(sprite => [wall, wall2, wall3, heart, spawn, door, crate, commonchest, spider, mob, ghost, spikes].includes(sprite.type));
     const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
 
     if (!isWallCollision && !isPlayerCollision)
