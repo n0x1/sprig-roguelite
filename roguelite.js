@@ -1184,7 +1184,7 @@ const mentorDialogue = [
 
 let level = 1 // starting level (index 1 in this case)
 const levels = [ // surface lvls
-  // mentor (interior) lvls
+  // mentor (interior) lvl0
   map`
 ccccccccc
 ccccccccc
@@ -1192,7 +1192,7 @@ cccccciAe
 cccccci.e
 cccccciFe
 cccccci.e
-ccccccipe`,
+ccccccipe`, 
 
   map`
 fffffv.vxw
@@ -1336,14 +1336,7 @@ m....mx
 ......x
 vpvxwvx`, //crate to get rid spikes, but u have goblins
 
-  
-  map`
-vAvxwvxw
-v..&E..w
-v......w
-v......w
-v......w
-vvvxwvpw`, // transition level 1 length - 2 
+
   //bosses
   map`
 xwvxwLxwvxw
@@ -1353,11 +1346,17 @@ x.........w
 x.........w
 x.........w
 x.........w
-xwvxwpxwvxw`, // first boss; levels.length-1
+xwvxwpxwvxw`, // first boss; 17
 
 ]
 const caverns = [
-  map ``, // 0
+  map`
+vAvxwvxw
+v..&E..w
+v......w
+v......w
+v......w
+vvvxwvpw`, // transition level 0
   map`
 wdxDxwvx
 w...$$$x
@@ -1367,12 +1366,18 @@ w$$.$$$x
 w$$....x
 w$$.$.$x
 wvxwvpvx`, // 1
+  map`
+p`,
+    map`
+p`,
+    map`
+p`,
 ] 
 let traptriggered = false;
 let crateonplate = false;
 
 const randomPickBlacklist = [
-  0, 1, 9, 14, 15, levels.length-1, levels.length-2, 
+  0, 1, 9, 14, 15, 17
 ]
 
 setMap(levels[level]); // only for init
@@ -1474,9 +1479,9 @@ const hit = tune`
 500: C4/500 + B4/500 + C5/500 + D5~500 + B5^500,
 15500`
 const hitEnemy = tune`
-209.7902097902098,
-104.8951048951049: C5~104.8951048951049 + B4^104.8951048951049 + C4/104.8951048951049 + G4/104.8951048951049 + B5/104.8951048951049,
-3041.958041958042`
+403.5874439461883,
+67.26457399103138: C4/67.26457399103138 + G4/67.26457399103138 + B5/67.26457399103138 + B4^67.26457399103138 + C5~67.26457399103138,
+1681.6143497757846`
 const killEnemy = tune`
 104.8951048951049,
 104.8951048951049: C4/104.8951048951049,
@@ -1721,7 +1726,7 @@ function successivetracks() {
 
 function playbgm() { // plays bgm appropriate to lvl
 
-  if (level === levels.length - 1) {
+  if (level === 17) {
     bgm.end();
     bgm = playTune(hardbgm, Infinity)
   }
@@ -1822,23 +1827,25 @@ let chosenLevels = [];
 // random pick blacklist defined under map bitmaps
 
 function resetMap(n) {
-  if (arguments.length === 0) // completely random set
-    level = (Math.floor(Math.random() * levels.length)); // random level (safe system is now in setmap) 
-  else if (arguments.length === 1) { // set for specific continuations (calling with n)
-    level = n;
+  if (arguments.length === 0) { // completely random set
     if (score < 100)
-      setMap(levels[level])
-    else if (score > 100) 
-      {//
-      }
-  }
-
-  if (arguments.length === 0) { 
-    if (chosenLevels.includes(level) || randomPickBlacklist.includes(level)) { // add more lvlvs as scrollers added 
-      resetMap() //recursively call until its a dungeon lvl
+      level = (Math.floor(Math.random() * levels.length)); // random level 
+    if (score > 100 && score < 200)
+      level = (Math.floor(Math.random() * caverns.length));
+    
+  if (chosenLevels.includes(level) || randomPickBlacklist.includes(level)) {
+      console.log("recursive") // check if lvl has been chosen already
+      resetMap() //recursively call until its a not picked/dungeon lvl
     }
   }
-  
+  if (arguments.length === 1) { // set for specific continuations (calling with n)
+    level = n;
+    if (score < 100) 
+      setMap(levels[n])
+    else if (score < 200) {
+      setMap(caverns[level])
+    }
+  }
 
 
   console.log("Level: " + level);
@@ -1850,19 +1857,22 @@ function resetMap(n) {
   traptriggered = false;
 
 
-  if (!chosenLevels.includes(level) && arguments.length === 0)
+if (!chosenLevels.includes(level) && arguments.length === 0)
     score++;
 
-  chosenLevels.push(level)
+chosenLevels.push(level)
+  
 if (arguments.length === 0) {
   if (score === 8) {
-      level = (levels.length - 1) // first boss
+      level = 17 // first boss triggered at 8
       setMap(levels[level])
   }
-  else if (score < 100)
-    setMap(levels[level]);   // surface lvls
-    // else if (score > 100) 
-      // setMap(caverns[level])
+    
+  if (score < 100)
+    setMap(levels[level]);  
+  if (score > 100 && score < 200)  
+    setMap(caverns[level]);
+  
 }
   playbgm()
 
@@ -2066,7 +2076,7 @@ onInput("l", () => {
   plr.y = plr.y
   movementDown = false; */
   
-   resetMap(16) //  debug
+   resetMap(17) //  debug
 
 })
 
@@ -2097,7 +2107,7 @@ let currentItemSprite = getFirst(currentItem)
   if (currentItem === hppotion) 
     potionHeal();
   if (currentItem === energydrink)
-    boostAttackSpeed(30000)//ms
+    boostAttackSpeed(30000)//ms arg
 
 
   itemsArray.pop()
@@ -2130,8 +2140,6 @@ afterInput(() => {
   const gobBossSprite = getFirst(mobboss);
 
   let healingHeart = getFirst(healingheart);
-
-
 
   const spawnSprite = getFirst(spawn)
   const comChst= getFirst(commonchest)
@@ -2176,7 +2184,7 @@ afterInput(() => {
       setTimeout(() => { clearText() }, 2000)
     }
   } // tutorial and mentor
-  if (doorSprite) {
+  if (doorSprite && level != levels.length-1) {
     if (plr.x === doorSprite.x && plr.y === doorSprite.y) {
       resetMap(); // Load the next level (mob levels)
     }
@@ -2348,8 +2356,8 @@ crates.forEach(crate => { //pressureplate n door stuff
   if (portal && plr.x === portal.x && plr.y === portal.y) {
     if (level === 8) // water realm
       resetMap(9)
-    if (level === levels.length - 2)
-      resetMap(2)
+    if (level === 0 && score > 100)
+      resetMap()
       setTimeout(() => { clearText(); }, 50)
       setTimeout(() => { addText("II: Caverns", { x: 4, y: 3, color: color`C` }) }, 100)
 
@@ -2369,10 +2377,16 @@ crates.forEach(crate => { //pressureplate n door stuff
     }
     if (level === 11) {
       let adv = getFirst(hiddenadvance)
-      let advy = getFirst(hiddenadvance).y
       if (plrTouching(adv)) { // i implemented it at last
         resetMap(15)
       }
+    }
+  }
+  //boss advancing
+  if (level === 17) {
+    if (doorSprite && plr.x === doorSprite.x && plr.y === doorSprite.y) {
+        stage = 2;
+        resetMap(0) // caverns
     }
   }
 
@@ -2426,8 +2440,10 @@ crates.forEach(crate => { //pressureplate n door stuff
 
   if (mobEggs) {
     mobEggs.forEach(egg => {
-      if (attacki.x === egg.x && attacki.y === egg.y)
+      if (attacki && attacki.x === egg.x && attacki.y === egg.y) {
         defeatEnemy(egg)
+        eggCount--
+      }
     })
   }
 
@@ -2921,6 +2937,9 @@ function defeatEnemy(enemy) {
 function defeatBoss(boss) {
   boss.remove()
   score += 100;
+  chosenLevels = [9,10]
+  if (score > 100 && score < 200)
+  randomPickBlacklist = [3,4] // blacklist for caverns
   
   let exit = getFirst(lockeddoor)
   addSprite(exit.x, exit.y, door) // heal player after defeated boss
@@ -3080,21 +3099,23 @@ function checkGameOver() {
   }
 }
 
+let stage = 1;
 let damageincrement = 1 // init plr dmg per sword attack ; can grow
 function initGame() { //  used for restart after death
   level = 1
+  stage = 1
   score = 0;
-  
+
+  chosenLevels = []
   resetMap(1)
+  
   clearText();
   levelOneSetDeco();
-
 
   health = maxhealth;
   heartsArray = [];
   
   
-  plr = getFirst(currentPlayerType);
   plr.x = 2;
   plr.y = 7;
   playerDir = "DOWN";
@@ -3114,6 +3135,9 @@ function initGame() { //  used for restart after death
   eggCount = 0;
   eggOpenTime = 1000;
   gobBossHp = 25;
+  gobBossEnraged = false;
+
+  plr = getFirst(player)
 }
 
 function plrTouching(obj) {
