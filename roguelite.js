@@ -76,11 +76,13 @@ const mobegg = "I"
 const invincibility = "J"
 const bossslash = "K"
 const hiddenadvance = "N"
+const pressureplate = "R"
 const lockeddoor = "L"
 const hppotion = "M"
 const curse = "O"
 const energydrink = "P"
 const boostparticles = "Q"
+
 
 const legendKeys = [
   rooftip,
@@ -108,6 +110,7 @@ const legendKeys = [
   candle,
   fireball,
   fireshooter,
+  crate,
   wall,
   wall2,
   wall3,
@@ -123,14 +126,15 @@ const legendKeys = [
   housewallright,
   roofbody,
   housedoor,
-  crate,
   healingheart,
   spikes,
   water,
   warningtile,
   advancetile,
   mobspawner,
+  pressureplate,
   hiddenadvance,
+
 ]
 
 
@@ -378,6 +382,23 @@ legend.set(hurtplayer, [hurtplayer, bitmap`
 ..CCCCCCCCCCCC..
 .....CC.CCC.....
 ................`]) //grave
+legend.set(crate, [crate, bitmap`
+0000000000000000
+01CCCCCCCCCCCC10
+0CCCCCCCCCCCCCC0
+0CC111CCCCCCCCC0
+0CCCCC1111CCCCC0
+0CCCCCCCCC111CC0
+0CC11CCCCCCCCCC0
+0CCCC111CCCCCCC0
+0CCCCCCC111CCCC0
+0CCCCCCCCCC11CC0
+0CC11CCCCCCCCCC0
+0CCCC111CCCCCCC0
+0CCCCCCC11CCCCC0
+0CCCCCCCCC11CCC0
+01CCCCCCCCCCCC10
+0000000000000000`])
 legend.set(candle, [candle, bitmap`
 ................
 ................
@@ -616,23 +637,6 @@ CCC0990666660CCC
 CCC0990666660CCC
 CCC0990666660CCC
 CCC0990666660CCC`])
-legend.set(crate, [crate, bitmap`
-0000000000000000
-01CCCCCCCCCCCC10
-0CCCCCCCCCCCCCC0
-0CC111CCCCCCCCC0
-0CCCCC1111CCCCC0
-0CCCCCCCCC111CC0
-0CC11CCCCCCCCCC0
-0CCCC111CCCCCCC0
-0CCCCCCC111CCCC0
-0CCCCCCCCCC11CC0
-0CC11CCCCCCCCCC0
-0CCCC111CCCCCCC0
-0CCCCCCC11CCCCC0
-0CCCCCCCCC11CCC0
-01CCCCCCCCCCCC10
-0000000000000000`])
 legend.set(commonchest, [commonchest, bitmap`
 ....00000000....
 ...0CCCCCCCC0...
@@ -804,22 +808,39 @@ legend.set(invincibility, [invincibility, bitmap`
 .7............7.
 ..777777777777..`])
 legend.set(hiddenadvance, [hiddenadvance, bitmap`
-................
-................
-................
-................
-................
-................
-................
-................
-................
-................
-................
-................
-................
-................
-................
+......8.........
+......8.........
+.....88.........
+.....8.8....8.8.
+....8..8....8..8
+...8...8....8.88
+...88888....888.
+..8.....8...8...
+..8.....8.......
+.8.........8....
+.8.........8....
+8......8..8.....
+..33.3..8.8.....
+...33....88.....
+..3.3...........
 ................`])
+legend.set(pressureplate, [pressureplate, bitmap`
+1111111111111111
+1LLLLLLLLLLLLLL1
+1LLLLLLLLLLLLLL1
+1LL9CCCCCCCC9LL1
+1LLC9LLLLLL9CLL1
+1LLCL9LLLL9LCLL1
+1LLCLL9CC9LLCLL1
+1LLCLLC99CLLCLL1
+1LLCLLC99CLLCLL1
+1LLCLL9CC9LLCLL1
+1LLCL9LLLL9LCLL1
+1LLC9LLLLLL9CLL1
+1LL9CCCCCCCC9LL1
+1LLLLLLLLLLLLLL1
+1LLLLLLLLLLLLLL1
+1111111111111111`])
 legend.set(boostparticles, [boostparticles, bitmap`
 ................
 ................
@@ -1105,7 +1126,7 @@ function setPlayerSprite(direction) {
 }
 
 
-setSolids([wall, wall2, wall3, fireshooter, crate, bridge, housewall, housewallleft, housewallright, roofbody, player, mentor, mobboss, mobegg])
+setSolids([wall, wall2, wall3, fireshooter, crate, housewall, housewallleft, housewallright, roofbody, player, mentor, mobboss, mobegg])
 
 const mentorDialogue = [
   "Move: w,a,s,d",
@@ -1178,16 +1199,16 @@ vfgfffffffffffw
 vfffffffffffvfw
 vffgfffgfgffvfw
 vfffffffffffvfw
-vxwvxwvxwvxwvpw`, //ghost graveyard
+vxwvxwvxwvxwvpw`, //ghost graveyard 5
   map`
-wdxDxwvx
-w...$$$x
-w$$.$$$x
-w$$....x
-w$$.$$$x
-w$$....x
-w$$.$.$x
-wvxwvpvx`,
+fBBBdvxw
+BBBfffff
+BBfffmff
+vBGGffff
+vBGGBBBB
+vfffBBBB
+RfZfffff
+vxwvpfff`, // river bridge down 6
   map`
 wvxwvdvxwv
 vv....y.vv
@@ -1198,14 +1219,13 @@ w......y.v
 wv.y....vv
 wvxwvpvxwv`, // spiders lots
   map`
-BBtvdvtBB
-BB..y..BB
-BB..M..BB
-BB.fvf.BB
-BBtvtvtBB
-BB.fvf.BB
-BB.....BB
-BB..p..BB`,
+wvxw
+wvxw
+wA.w
+wy.w
+w..w
+w..w
+p..d`, // hp chamber entrance
   map`
 BBtvdvtBB
 BB..y..BB
@@ -1233,17 +1253,17 @@ vxwBB.BBBB
 vxBBB.BBBB
 vP.m...BBB
 vx...m.BBB
-vxw....BBB
-vxwvxwdxBB`, //edrink pickup 11 
+vxw....BBG
+vxwvxwdxBG`, //edrink pickup 11 
   map`
-GGGGGGGGGG
-vxwvxpv.GB
+BBBBBBBBBB
+vxwvxp..BB
 vxw....mBB
 vx...m..BB
 vH......BB
-vx......BB
-vxw.y..GBB
-vxwvxwdGGG`, //  spawner of mobs smaller chamber
+vx...xwvBB
+vxw.y..vBB
+vxwvxwdvBB`, //  spawner of mobs smaller chamber
   map`
 vxwdxwv
 vt...tv
@@ -1256,6 +1276,16 @@ v..m..v
 v.....v
 v..p..v`, // double static chamber
 
+  //caverns
+  map`
+wdxDxwvx
+w...$$$x
+w$$.$$$x
+w$$....x
+w$$.$$$x
+w$$....x
+w$$.$.$x
+wvxwvpvx`,
   
   map`
 vAvxwvxw
@@ -1326,8 +1356,19 @@ function putGrassGraveyardLvl() {
 
 function levelSpecificStuff() {
   //decorative
-  if (level === 5) { // index 5 is gy lvl, but its sometimes 4??
+  if (level === 5) { 
     putGrassGraveyardLvl();
+  }
+  if (level === 6) {
+    let z = getFirst(mob)
+    let c = getFirst(crate)
+    addSprite(z.x,z.y,grass)
+    addSprite(c.x,c.y,grass)
+        for (let i = 2; i < 4; i++) {
+          for (let j = 3; j < 5; j++) {
+            addSprite(i,j,water)
+          }
+        }
   }
   if (level === 4 || level === 7) {
     addSprite(width() - 1, 4, candle);
@@ -1402,7 +1443,8 @@ const enemySpawn = tune`
 const cratebreak = tune`
 124.48132780082987: F4-124.48132780082987 + G4-124.48132780082987 + D4-124.48132780082987 + E4-124.48132780082987 + A4-124.48132780082987,
 124.48132780082987: G4-124.48132780082987 + D4-124.48132780082987 + C4-124.48132780082987,
-3734.4398340248963`
+124.48132780082987: G4~124.48132780082987,
+3609.9585062240662`
 const gameoversound = tune`
 78.3289817232376: B5-78.3289817232376 + C4~78.3289817232376 + F4~78.3289817232376,
 78.3289817232376: A5-78.3289817232376 + C4~78.3289817232376,
@@ -1423,22 +1465,29 @@ const danger = tune`
 161.29032258064515,
 161.29032258064515: F5-161.29032258064515 + D5-161.29032258064515,
 161.29032258064515: G5/161.29032258064515 + C5/161.29032258064515 + A5/161.29032258064515 + B5/161.29032258064515 + B4/161.29032258064515,
-161.29032258064515: B4/161.29032258064515 + C5/161.29032258064515 + D5/161.29032258064515 + E5/161.29032258064515 + F5/161.29032258064515,
+161.29032258064515: D5-161.29032258064515 + E5-161.29032258064515 + B4-161.29032258064515 + C5-161.29032258064515 + F5-161.29032258064515,
 4516.129032258064`
 
 const heal = tune`
-223.88059701492537: C4~223.88059701492537,
-223.88059701492537: A4~223.88059701492537 + C4~223.88059701492537 + E4^223.88059701492537,
-223.88059701492537: C5~223.88059701492537 + C4~223.88059701492537 + E5^223.88059701492537,
+223.88059701492537: E4^223.88059701492537 + C4~223.88059701492537,
+223.88059701492537: A4~223.88059701492537 + E4^223.88059701492537 + C5^223.88059701492537 + E5^223.88059701492537 + C4^223.88059701492537,
+223.88059701492537: C4~223.88059701492537 + E5^223.88059701492537 + A5^223.88059701492537 + C5/223.88059701492537 + G5/223.88059701492537,
 6492.537313432836`
 const boostStart = tune`
-222.22222222222223: C4~222.22222222222223 + E4^222.22222222222223,
-222.22222222222223: G4^222.22222222222223 + C5~222.22222222222223 + D5^222.22222222222223,
+222.22222222222223: C4~222.22222222222223 + E4^222.22222222222223 + G4/222.22222222222223,
+222.22222222222223: G4^222.22222222222223 + C5~222.22222222222223 + D5^222.22222222222223 + F5/222.22222222222223,
 6666.666666666667`
 const boostEnd = tune`
-222.22222222222223: C5~222.22222222222223 + G4^222.22222222222223,
-222.22222222222223: E4^222.22222222222223 + C4^222.22222222222223 + D4~222.22222222222223,
+222.22222222222223: C5~222.22222222222223 + G4^222.22222222222223 + E5/222.22222222222223,
+222.22222222222223: E4^222.22222222222223 + C4^222.22222222222223 + D4~222.22222222222223 + G4/222.22222222222223,
 6666.666666666667`
+
+const secret = tune`
+250: C4~250,
+250: E4^250,
+250: G4-250,
+250: C5/250,
+7000`
 
 const getItem = tune`
 89.55223880597015,
@@ -1493,37 +1542,38 @@ const villagebgm = tune`
 238.0952380952381,
 238.0952380952381: C5^238.0952380952381 + C4^238.0952380952381`
 const surbgm1 = tune`
-500: C4^500 + E4^500 + G4^500 + D5~500,
-500: C5~500,
-500: B4~500,
-500,
-500: D5~500,
-500: E5~500,
-500: B4~500,
-500: A4~500,
-500: G4^500 + B4^500 + E4~500 + C5~500,
-500: C5~500,
-500: B4^500,
-500: A4^500,
-500: G4^500,
-500: F4~500,
-500: E4~500,
-500,
-500: C4~500 + E4~500 + G4~500 + C5^500,
-500: B4~500,
-500: C5~500,
-500: C5~500,
-500: C5~500,
-500: C4~500 + G4~500,
-500: C5^500 + E5~500,
-500,
-500: B4~500,
-500: B4~500,
-500: B4~500,
-500: G4^500 + C5^500,
-500,
-500: C5~500 + F4~500 + F5~500,
-1000`
+260.8695652173913: C4^260.8695652173913 + E4^260.8695652173913 + G4^260.8695652173913 + D5~260.8695652173913,
+260.8695652173913: C5/260.8695652173913,
+260.8695652173913: B4~260.8695652173913 + D5/260.8695652173913,
+260.8695652173913,
+260.8695652173913: B4/260.8695652173913 + G4/260.8695652173913 + E4~260.8695652173913 + C4/260.8695652173913,
+260.8695652173913: A4~260.8695652173913 + C5~260.8695652173913 + E4~260.8695652173913,
+260.8695652173913: B4~260.8695652173913,
+260.8695652173913: A4~260.8695652173913,
+260.8695652173913: G4^260.8695652173913 + B4^260.8695652173913 + E4~260.8695652173913 + C5~260.8695652173913 + E5/260.8695652173913,
+260.8695652173913: C5~260.8695652173913 + D5/260.8695652173913,
+260.8695652173913: B4^260.8695652173913 + C5/260.8695652173913,
+260.8695652173913: A4^260.8695652173913,
+260.8695652173913: G4^260.8695652173913,
+260.8695652173913: C5/260.8695652173913 + E5~260.8695652173913 + G5~260.8695652173913 + F4/260.8695652173913 + A4/260.8695652173913,
+260.8695652173913,
+260.8695652173913: C5~260.8695652173913 + A4~260.8695652173913 + E4~260.8695652173913,
+260.8695652173913: C4~260.8695652173913 + E4~260.8695652173913 + G4~260.8695652173913 + C5^260.8695652173913 + D5/260.8695652173913,
+260.8695652173913: B4~260.8695652173913 + E5/260.8695652173913,
+260.8695652173913: C5~260.8695652173913 + G5/260.8695652173913,
+260.8695652173913: C5~260.8695652173913 + F5/260.8695652173913,
+260.8695652173913: C5~260.8695652173913 + E5/260.8695652173913,
+260.8695652173913: C4~260.8695652173913 + G4~260.8695652173913 + C5^260.8695652173913 + F5/260.8695652173913,
+260.8695652173913: C5^260.8695652173913 + E5/260.8695652173913,
+260.8695652173913,
+260.8695652173913: C5/260.8695652173913 + E5/260.8695652173913 + A4~260.8695652173913 + C4~260.8695652173913,
+260.8695652173913: C5/260.8695652173913 + F5/260.8695652173913 + A4/260.8695652173913,
+260.8695652173913: C5/260.8695652173913 + G5^260.8695652173913 + A4/260.8695652173913 + C4~260.8695652173913,
+260.8695652173913: G4^260.8695652173913 + C5^260.8695652173913 + B4/260.8695652173913 + A5^260.8695652173913,
+260.8695652173913: G5^260.8695652173913 + C4~260.8695652173913,
+260.8695652173913: C5~260.8695652173913 + F4~260.8695652173913 + F5/260.8695652173913,
+260.8695652173913: B4^260.8695652173913 + E4^260.8695652173913 + E5/260.8695652173913 + C4~260.8695652173913,
+260.8695652173913: C4/260.8695652173913 + A4/260.8695652173913`
 const surbgm2 = tune`
 500: G5~500 + B4~500 + G4^500,
 500,
@@ -2056,6 +2106,7 @@ afterInput(() => {
     clearText()
     plr = getFirst(currentPlayerType);
   }
+  
 
 if (getFirst(invincibility)) {
   if (invincible) {
@@ -2094,6 +2145,19 @@ if (getFirst(invincibility)) {
   })
 
 
+crates.forEach(crate => { //pressureplate n door stuff
+    if (crate.x === doorSprite.x && crate.y === doorSprite.y) {
+      crate.remove();
+      playTune(cratebreak);
+    }
+    if (getFirst(pressureplate) && crate.x === getFirst(pressureplate).x && crate.y === getFirst(pressureplate).y) { // pressureplate Mechanics
+      if (level === 6) {
+        playTune(secret)
+        let pp = getTile(3,4)
+        console.log(pp)
+      }
+    }
+  });
 
   if (mobSprites) {
     //modify pushable sprites
@@ -2106,13 +2170,6 @@ if (getFirst(invincibility)) {
       });
     });
   }
-
-  crates.forEach(crate => {
-    if (crate.x === doorSprite.x && crate.y === doorSprite.y) {
-      crate.remove();
-      playTune(cratebreak);
-    }
-  });
 
   crates.forEach(crate => {
     waterSprites.forEach(water => {
@@ -2163,8 +2220,12 @@ if (getFirst(invincibility)) {
   if (portal && plr.x === portal.x && plr.y === portal.y) {
     if (level === 8) // water realm
       resetMap(9)
-    if (level === 14)
-      resetMap(n)
+    if (level === levels.length - 2)
+      resetMap(2)
+      setTimeout(() => { clearText(); }, 50)
+      setTimeout(() => { addText("II: Caverns", { x: 4, y: 3, color: color`C` }) }, 100)
+
+      setTimeout(() => { clearText() }, 2000)
   }
 
 
@@ -2243,7 +2304,7 @@ if (getFirst(invincibility)) {
   }
 
   //RANDOM ITEMS FROM CHEST
-  if (plr.x === comChst.x && plr.y === comChst.y) {
+  if (comChst && plr.x === comChst.x && plr.y === comChst.y) {
     let rndId = Math.floor(Math.random() * commonLootPool.length)
     addItem(commonLootPool[rndId])
     playTune(getItem);
@@ -2326,7 +2387,7 @@ function mobMoveAll() {
     moveLogic();
     // Check for wall collision and player exclusion
     const spritesAtNextPos = getTile(newX, newY);
-    const isWallCollision = spritesAtNextPos.some(sprite => [hppotion, mobboss, curse, mobegg, wall, wall2, wall3, bridge, water, fireshooter, spikes, crate, commonchest, fireshooter, fireball, mob, spider, ghost, heart, spawn, door].includes(sprite.type));
+    const isWallCollision = spritesAtNextPos.some(sprite => [hppotion, mobboss, curse, mobegg, wall, wall2, wall3, water, fireshooter, spikes, crate, commonchest, fireshooter, fireball, mob, spider, ghost, heart, spawn, door].includes(sprite.type));
     const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
     3
 
@@ -2461,7 +2522,7 @@ function spiderMoveAll() {
     }
 
     const spritesAtNextPos = getTile(spiderSprite.x, spiderSprite.y);
-    const isWallCollision = spritesAtNextPos.some(sprite => [wall, wall2, wall3, bridge, water, commonchest, crate, heart, fireball, mob, ghost, spikes].includes(sprite.type));
+    const isWallCollision = spritesAtNextPos.some(sprite => [wall, wall2, wall3, water, commonchest, crate, heart, fireball, mob, ghost, spikes].includes(sprite.type));
     const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
 
     if (isWallCollision) {
@@ -2739,9 +2800,9 @@ function heartPickup() {
   }
 }
 function potionHeal() {
+  playTune(heal)
   if (health < maxhealth) {
     health++;
-    playTune(heal)
     handleHealthUI(health);
     createHeartsArray(health);
   }
