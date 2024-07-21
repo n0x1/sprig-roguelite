@@ -1,13 +1,13 @@
 /*
-@title: Spriglite
+@title: Darkening Descent
 @author: noxi
-@tags: [advanced, dungeon]
+@tags: [advanced, roguelite]
 @addedOn: 2024-07-07
 */
 
 /* ABOUT:
 
-Explore a procedurally generated dungeon, defeat enemies, upgrade your gear, and find a way to the core of the planet. 
+Explore a randomly generated dungeon filled with enemies, secrets, and upgrades. Find a way to its rumored bottom at the core of Earth.
 
 STAGES
 I: Surface
@@ -18,12 +18,12 @@ III: Hallows
 
 /* bulletin 
     dash attack
+    
+    more items
 
-   chests
+    
    
-   boss attack pattern
    boss rush mode
-   able to attack bosses
 
 
    then add scroller lvls & difficulty curve (with score var
@@ -87,9 +87,11 @@ const curse = "O"
 const energydrink = "P"
 const boostparticles = "Q"
 const dummy = "T"
+const black = "U"
 
 
 const legendKeys = [
+  black,
   rooftip,
   roofleft,
   roofright,
@@ -166,7 +168,23 @@ legendKeys.forEach((key) => {
 })
 
 
-
+legend.set(black, [black, bitmap`
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000`])
 legend.set(rooftip, [rooftip, bitmap`
 ................
 ................
@@ -1318,16 +1336,6 @@ m....mx
 ......x
 vpvxwvx`, //crate to get rid spikes, but u have goblins
 
-  //caverns
-  map`
-wdxDxwvx
-w...$$$x
-w$$.$$$x
-w$$....x
-w$$.$$$x
-w$$....x
-w$$.$.$x
-wvxwvpvx`,
   
   map`
 vAvxwvxw
@@ -1348,6 +1356,18 @@ x.........w
 xwvxwpxwvxw`, // first boss; levels.length-1
 
 ]
+const caverns = [
+  map ``, // 0
+  map`
+wdxDxwvx
+w...$$$x
+w$$.$$$x
+w$$....x
+w$$.$$$x
+w$$....x
+w$$.$.$x
+wvxwvpvx`, // 1
+] 
 let traptriggered = false;
 let crateonplate = false;
 
@@ -1803,34 +1823,47 @@ let chosenLevels = [];
 
 function resetMap(n) {
   if (arguments.length === 0) // completely random set
-    level = (Math.floor(Math.random() * levels.length / 2 ) + score); // random level above safe ones 
+    level = (Math.floor(Math.random() * levels.length)); // random level (safe system is now in setmap) 
   else if (arguments.length === 1) { // set for specific continuations (calling with n)
     level = n;
-    setMap(levels[level])
+    if (score < 100)
+      setMap(levels[level])
+    else if (score > 100) 
+      {//
+      }
   }
 
   if (arguments.length === 0) { 
-    if (chosenLevels.includes(level) || randomPickBlacklist.includes(level) || level > levels.length) { // add more lvlvs as scrollers added 
+    if (chosenLevels.includes(level) || randomPickBlacklist.includes(level)) { // add more lvlvs as scrollers added 
       resetMap() //recursively call until its a dungeon lvl
     }
   }
   
-  if (score === 10) { // after ten lvls, set to boss
-    resetMap(levels.length)
-  }
+
 
   console.log("Level: " + level);
   console.log("Score: " + score);
 
-  mapJustChanged = true;
 
-  if (!chosenLevels.includes(level))
+  mapJustChanged = true;
+  crateonplate = false;
+  traptriggered = false;
+
+
+  if (!chosenLevels.includes(level) && arguments.length === 0)
     score++;
 
   chosenLevels.push(level)
-
-  setMap(levels[level]);
-
+if (arguments.length === 0) {
+  if (score === 8) {
+      level = (levels.length - 1) // first boss
+      setMap(levels[level])
+  }
+  else if (score < 100)
+    setMap(levels[level]);   // surface lvls
+    // else if (score > 100) 
+      // setMap(caverns[level])
+}
   playbgm()
 
   createHeartsArray(health);
@@ -1839,12 +1872,9 @@ function resetMap(n) {
 
   playTune(advancelvl);
 
-  traptriggered = false;
 
   addSprite(plr.x, plr.y, spawn); //spawn pad under player
   levelSpecificStuff();
-
-
   clearText();
   
 if (itemsArray[0]) 
@@ -2214,7 +2244,9 @@ crates.forEach(crate => { //pressureplate n door stuff
         crateonplate = true
       }
       if (level === 16 && crateonplate === false) {
-        ...
+        playTune(secret)
+        getFirst(spikes).remove();
+        crateonplate = true;
       }
     }
   });
@@ -2505,7 +2537,7 @@ function mobMoveAll() {
     moveLogic();
     // Check for wall collision and player exclusion
     const spritesAtNextPos = getTile(newX, newY);
-    const isWallCollision = spritesAtNextPos.some(sprite => [dummy, hppotion, mobboss, curse, mobegg, wall, wall2, wall3, water, fireshooter, spikes, crate, commonchest, fireshooter, heart, fireball, mob, spider, ghost, heart, spawn, door].includes(sprite.type));
+    const isWallCollision = spritesAtNextPos.some(sprite => [dummy, pressureplate, hppotion, mobboss, curse, mobegg, wall, wall2, wall3, water, fireshooter, spikes, crate, commonchest, fireshooter, heart, fireball, mob, spider, ghost, heart, spawn, door].includes(sprite.type));
     const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
     3
 
@@ -2888,7 +2920,8 @@ function defeatEnemy(enemy) {
 
 function defeatBoss(boss) {
   boss.remove()
-
+  score += 100;
+  
   let exit = getFirst(lockeddoor)
   addSprite(exit.x, exit.y, door) // heal player after defeated boss
   exit.remove();
@@ -2980,7 +3013,7 @@ function playerCollided() { //collide with normal mob
           plr.y--;
           addSprite(plr.x, plr.y, invincibility);
         }
-      }, 75);
+      }, 25);
     }
 
 
@@ -3023,15 +3056,25 @@ function checkGameOver() {
 
     bgm.end()
     playTune(gameoversound);
+    for (let i = 0; i < width()/2+Math.floor(width()/3); i++) {
+      for (let j = 0; j < height()/3; j++) {
+        addSprite(i,j,black)
+      }
+    }
 
     addText("Game Over", {
-      x: 5,
-      y: 4,
+      x: 1,
+      y: 2,
       color: color`3`
     })
-    addText("reset:j", {
-      x: 6,
-      y: 5,
+    addText("Score: " + score, {
+      x: 1,
+      y: 3,
+      color: color`7`
+    })
+    addText("Play again: j", {
+      x: 1,
+      y: 4,
       color: color`4`
     })
   }
@@ -3040,8 +3083,9 @@ function checkGameOver() {
 let damageincrement = 1 // init plr dmg per sword attack ; can grow
 function initGame() { //  used for restart after death
   level = 1
-
-  setMap(levels[level]);
+  score = 0;
+  
+  resetMap(1)
   clearText();
   levelOneSetDeco();
 
@@ -3068,8 +3112,8 @@ function initGame() { //  used for restart after death
 
   // reset bosses stats
   eggCount = 0;
-  eggOpenTime = 2500;
-  gobBossHp = 12;
+  eggOpenTime = 1000;
+  gobBossHp = 25;
 }
 
 function plrTouching(obj) {
