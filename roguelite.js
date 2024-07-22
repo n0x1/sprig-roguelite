@@ -92,6 +92,7 @@ const rarechest = "V"
 const strengthparticles = "W"
 const rocks = "X"
 const lavafish = "Y"
+const lavafishspawner = "%"
 const brokenrocks = "@"
 const bomb = "#"
 
@@ -150,6 +151,7 @@ const legendKeys = [
   warningtile,
   advancetile,
   mobspawner,
+  lavafishspawner,
   pressureplate,
   hiddenadvance,
   brokenrocks,
@@ -587,6 +589,23 @@ DLDD147C74C1DDLD
 DDD14LCCC7441DDD
 DDL44L1DD1L44LDD
 DDDDDDDDDDDDDDDD`])
+legend.set(lavafishspawner, [lavafishspawner, bitmap`
+3333333383333333
+3331LL1811LL1833
+8133L81LC1LL3313
+31133LCLC1L33993
+3LL189CCC19999L3
+3LL1LLCCCCL91L99
+3LCCL9CCC9CL19L3
+31CC88888CC39113
+3LCC88888C9398L3
+3LCC889008C31LL3
+3LL1888880C31LL3
+311388889CC33113
+3L33898C89C133L3
+33388L8C88991333
+33L89L8338L99L33
+3333333333333333`])
 legend.set(grass, [grass, bitmap`
 DDDDDDDDDDDDDDDD
 DDDDDDFDDDDDDDDD
@@ -757,23 +776,6 @@ legend.set(water, [water, bitmap`
 7777755577757577
 7777777777777777
 7777777777777777`])
-legend.set(fireball, [fireball, bitmap`
-...........3..3.
-....3....3.33.3.
-....3.3.393.93.3
-..3.3.3.3933993.
-...393..3933993.
-...393.39939993.
-...393399939993.
-..3993999939993.
-..3999999966993.
-..3999669666933.
-..3996666666933.
-..3996666666993.
-..399666666693..
-..333666336933..
-....333333333...
-................`])
 legend.set(fireshooter, [fireshooter, bitmap`
 0000000000000000
 01LL00000000LL10
@@ -1241,7 +1243,42 @@ DDDD.4CCCCC.DDDD
 .DDD.DDDDDD.DDD.
 ....DDDDDDDD....
 ...DDDD..DDDD...`],
-
+  },
+  [fireball]: {
+    "L": [fireball, bitmap`
+...........3..3.
+....3....3.33.3.
+....3.3.393.93.3
+..3.3.3.3933993.
+...393..3933993.
+...393.39939993.
+...393399939993.
+..3993999939993.
+..3999999966993.
+..3999669666933.
+..3996666666933.
+..3996666666993.
+..399666666693..
+..333666336933..
+....333333333...
+................`],
+    "R": [fireball, bitmap`
+..3..3..........
+..3.33.3....3...
+.3.39.393.3.3...
+..3993393.3.3.3.
+..3993393..393..
+..39993993.393..
+..399939993393..
+..3999399993993.
+..3996699999993.
+..3396669669993.
+..3396666666993.
+..3996666666993.
+...396666666993.
+...339633666333.
+....333333333...
+................`],
   }
 
 }
@@ -1249,25 +1286,11 @@ DDDD.4CCCCC.DDDD
 legend.set(player, frames[player].DOWN)
 legend.set(sword, frames[sword].DOWN)
 legend.set(mobboss, frames[mobboss].NORM)
+legend.set(fireball, frames[fireball].L)
 
 
 setLegend(...legend.values())
 
-const enemyList = ["mob", "ghost", "spider", "fireball"];
-const enemyStats = {
-  mob: {
-    hp: 2
-  },
-  ghost: {
-    hp: 1
-  },
-  spider: {
-    hp: 2
-  },
-  fireball: {
-    hp: 100
-  },
-};
 
 const commonLootPool = [hppotion, energydrink]
 const rareLootPool = [curse, bomb]
@@ -1292,9 +1315,7 @@ const mentorDialogue = [
   "grow stronger."
 ]
 
-const activeEnemies = [
-  
-] //  include their hp and type
+let activeEnemies = [] //  include their hp and type
 
 
 let level = 1 // starting level (index 1 in this case)
@@ -1506,6 +1527,15 @@ Bff..y...X
 fXX......X
 XXX.....gX
 XXXXXXpXXX`, // 4 advance portal to secret? also bombs can blow up rocks to reveal heart
+  map`
+vxwvdXXXXX
+VY.......%
+v........X
+CCCCCCC@CC
+CC@@@@@@CC
+CCZCCCCCCC
+..........
+XXXXXXpXXX`, //  advance portal from 5
 ]
 let traptriggered = false;
 let crateonplate = false;
@@ -1557,7 +1587,7 @@ function putGrassGraveyardLvl() {
 }
 
 function levelSpecificStuff() {
-  //decorative
+  //decorative and functional
   if (level === 5) {
     putGrassGraveyardLvl();
   }
@@ -1598,6 +1628,13 @@ function levelSpecificStuff() {
     addSprite(7, 3, candle);
     addSprite(4, 5, candle);
   }
+  if (level === 4 && stage === 2) {
+    /* spawnLavaFishMob(3, 3, 5); 
+    console.log("SPAWNED LVF") */
+  }
+    if (level === 5 && stage === 2) {
+    addSprite(0,0,candle)
+  }
   /*  if (level < 9) {
 let decowall = getAll(wall2);
      for (let i = 0; i < 3; i++) {
@@ -1615,9 +1652,10 @@ const hit = tune`
 500: C4/500 + B4/500 + C5/500 + D5~500 + B5^500,
 15500`
 const hitEnemy = tune`
-403.5874439461883,
-67.26457399103138: C4/67.26457399103138 + G4/67.26457399103138 + B5/67.26457399103138 + B4^67.26457399103138 + C5~67.26457399103138,
-1681.6143497757846`
+201.79372197309414,
+67.26457399103138: C5~67.26457399103138,
+67.26457399103138: C4/67.26457399103138 + G4/67.26457399103138 + B5/67.26457399103138,
+1816.1434977578474`
 const killEnemy = tune`
 104.8951048951049,
 104.8951048951049: C4/104.8951048951049,
@@ -1983,6 +2021,7 @@ function resetMap(n) {
 
       if (chosenLevels.includes(level) || randomPickBlacklist.includes(level)) {
         console.log("recursive") // check if lvl has been chosen already
+        level = (Math.floor(Math.random() * levels.length));
         resetMap() //recursively call until its a not picked/dungeon lvl
       }
     }
@@ -1992,6 +2031,7 @@ function resetMap(n) {
         resetMap()
       if (chosenLevels.includes(level) || randomPickBlacklist.includes(level)) {
         console.log("recursive") // check if lvl has been chosen already
+        level = (Math.floor(Math.random() * levels.length));
         resetMap() //recursively call until its a not picked/dungeon lvl
       }
     }
@@ -2049,7 +2089,7 @@ function resetMap(n) {
     addSprite(0, 0, itemsArray[0])
 
   activeEnemies = []
-
+  lavaFishHp = 6; 
 }
 
 var tempXToPreventSpawnSafetyAbuse = 0;
@@ -2236,7 +2276,7 @@ onInput("l", () => {
    plr.y = plr.y
    movementDown = false; */
   stage = 2
-  resetMap(0) //  debug
+  resetMap(4) //  debug
 
 })
 
@@ -2334,6 +2374,7 @@ afterInput(() => {
   let lvf = getFirst(lavafish);
   let mobEggs = getAll(mobegg);
   let dummies = getAll(dummy)
+  let lvfSpawner = getFirst(lavafishspawner)
 
   if (checkIfOnSpawnPos() === false) {
     plr.x = tempXToPreventSpawnSafetyAbuse;
@@ -2518,11 +2559,19 @@ afterInput(() => {
     if (plr.x === lvf.x && plr.y === lvf.y)
       playerCollided()
     if (attacki && attacki.x === lvf.x && attacki.y === lvf.y) {
-      //lava fish takes dmg
-        enemyDmg(lvf)
+        lavaFishHp -= swordDmg 
+        playTune(hitEnemy)
+        if (lavaFishHp <= 0)
+          defeatEnemy(lvf)
     }
   }
-
+  if (lvfSpawner) {
+    if (!getFirst(lavafish)) {
+      lavaFishHp = 6
+      addSprite(lvfSpawner.x,lvfSpawner.y,lavafish)
+    }
+  }
+  
   if (gobBossSprite) { // dmg boss
 
     if (attacki && attacki.x === gobBossSprite.x && attacki.y === gobBossSprite.y && arbitrarySecondCd === false) {
@@ -2581,7 +2630,7 @@ afterInput(() => {
   const portal = getFirst(advancetile);
   plr = getFirst(player);
   if (portal && plr.x === portal.x && plr.y === portal.y) {
-    if (level === 8) { // water realm 
+    if (level === 8 && stage === 1) { // water realm 
       resetMap(9)
     }
     if (level === 0 && stage === 2) {
@@ -2595,6 +2644,8 @@ afterInput(() => {
 
       setTimeout(() => { clearText() }, 2000)
     }
+    if (level  === 4 && stage === 2)
+      resetMap(5)
   }
 
   // hidden advance tiles
@@ -2760,8 +2811,8 @@ let spiderCounter = 0;
 var moveMobsInterval = setInterval(mobMoveAll, 750);
 var spawnMobsInterval = setInterval(mobSpawn, 1500);
 var moveGhostInterval = setInterval(ghostMoveAll, 1000);
-var moveSpiderInterval = setInterval(spiderMoveAll, 500);
-var moveLavafishInterval = setInterval(lavaFishMove, 1000)
+var moveSpiderInterval = setInterval(spiderMoveAll, 480);
+var moveLavafishInterval = setInterval(lavaFishMove, 900)
 
 function mobMoveAll() {
   const options = ["up", "down", "left", "right"];
@@ -2957,6 +3008,18 @@ function spiderMoveAll() {
   });
 }
 
+/* let fireswapside = false; // it looks dumber than i thought
+function fireSwapSprite() {
+  if (!fireswapside) {
+    legend.set(fireball, frames[fireball].R)
+     fireswapside = true;
+   } else {
+    legend.set(fireball, frames[fireball].L)
+     fireswapside = false;
+   }
+}
+setInterval(fireSwapSprite,100) */
+
 function fireShoot() {
   let fireShooters = getAll(fireshooter);
 
@@ -2982,6 +3045,7 @@ function fireShoot() {
 }
 setInterval(fireShoot, 500);
 
+let lavaFishHp = 6; 
 function moveEnemiesTowardsPlayer(thingtomove, playerX, playerY) {
   const enemies = getAll(thingtomove);
 
@@ -3016,16 +3080,60 @@ function lavaFishMove() {
 }
 
 function spawnLavaFishMob(x, y, initialHealth) {
-    addSprite(x, y, lavaFishMob);
+    addSprite(x, y, lavafish);
 
-    // Initialize mob stats for the spawned mob
-    mobStats.push({ x, y, health: initialHealth, maxHealth: initialHealth, damage: 1 });
+    spawnEnemy(lavafish, 3, 3, 5)
+
+  console.log(activeEnemies)
+}
+
+function spawnEnemy(type, x, y, health) {
+    const enemy = {
+        type: type,
+        x: x, // (starting pos)
+        y: y, // (starting pos)
+        health: health,
+        // Add other enemy properties as needed
+    };
+    
+  activeEnemies.push(enemy); // Add the spawned enemy to activeEnemies array
+}
+
+function hitLavaFishMob(x, y, damage) {
+    const en = activeEnemies.find((enemy) => enemy.type === lavafish);
+    
+    if (en) {
+        en.health -= damage; // Deal damage 
+        console.log("RAN HIT")
+        if (en.health <= 0) {
+
+            getFirst(lavafish).remove(); // Remove the sprite from the map
+            activeEnemies.splice(activeEnemies.indexOf(en), 1); // Remove  stats
+        }
+    }
+}
+
+// Function to handle multiple hits needed to take down the lava fish 
+function handleMultipleHits(swordX, swordY, damage) {
+    const en = activeEnemies.find(enemy => {
+        return swordX === enemy.x && swordY === enemy.y && enemy.type === 'Y';
+        // Adjust the condition based on your collision detection logic
+    });
+    
+    if (en) {
+        console.log("FOUND ENEMY");
+        hitLavaFishMob(en.x, en.y, swordDmg); // Deal damage to the enemy
+        
+        if (en.health > 0) {
+            console.log("HIT");
+        } else {
+            playTune(killEnemy);
+        }
+    }
 }
 
 
-function enemyDmg(hitEnemy) {
-  
-}
+
 
 
 var arbitrarySecondCd = false;
@@ -3369,10 +3477,7 @@ function playerCollided() { //collide with normal mob
     // getFirst(player).y = spawnSprite.y;
 
 
-    cooldown = true;
-    setTimeout(() => {
-      cooldown = false;
-    }, 200);
+
     setTimeout(() => {
       invincible = false;
       getFirst(invincibility).remove();
