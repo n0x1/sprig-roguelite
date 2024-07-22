@@ -96,6 +96,7 @@ const lavafishspawner = "%"
 const brokenrocks = "@"
 const bomb = "#"
 const revlavafish = "^"
+const bossfish = "*"
 
 const legendKeys = [
   black,
@@ -135,6 +136,7 @@ const legendKeys = [
   wall3,
   rocks,
   mobboss,
+  bossfish,
   mob,
   spider,
   commonchest,
@@ -1086,6 +1088,7 @@ legend.set(revlavafish, [revlavafish, bitmap`
 .1.1..1.1..1..1.`])
 
 
+
 const frames = {
   [player]: {
     "LEFT": [player, bitmap`
@@ -1298,6 +1301,42 @@ DDDD.4CCCCC.DDDD
 ...339633666333.
 ....333333333...
 ................`],
+  },
+  [bossfish]: {
+    "NORM": [bossfish, bitmap`
+LL.0000000000...
+11003933339300..
+100399933999300.
+103993933939930.
+103933399333930.
+109933333333990.
+103303333330330.
+1030666336660311
+L030666336660313
+.033333033333311
+.0333333333333L.
+.LL3L33LL33LL3L.
+.L3LL333LL33L3LL
+LL3L3LL33L33LL0L
+L0LL0L0L0LLL0L.L
+.LL1LL1LL..L.LL.`],
+    "RAGE": [bossfish, bitmap`
+33.0000000000...
+11003933339300..
+100000933999300.
+103990033939930.
+103933009333930.
+109933300333990.
+L03309330033330.
+1030666330000311
+L030666330000319
+L033393333333011
+.0339330033333L.
+.LL3L333333LL3L.
+.L3LL333LL33L3LL
+LL3L3LL33L33LL0L
+30LL0L0L0LLL0L.3
+.3L13L1L3..L.L3.`],
   }
 
 }
@@ -1306,6 +1345,7 @@ legend.set(player, frames[player].DOWN)
 legend.set(sword, frames[sword].DOWN)
 legend.set(mobboss, frames[mobboss].NORM)
 legend.set(fireball, frames[fireball].L)
+legend.set(bossfish, frames[bossfish].NORM)
 
 
 setLegend(...legend.values())
@@ -1351,13 +1391,13 @@ ccccccipe`,
 
   map`
 fffffv.vxw
-ffffffffff
+ffffff*fff
 ffafffffff
-jlqzkffTff
-feciffffff
-feniffffff
-ffffffffff
-Pfpdffffff`, //start
+jlqzkffT&&
+Eeciffff&&
+EenifVVfff
+.fffffffff
+Pfp.dfffff`, //start
 
   // enemy lvls
   map`
@@ -1450,7 +1490,7 @@ vxBBB.BBBB
 N..m...BBB
 v....m.BBB
 vxw....BB.
-vxwvxwdxB.`, //pickup to edrink or continue  11 
+vxwvxwdxB.`, //pickup to edrink or continue  11
   map`
 vxwvxpwvZ
 vxw....mZ
@@ -1573,6 +1613,17 @@ CvCw.....X
 wvxw.....X
 mvmwg....X
 CvCw.....p`, // 7 hidden advance from  but also noramlly accsisble cuz goblin kill's sad
+
+  map`
+.....L......
+............
+............
+.....*......
+............
+............
+............
+............
+.....p......`, //fishboss 8 for now
 ]
 let traptriggered = false;
 let crateonplate = false;
@@ -1945,7 +1996,11 @@ function successivetracks() {
 
 function playbgm() { // plays bgm appropriate to lvl
 
-  if (level === 17) {
+  if (level === 17 && stage === 1) {
+    bgm.end();
+    bgm = playTune(hardbgm, Infinity)
+  }
+  if (level === caverns.length-1 && stage === 2) {
     bgm.end();
     bgm = playTune(hardbgm, Infinity)
   }
@@ -2059,7 +2114,6 @@ function resetMap(n) {
 
       if (chosenLevels.includes(level) || randomPickBlacklist.includes(level)) {
         console.log("recursive") // check if lvl has been chosen already
-        level = (Math.floor(Math.random() * levels.length));
         resetMap() //recursively call until its a not picked/dungeon lvl
       }
     }
@@ -2069,14 +2123,13 @@ function resetMap(n) {
         resetMap()
       if (chosenLevels.includes(level) || randomPickBlacklist.includes(level)) {
         console.log("recursive") // check if lvl has been chosen already
-        level = (Math.floor(Math.random() * levels.length));
         resetMap() //recursively call until its a not picked/dungeon lvl
       }
     }
   } else if (arguments.length === 1) { // set for specific continuations (calling with n)
     level = n;
     if (stage === 1)
-      setMap(levels[n])
+      setMap(levels[level])
     else if (stage === 2) {
       setMap(caverns[level])
     }
@@ -2103,7 +2156,9 @@ function resetMap(n) {
       level = 17 // first boss triggered at 8
       setMap(levels[level])
     }
-    if (levelspassed === 15)
+    if (levelspassed === 15) {
+      //
+    }
 
     if (stage === 1)
       setMap(levels[level]);
@@ -2306,7 +2361,7 @@ onInput("l", () => {
      playerDir = "UP"
      basicAttack();
    } else if (tempdir === "RIGHT") {
-     playerDir = "DOWN"
+     playerDir = "DOWN"a
      basicAttack();
    }
    if (tempdir === "DOWN") {
@@ -2317,7 +2372,7 @@ onInput("l", () => {
    plr.y = plr.y
    movementDown = false; */
   stage = 2
-  resetMap(6) //  debug debugging debug tags etc 
+  resetMap(8) //  debug debugging debug tags etc 
 
 })
 
@@ -2414,6 +2469,9 @@ afterInput(() => {
   let spiderSprites = getAll(spider);
   let fireballSprites = getAll(fireball)
   let attacki = getFirst(sword);
+
+      let asp = getAll(strengthparticles)
+  
   let lvf = getFirst(lavafish);
   let rlvf = getFirst(revlavafish);
   let mobEggs = getAll(mobegg);
@@ -2479,10 +2537,11 @@ afterInput(() => {
     boosts.forEach(b => { b.remove(); })
   }
   if (strbuff === true) {
-    if (getFirst(strengthparticles))
-      getFirst(strengthparticles).remove();
-    const sp = addSprite(plr.x, plr.y, strengthparticles)
-  }
+    if (asp)
+      asp.forEach(ptc => {ptc.remove()})
+    addSprite(plr.x, plr.y, strengthparticles)
+  } else if (asp) 
+      asp.forEach(ptc => {ptc.remove()})
 
 
 
@@ -3454,6 +3513,94 @@ function clearAllSlashes() {
 setInterval(goblinBossAttack, 2000)
 
 
+let bossFishHp = 30; // put all these in init once done
+let bossFishEnraged = false;
+async function fishBossAttack() {
+  let fsBo = getFirst(bossfish)
+  let choice;
+  if (bossFishHp < 16) {
+    if (!fishBossEnraged) {
+      bossFishEnraged = true;
+      playTune(bossRage)
+      legend.set(bossfish, frames[bossfish].RAGE)
+    }
+  }
+  if (fsBo) {
+    console.log("Lava Jellyfish Fight")
+    const options = ["bombs"] // [, erupt, pool, fireslash]  & summon both fish and invul ONE TIME once raged
+
+    let randomIndex = Math.floor(Math.random() * options.length);
+    choice = options[randomIndex];
+
+    if (choice === 'bombs') {
+      const xopt = [3,4,5]
+      const yopt = [3,4,5]
+      let rx = Math.floor(Math.random() * xopt.length);
+      let ry = Math.floor(Math.random() * yopt.length);
+      let cx = xopt[rx]
+      let cy = yopt[ry]
+
+      addSprite(cx,cy,bomb)
+      
+      fishExpBombs();
+    } else if (choice === erupt) { // add a cooldown so bomb isnt twice in a row
+      
+    } else if (choice === pool) {
+      
+    } else { // fire slash lines
+      
+    }
+  }
+}
+
+function fishExpBombs() {
+  let aBmbs = getAll(bomb)
+  playTune(bombTick);
+  setTimeout(() => {
+    aBmbs.forEach(b => {
+      for (let i = (b.x - 1); i < (b.x + 2); i++) {
+      for (let j = (b.y - 1); j < (b.y + 2); j++) {
+        let expldTile = getTile(i, j);
+        console.log(`Exploding tiles at (${i}, ${j}):`, expldTile);
+        if (expldTile) {
+          for (let k = 0; k < expldTile.length; k++) {
+            if (expldTile[k].type != lockeddoor &&
+              expldTile[k].type != pressureplate &&
+             expldTile[k].type != housedoor &&
+              expldTile[k].type != hppotion &&
+              expldTile[k].type != mobboss &&
+               expldTile[k].type != bossfish &&
+              expldTile[k].type != curse &&
+              expldTile[k].type != water &&
+              expldTile[k].type != crate &&
+              expldTile[k].type != commonchest &&
+              expldTile[k].type != rarechest &&
+              // expldTile[k].type != epicchest &&
+              expldTile[k].type != heart &&
+              expldTile[k].type != spawn &&
+              expldTile[k].type != door &&
+                expldTile[k].type != door &&
+               expldTile[k].type != healingheart &&
+                expldTile[k].type != advancetile &&
+               expldTile[k].type != hiddenadvance && 
+                expldTile[k].type != player) {
+              expldTile[k].remove()
+              addSprite(i, j, brokenrocks);
+            } else if (expldTile[k].type === player) {
+              playerCollided()
+            }
+          }
+        }
+      }
+    }
+    })
+
+
+  }, 2790);
+}
+
+setInterval(fishBossAttack, 2000)
+  
 function defeatEnemy(enemy) {
   enemy.remove();
   playTune(killEnemy);
@@ -3497,8 +3644,19 @@ function heartPickup() {
     })
     setTimeout(() => {
       clearText();
-    }, 2000);
+    }, 1500);
 
+  }
+
+  if (strbuff === true) {
+    strbuff = false
+    let asp = getAll(strengthparticles)
+    if (asp) {
+      asp.forEach(ptc => {
+        ptc.remove()
+        swordDmg--;
+      })
+    }
   }
 }
 
@@ -3508,6 +3666,26 @@ function potionHeal() {
     health++;
     handleHealthUI(health);
     createHeartsArray(health);
+  }
+  if (health === maxhealth) {
+        addText("max health: " + maxhealth, {
+      x: (width() / 2),
+      y: 3,
+      color: color`3`
+    })
+        setTimeout(() => {
+      clearText();
+    }, 1500);
+  }
+  if (strbuff === true) {
+    strbuff = false
+    let asp = getAll(strengthparticles)
+    if (asp) {
+      asp.forEach(ptc => {
+        ptc.remove()
+        swordDmg--;
+      })
+    }
   }
 }
 let boostactive = false;
@@ -3540,8 +3718,10 @@ function bombExplosion(startx, starty) {
           for (let k = 0; k < expldTile.length; k++) {
             if (expldTile[k].type != lockeddoor &&
               expldTile[k].type != pressureplate &&
+             expldTile[k].type != housedoor &&
               expldTile[k].type != hppotion &&
               expldTile[k].type != mobboss &&
+               expldTile[k].type != bossfish &&
               expldTile[k].type != curse &&
               expldTile[k].type != water &&
               expldTile[k].type != crate &&
@@ -3553,8 +3733,9 @@ function bombExplosion(startx, starty) {
               expldTile[k].type != door &&
                 expldTile[k].type != door &&
                expldTile[k].type != healingheart &&
-                              expldTile[k].type != advancetile &&
-                           expldTile[k].type != hiddenadvance){
+                  expldTile[k].type != advancetile &&
+                 expldTile[k].type != hiddenadvance &&
+               expldTile[k].type != player){
               expldTile[k].remove()
               addSprite(i, j, brokenrocks);
             }
@@ -3565,7 +3746,7 @@ function bombExplosion(startx, starty) {
     bgm = playTune(villagebgm, Infinity);
   }, 2790);
 }
-
+  
 let invincible = false;
 
 function playerCollided() { //collide with normal mob
