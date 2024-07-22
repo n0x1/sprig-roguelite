@@ -97,6 +97,7 @@ const bomb = "#"
 
 const legendKeys = [
   black,
+  heart,
   rooftip,
   roofleft,
   roofright,
@@ -104,7 +105,7 @@ const legendKeys = [
   roofoverhangright,
   bossslash,
   sword,
-  
+
   invincibility,
   strengthparticles,
   boostparticles,
@@ -116,7 +117,6 @@ const legendKeys = [
 
   player,
   mentor,
-  heart,
   door,
   lockeddoor,
   mobegg,
@@ -1241,7 +1241,7 @@ DDDD.4CCCCC.DDDD
 .DDD.DDDDDD.DDD.
 ....DDDDDDDD....
 ...DDDD..DDDD...`],
-    
+
   }
 
 }
@@ -1267,7 +1267,7 @@ const enemyStats = {
   fireball: {
     hp: 100
   },
-}; 
+};
 
 const commonLootPool = [hppotion, energydrink]
 const rareLootPool = [curse, bomb]
@@ -1281,7 +1281,7 @@ function setPlayerSprite(direction) {
 }
 
 
-setSolids([dummy,lockeddoor, rocks, wall, wall2, wall3, fireshooter, crate, housewall, housewallleft, housewallright, roofbody, player, mentor, mobboss, mobegg])
+setSolids([dummy, lockeddoor, rocks, wall, wall2, wall3, fireshooter, crate, housewall, housewallleft, housewallright, roofbody, player, mentor, mobboss, mobegg])
 
 const mentorDialogue = [
   "Move: w,a,s,d",
@@ -1292,7 +1292,9 @@ const mentorDialogue = [
   "grow stronger."
 ]
 
-
+const activeEnemies = [
+  
+] //  include their hp and type
 
 
 let level = 1 // starting level (index 1 in this case)
@@ -1305,7 +1307,7 @@ cccccciAe
 cccccci.e
 cccccciFe
 cccccci.e
-ccccccipe`, 
+ccccccipe`,
 
   map`
 fffffv.vxw
@@ -1504,7 +1506,7 @@ Bff..y...X
 fXX......X
 XXX.....gX
 XXXXXXpXXX`, // 4 advance portal to secret? also bombs can blow up rocks to reveal heart
-] 
+]
 let traptriggered = false;
 let crateonplate = false;
 
@@ -1556,41 +1558,41 @@ function putGrassGraveyardLvl() {
 
 function levelSpecificStuff() {
   //decorative
-  if (level === 5) { 
+  if (level === 5) {
     putGrassGraveyardLvl();
   }
   if (level === 6) {
     let z = getFirst(mob)
     let c = getFirst(crate)
-    addSprite(z.x,z.y,grass)
-    addSprite(c.x,c.y,grass)
-        for (let i = 1; i < 4; i++) {
-          for (let j = 3; j < 5; j++) {
-            addSprite(i,j,water)
-          }
-        }
+    addSprite(z.x, z.y, grass)
+    addSprite(c.x, c.y, grass)
+    for (let i = 1; i < 4; i++) {
+      for (let j = 3; j < 5; j++) {
+        addSprite(i, j, water)
+      }
+    }
   }
   if (level === 4 || level === 7) {
     if (stage === 1) {
-    addSprite(width() - 1, 4, candle);
-    addSprite(4, 0, candle);
-    addSprite(0, 3, candle);
+      addSprite(width() - 1, 4, candle);
+      addSprite(4, 0, candle);
+      addSprite(0, 3, candle);
     }
   }
-  if (level === 2 && stage === 1 ) {
+  if (level === 2 && stage === 1) {
     addSprite(width() - 2, 4, candle);
     addSprite(1, 4, candle);
   }
-  if (level === 10 && stage === 1 ) {
+  if (level === 10 && stage === 1) {
     addSprite(width() - 1, 4, candle);
     addSprite(width() - 1, 6, candle);
   }
-  if (level === 13 && stage === 1 ) {
+  if (level === 13 && stage === 1) {
     addSprite(2, 4, candle);
     addSprite(4, 4, candle);
   }
   if (level === 16 && stage === 1)
-    addSprite(3,1,candle);
+    addSprite(3, 1, candle);
   if (level === 0 && stage === 2) { //caverns lvl tho with the fireshooter
     addSprite(0, 1, candle);
     addSprite(7, 3, candle);
@@ -1873,14 +1875,14 @@ function playbgm() { // plays bgm appropriate to lvl
     bgm = playTune(hardbgm, Infinity)
   }
 
-  
+
   /* if (arguments[0] === "r") {
     bgm.end();
     bgm = playTune(villagebgm, Infinity)
   }*/
 
 
-  
+
 }
 
 
@@ -1891,7 +1893,7 @@ setPushables({
   [player]: [crate],
   [crate]: [mob],
   [invincibility]: [mob]
-}) 
+})
 
 
 let gameOver = false;
@@ -1978,7 +1980,7 @@ function resetMap(n) {
   if (arguments.length === 0) { // completely random set
     if (stage === 1) {
       level = (Math.floor(Math.random() * levels.length)); // random level 
-      
+
       if (chosenLevels.includes(level) || randomPickBlacklist.includes(level)) {
         console.log("recursive") // check if lvl has been chosen already
         resetMap() //recursively call until its a not picked/dungeon lvl
@@ -1992,11 +1994,10 @@ function resetMap(n) {
         console.log("recursive") // check if lvl has been chosen already
         resetMap() //recursively call until its a not picked/dungeon lvl
       }
-    }   
-  }
-  else if (arguments.length === 1) { // set for specific continuations (calling with n)
+    }
+  } else if (arguments.length === 1) { // set for specific continuations (calling with n)
     level = n;
-    if (stage === 1) 
+    if (stage === 1)
       setMap(levels[n])
     else if (stage === 2) {
       setMap(caverns[level])
@@ -2013,24 +2014,23 @@ function resetMap(n) {
   traptriggered = false;
 
 
-if (!chosenLevels.includes(level) && arguments.length === 0)
+  if (!chosenLevels.includes(level) && arguments.length === 0)
     score++;
 
-chosenLevels.push(level)
-console.log("CHOSEN LEVELS: " + chosenLevels)
-  
-if (arguments.length === 0) {
-  if (score === 8) {
+  chosenLevels.push(level)
+
+  if (arguments.length === 0) {
+    if (score === 8) {
       level = 17 // first boss triggered at 8
       setMap(levels[level])
+    }
+
+    if (stage === 1)
+      setMap(levels[level]);
+    if (stage === 2)
+      setMap(caverns[level]);
+
   }
-    
-  if (stage === 1)
-    setMap(levels[level]);  
-  if (stage === 2)  
-    setMap(caverns[level]);
-  
-}
   playbgm()
 
   createHeartsArray(health);
@@ -2039,14 +2039,16 @@ if (arguments.length === 0) {
 
   playTune(advancelvl);
 
-if (stage === 1 && level != 0)
-  addSprite(plr.x, plr.y, spawn); //spawn pad under player
-  
+  if (stage === 1 && level != 0)
+    addSprite(plr.x, plr.y, spawn); //spawn pad under player
+
   levelSpecificStuff();
   clearText();
-  
-if (itemsArray[0]) 
-  addSprite(0, 0, itemsArray[0])
+
+  if (itemsArray[0])
+    addSprite(0, 0, itemsArray[0])
+
+  activeEnemies = []
 
 }
 
@@ -2213,35 +2215,35 @@ onInput("j", () => { // RESET game if game over is on
 });
 
 onInput("l", () => {
-  movementDown = false;  
- /* let tempdir = playerDir
-  if (tempdir === "UP") {
-    playerDir = "RIGHT"
-    basicAttack();
+  movementDown = false;
+  /* let tempdir = playerDir
+   if (tempdir === "UP") {
+     playerDir = "RIGHT"
+     basicAttack();
 
-  } else if (tempdir === "LEFT") {
-    playerDir = "UP"
-    basicAttack();
-  } else if (tempdir === "RIGHT") {
-    playerDir = "DOWN"
-    basicAttack();
-  }
-  if (tempdir === "DOWN") {
-    playerDir = "LEFT"
-    basicAttack();
-  }
-  plr.x = plr.x
-  plr.y = plr.y
-  movementDown = false; */
-    stage = 2
-   resetMap(0) //  debug
+   } else if (tempdir === "LEFT") {
+     playerDir = "UP"
+     basicAttack();
+   } else if (tempdir === "RIGHT") {
+     playerDir = "DOWN"
+     basicAttack();
+   }
+   if (tempdir === "DOWN") {
+     playerDir = "LEFT"
+     basicAttack();
+   }
+   plr.x = plr.x
+   plr.y = plr.y
+   movementDown = false; */
+  stage = 2
+  resetMap(0) //  debug
 
 })
 
 onInput("k", () => {
   movementDown = false;
   console.log(itemsArray)
-  
+
   if (itemsArray[0]) {
     useItem()
   }
@@ -2253,31 +2255,33 @@ onInput("k", () => {
 })
 
 function useItem() {
-let itemTile = getTile(0,0)
-let lgn = itemTile.length - 1
-let tmpblock = itemTile[1]
-let currentItem = itemsArray[0]
-let currentItemSprite = getFirst(currentItem)
+  let itemTile = getTile(0, 0)
+  let lgn = itemTile.length - 1
+  let tmpblock = itemTile[1]
+  let currentItem = itemsArray[0]
+  let currentItemSprite = getFirst(currentItem)
 
   console.log(currentItemSprite);
 
 
-  if (currentItem === hppotion) 
+  if (currentItem === hppotion)
     potionHeal();
   if (currentItem === energydrink)
-    boostAttackSpeed(30000)//ms arg
+    boostAttackSpeed(30000) //ms arg
   if (currentItem === curse) {
     if (health > 1) {
       playerCollided();
-    }
-    else 
+    } else
       playTune(hit);
     swordDmg++;
     strbuff = true;
   }
   if (currentItem === bomb) {
-    let pbomb = addSprite(plr.x,plr.y,bomb)
-    bombExplosion(pbomb)
+    let px = plr.x
+    let py = plr.y
+    let pbomb = addSprite(px, py, bomb)
+
+    bombExplosion(px, py)
   }
 
 
@@ -2286,10 +2290,10 @@ let currentItemSprite = getFirst(currentItem)
 
   if (itemsArray.length === 0) { // remove items from screen
     console.log("item array empty")
-      itemTile.forEach(sprite => {
+    itemTile.forEach(sprite => {
       if (sprite.x === 0 && sprite.y === 0 && sprite.type === currentItemSprite.type) {
         sprite.remove();
-    }
+      }
     })
   }
 
@@ -2314,11 +2318,11 @@ afterInput(() => {
   let healingHeart = getFirst(healingheart);
 
   const spawnSprite = getFirst(spawn)
-  const comChst= getFirst(commonchest)
+  const comChst = getFirst(commonchest)
   const rrChst = getFirst(rarechest)
   //const epic chest
   const hidnAdvcs = getAll(hiddenadvance)
-  
+
   let crates = getAll(crate); // destroy on mob hit
   let waterSprites = getAll(water);
   let spikeSprites = getAll(spikes);
@@ -2327,6 +2331,7 @@ afterInput(() => {
   let spiderSprites = getAll(spider);
   let fireballSprites = getAll(fireball)
   let attacki = getFirst(sword);
+  let lvf = getFirst(lavafish);
   let mobEggs = getAll(mobegg);
   let dummies = getAll(dummy)
 
@@ -2334,7 +2339,7 @@ afterInput(() => {
     plr.x = tempXToPreventSpawnSafetyAbuse;
     plr.y = tempYToPreventSpawnSafetyAbuse;
   }
-  
+
   checkCollisionforFireBalls()
 
   legend.set(player, frames[player][playerDir]);
@@ -2356,7 +2361,7 @@ afterInput(() => {
       setTimeout(() => { clearText() }, 2000)
     }
   } // tutorial and mentor
-  if (doorSprite && level != levels.length-1) {
+  if (doorSprite && level != levels.length - 1) {
     if (plr.x === doorSprite.x && plr.y === doorSprite.y) {
       resetMap(); // Load the next level (mob levels)
     }
@@ -2368,30 +2373,30 @@ afterInput(() => {
     clearText()
     plr = getFirst(player);
   }
-  
 
-if (getFirst(invincibility)) {
-  if (invincible) {
-    getFirst(invincibility).remove();
-    addSprite(plr.x, plr.y, invincibility);
-  } else {
-    let invinciblestuff = getAll(invincibility)
-    invinciblestuff.forEach(e => { e.remove(); })
+
+  if (getFirst(invincibility)) {
+    if (invincible) {
+      getFirst(invincibility).remove();
+      addSprite(plr.x, plr.y, invincibility);
+    } else {
+      let invinciblestuff = getAll(invincibility)
+      invinciblestuff.forEach(e => { e.remove(); })
+    }
   }
-}
 
   if (boostactive === true) { //speedboost logic
     if (getFirst(boostparticles))
       getFirst(boostparticles).remove();
-    const bp = addSprite(plr.x,plr.y,boostparticles)
+    const bp = addSprite(plr.x, plr.y, boostparticles)
   } else {
     let boosts = getAll(boostparticles)
     boosts.forEach(b => { b.remove(); })
   }
   if (strbuff === true) {
     if (getFirst(strengthparticles))
-        getFirst(strengthparticles).remove();
-    const sp = addSprite(plr.x,plr.y,strengthparticles)
+      getFirst(strengthparticles).remove();
+    const sp = addSprite(plr.x, plr.y, strengthparticles)
   }
 
 
@@ -2412,7 +2417,7 @@ if (getFirst(invincibility)) {
   })
 
 
-crates.forEach(crate => { //pressureplate n door stuff
+  crates.forEach(crate => { //pressureplate n door stuff
     if (crate.x === doorSprite.x && crate.y === doorSprite.y) {
       crate.remove();
       playTune(cratebreak);
@@ -2422,7 +2427,7 @@ crates.forEach(crate => { //pressureplate n door stuff
         playTune(secret)
         for (let i = 1; i < 4; i++) {
           for (let j = 3; j < 5; j++) {
-            let removing = getTile(i,j)
+            let removing = getTile(i, j)
             removing[0].remove();
           }
         }
@@ -2434,43 +2439,43 @@ crates.forEach(crate => { //pressureplate n door stuff
         crateonplate = true;
       }
     }
-});
+  });
 
-if (level === 2 && stage === 2) {
-  let cL = crates[0]
-  let cR = crates[1]
-  let pps = getAll(pressureplate)
-  let pL = pps[1]
-  let pR = pps[0]
+  if (level === 2 && stage === 2) {
+    let cL = crates[0]
+    let cR = crates[1]
+    let pps = getAll(pressureplate)
+    let pL = pps[1]
+    let pR = pps[0]
 
-  if (cR.x === pR.x && cR.y === pR.y) {
-    fireballSprites.forEach(f => {
-      f.remove();
-    })
-  if (!crateonplate) {
-    playTune(secret)
-    crateonplate = true;
-  }
-  }
-  if (pL && cL.x === pL.x && cL.y === pL.y) {
-    getFirst(spikes).remove();
-    playTune(secret);
-    pL.remove();
-  }
-}
-
-if (fireballSprites) {
-  if (crates) {
-    crates.forEach(crate => {
-      fireballSprites.forEach(fb => {
-        if (crate.x === fb.x && crate.y === fb.y) {
-          crate.remove();
-          playTune(cratebreak)
-        }
+    if (cR.x === pR.x && cR.y === pR.y) {
+      fireballSprites.forEach(f => {
+        f.remove();
       })
-    })
+      if (!crateonplate) {
+        playTune(secret)
+        crateonplate = true;
+      }
+    }
+    if (pL && cL.x === pL.x && cL.y === pL.y) {
+      getFirst(spikes).remove();
+      playTune(secret);
+      pL.remove();
+    }
   }
-}
+
+  if (fireballSprites) {
+    if (crates) {
+      crates.forEach(crate => {
+        fireballSprites.forEach(fb => {
+          if (crate.x === fb.x && crate.y === fb.y) {
+            crate.remove();
+            playTune(cratebreak)
+          }
+        })
+      })
+    }
+  }
 
   if (mobSprites) {
     //modify pushable sprites
@@ -2509,19 +2514,21 @@ if (fireballSprites) {
     })
   }
 
-  if (getFirst(lavafish)) {
-    let lvf = getFirst(lavafish)
-
+  if (lvf) {
     if (plr.x === lvf.x && plr.y === lvf.y)
       playerCollided()
+    if (attacki && attacki.x === lvf.x && attacki.y === lvf.y) {
+      //lava fish takes dmg
+        enemyDmg(lvf)
+    }
   }
-  
+
   if (gobBossSprite) { // dmg boss
 
     if (attacki && attacki.x === gobBossSprite.x && attacki.y === gobBossSprite.y && arbitrarySecondCd === false) {
-        gobBossHp--;
-        arbitrarySecondCd = true;
-        setTimeout(() => {arbitrarySecondCd = false},100)
+      gobBossHp--;
+      arbitrarySecondCd = true;
+      setTimeout(() => { arbitrarySecondCd = false }, 100)
     }
     if (gobBossHp <= 0) {
       defeatBoss(gobBossSprite)
@@ -2529,7 +2536,7 @@ if (fireballSprites) {
       eggstoclear.forEach(e => { e.remove() })
     }
   }
-//lvl specific traps
+  //lvl specific traps
   if (level === 5 && plr.x === width() - 2 && plr.y === 8 && !traptriggered) {
     let graves = getAll(hurtplayer)
     traptriggered = true;
@@ -2544,28 +2551,28 @@ if (fireballSprites) {
     if (movementDown === true) {
       function randomSpikes() {
         let sps = getAll(spikes)
-        if (sps.length >= 2) 
-          sps.forEach(sp => {sp.remove();})
-        let rndx = Math.floor(Math.random()*5+1)
-        let rndy = Math.floor(Math.random()*2+1)
+        if (sps.length >= 2)
+          sps.forEach(sp => { sp.remove(); })
+        let rndx = Math.floor(Math.random() * 5 + 1)
+        let rndy = Math.floor(Math.random() * 2 + 1)
 
         if (comChst && rndx === comChst.x && rndy === comChst.y)
           randomSpikes()
         else if (rndx === plr.x && rndy === plr.y)
           randomSpikes()
-      /*  if (spiderSprites) {
-          spiderSprites.forEach(spdr => {
-            if (spdr.x === rndx && spdr.y === rndy)
-              randomSpikes()
-          }) 
-        } */
+        /*  if (spiderSprites) {
+            spiderSprites.forEach(spdr => {
+              if (spdr.x === rndx && spdr.y === rndy)
+                randomSpikes()
+            }) 
+          } */
         else
-          addSprite(rndx,rndy,spikes)
+          addSprite(rndx, rndy, spikes)
       }
       if (comChst) {
-      randomSpikes()
-      randomSpikes()
-      playTune(danger);
+        randomSpikes()
+        randomSpikes()
+        playTune(danger);
       }
     }
   }
@@ -2582,7 +2589,7 @@ if (fireballSprites) {
       chosenLevels = [0]
       randomPickBlacklist = [0] // blacklist for caverns
       resetMap()
-    
+
       setTimeout(() => { clearText(); }, 50)
       setTimeout(() => { addText("II: Caverns", { x: 4, y: 3, color: color`C` }) }, 100)
 
@@ -2594,11 +2601,11 @@ if (fireballSprites) {
   if (hidnAdvcs) {
     if (level === 3) {
       hidnAdvcs.forEach(tl => {
-      if (plr.x === tl.x && plr.y === tl.y) { // im maaking a function for touch detection next time omg
-        playTune(secret)
-        resetMap(14)
+        if (plr.x === tl.x && plr.y === tl.y) { // im maaking a function for touch detection next time omg
+          playTune(secret)
+          resetMap(14)
 
-      }
+        }
       })
     }
     if (level === 11) {
@@ -2611,8 +2618,8 @@ if (fireballSprites) {
   //boss advancing
   if (level === 17) {
     if (doorSprite && plr.x === doorSprite.x && plr.y === doorSprite.y) {
-        stage = 2;
-        resetMap(0) // caverns
+      stage = 2;
+      resetMap(0) // caverns
     }
   }
 
@@ -2681,15 +2688,15 @@ if (fireballSprites) {
   if (hpPotion) {
     hpPotion.forEach(pot => {
       if (plr.x === pot.x && plr.y === pot.y) {
-      addItem(hppotion, pot)
-    }
+        addItem(hppotion, pot)
+      }
     })
   }
-    if (energyDrink) {
+  if (energyDrink) {
     energyDrink.forEach(dr => {
       if (plr.x === dr.x && plr.y === dr.y) {
-      addItem(energydrink, dr)
-    }
+        addItem(energydrink, dr)
+      }
     })
   }
 
@@ -2710,15 +2717,15 @@ if (fireballSprites) {
       playTune(getItem);
     }
   }
-  
+
   // BOSS HP BARS
 
   if (gobBossSprite && gobBossHp > 0) {
     clearText();
     addText("HP: " + gobBossHp, {
       x: 2,
-      y:1,
-    color:color`4`
+      y: 1,
+      color: color`4`
     })
   }
 
@@ -2824,27 +2831,27 @@ function addItem(pickup, groundspritetoremove) {
     if (arguments.length === 2)
       groundspritetoremove.remove();
     if (pickup === energydrink)
-      addText("Attack Speed+", {x:3,y:1,color:color`6`})
+      addText("Attack Speed+", { x: 3, y: 1, color: color`6` })
     if (pickup === hppotion)
-      addText("Health Potion", {x:3,y:1,color:color`8`})
-    if (pickup === curse) 
-      addText("Sacrifice", {x:2,y:1,color:color`6`})
-    if (pickup === bomb) 
-      addText("Bomb", {x:3,y:1,color:color`4`})
-    
-    setTimeout(() => {clearText()}, 1000)
+      addText("Health Potion", { x: 3, y: 1, color: color`8` })
+    if (pickup === curse)
+      addText("Sacrifice", { x: 2, y: 1, color: color`6` })
+    if (pickup === bomb)
+      addText("Bomb", { x: 3, y: 1, color: color`4` })
+
+    setTimeout(() => { clearText() }, 1000)
 
     return true;
   } else if (itemsArray[0]) {
     console.log('item capacity max') // prob keep 1 entire game so its easier
-        addText("at item max", {
+    addText("at item max", {
       x: 4,
       y: 4,
       color: color`3`
     })
-  setTimeout(() => {clearText()}, 1000)
-    
-  return false;
+    setTimeout(() => { clearText() }, 1000)
+
+    return false;
   }
 
 }
@@ -2976,38 +2983,49 @@ function fireShoot() {
 setInterval(fireShoot, 500);
 
 function moveEnemiesTowardsPlayer(thingtomove, playerX, playerY) {
-    const enemies = getAll(thingtomove); 
-    
-    enemies.forEach(enemy => {
-        const dx = playerX - enemy.x;
-        const dy = playerY - enemy.y;
-        
-        const directionX = Math.sign(dx); // sign returns 1, 0, -1
-        const directionY = Math.sign(dy);
-        
-        // Check for collisions with player DELETE COMMENTS
-        if (getTile(enemy.x + directionX, enemy.y + directionY).some(sprite => sprite.type === "r")) {
-              return
-        } else {
-          if (enemy.x != plr.x) {
-            enemy.x += directionX;
-          } else {
-            enemy.y += directionY;
-          }
-        }
-      if (plr.x === enemy.x && plr.y === enemy.y) {
-        playerCollided()
+  const enemies = getAll(thingtomove);
+
+  enemies.forEach(enemy => {
+    const dx = playerX - enemy.x;
+    const dy = playerY - enemy.y;
+
+    const directionX = Math.sign(dx); // sign returns 1, 0, -1
+    const directionY = Math.sign(dy);
+
+    // Check for collisions with player DELETE COMMENTS
+    if (getTile(enemy.x + directionX, enemy.y + directionY).some(sprite => sprite.type === "r")) {
+      return
+    } else {
+      if (enemy.x != plr.x) {
+        enemy.x += directionX;
+      } else {
+        enemy.y += directionY;
       }
-    });
+    }
+    if (plr.x === enemy.x && plr.y === enemy.y) {
+      playerCollided()
+    }
+  });
 }
 
 // Call the function with the player's position
 
 function lavaFishMove() {
-if (getFirst(player))
-  moveEnemiesTowardsPlayer(lavafish, plr.x, plr.y);
+  if (getFirst(player))
+    moveEnemiesTowardsPlayer(lavafish, plr.x, plr.y);
 }
 
+function spawnLavaFishMob(x, y, initialHealth) {
+    addSprite(x, y, lavaFishMob);
+
+    // Initialize mob stats for the spawned mob
+    mobStats.push({ x, y, health: initialHealth, maxHealth: initialHealth, damage: 1 });
+}
+
+
+function enemyDmg(hitEnemy) {
+  
+}
 
 
 var arbitrarySecondCd = false;
@@ -3020,9 +3038,9 @@ async function goblinBossAttack() {
   let choice;
   if (gobBossHp < 13) {
     if (gobBossEnraged === false) {
-      playTune(bossRage, 1); 
+      playTune(bossRage, 1);
     }
-    
+
     gobBossEnraged = true;
     legend.set(mobboss, frames[mobboss].RAGE)
   }
@@ -3062,8 +3080,8 @@ async function goblinBossAttack() {
       if (eggCount < 6) {
         addSprite(xchoices[randomx], ychoices[randomy], mobegg)
         eggCount++;
-          randomx = Math.floor(Math.random() * xchoices.length)
-          randomy = Math.floor(Math.random() * ychoices.length)
+        randomx = Math.floor(Math.random() * xchoices.length)
+        randomy = Math.floor(Math.random() * ychoices.length)
         addSprite(xchoices[randomx], ychoices[randomy], mobegg)
         eggCount++;
 
@@ -3076,13 +3094,13 @@ async function goblinBossAttack() {
         }
       }
       if (eggCount > 0) {
-      for (let i = 0; i <= eggCount; i++) {
-        setTimeout(() => {
-          let egg = getFirst(mobegg)
-          addSprite(egg.x, egg.y, mob)
-          egg.remove();
-        }, eggOpenTime)
-        eggCount--;
+        for (let i = 0; i <= eggCount; i++) {
+          setTimeout(() => {
+            let egg = getFirst(mobegg)
+            addSprite(egg.x, egg.y, mob)
+            egg.remove();
+          }, eggOpenTime)
+          eggCount--;
         }
       }
     }
@@ -3178,19 +3196,19 @@ function startslashing(dir, delayBetweenSlashMs) {
 }
 
 function sideslashsecondattack() {
-if (gobBossHp > 0) {
-  setTimeout(() => {
-    for (let i = 2; i < 7; i++) {
-      addSprite(4, i, warningtile);
-    }
-    for (let i = 2; i < 7; i++) {
-      addSprite(6, i, warningtile);
-    }
-    addSprite(5, 3, warningtile);
-    setTimeout(() => { startslashing("up", 50); }, 500)
+  if (gobBossHp > 0) {
+    setTimeout(() => {
+      for (let i = 2; i < 7; i++) {
+        addSprite(4, i, warningtile);
+      }
+      for (let i = 2; i < 7; i++) {
+        addSprite(6, i, warningtile);
+      }
+      addSprite(5, 3, warningtile);
+      setTimeout(() => { startslashing("up", 50); }, 500)
 
-  }, 150);
-}
+    }, 150);
+  }
 }
 
 function clearAllSlashes() {
@@ -3210,8 +3228,8 @@ function defeatEnemy(enemy) {
 
 function defeatBoss(boss) {
   boss.remove()
-  score +=10;
-  
+  score += 10;
+
   let exit = getFirst(lockeddoor)
   addSprite(exit.x, exit.y, door) // heal player after defeated boss
   exit.remove();
@@ -3247,6 +3265,7 @@ function heartPickup() {
 
   }
 }
+
 function potionHeal() {
   playTune(heal)
   if (health < maxhealth) {
@@ -3256,6 +3275,7 @@ function potionHeal() {
   }
 }
 let boostactive = false;
+
 function boostAttackSpeed(timeActive) {
   let tempCdTime = cooldownTime
   cooldownTime = (tempCdTime - 200)
@@ -3263,21 +3283,51 @@ function boostAttackSpeed(timeActive) {
   addSprite(plr.x, plr.y, boostparticles)
   playTune(boostStart);
   setTimeout(() => {
-    cooldownTime = tempCdTime; 
+    cooldownTime = tempCdTime;
     playTune(boostEnd);
     boostactive = false;
     let pxp = getAll(boostparticles)
-    pxp.forEach(p => {p.remove();})
+    pxp.forEach(p => { p.remove(); })
   }, timeActive)
 }
 
-function bombExplosion(bmb) {
+function bombExplosion(startx, starty) {
   bgm.end();
   playTune(bombTick);
   setTimeout(() => {
-    bgm = playTune(villagebgm, Infinity)
-  }, 2790)
-  
+    getFirst(bomb).remove();
+    for (let i = (startx - 1); i < (startx + 2); i++) {
+      for (let j = (starty - 1); j < (starty + 2); j++) {
+        let expldTile = getTile(i, j);
+        console.log(`Exploding tiles at (${i}, ${j}):`, expldTile);
+        if (expldTile) {
+          for (let k = 0; k < expldTile.length; k++) {
+            if (expldTile[k].type != lockeddoor &&
+              expldTile[k].type != pressureplate &&
+              expldTile[k].type != hppotion &&
+              expldTile[k].type != mobboss &&
+              expldTile[k].type != curse &&
+              expldTile[k].type != water &&
+              expldTile[k].type != crate &&
+              expldTile[k].type != commonchest &&
+              expldTile[k].type != rarechest &&
+              // expldTile[k].type != epicchest &&
+              expldTile[k].type != heart &&
+              expldTile[k].type != spawn &&
+              expldTile[k].type != door &&
+                expldTile[k].type != door &&
+               expldTile[k].type != healingheart &&
+                              expldTile[k].type != advancetile &&
+                           expldTile[k].type != hiddenadvance){
+              expldTile[k].remove()
+              addSprite(i, j, brokenrocks);
+            }
+          }
+        }
+      }
+    }
+    bgm = playTune(villagebgm, Infinity);
+  }, 2790);
 }
 
 let invincible = false;
@@ -3343,7 +3393,7 @@ function stillDamage() { // same but without resetting to spawn
 }
 
 function checkGameOver() {
-  if (health === 0) { 
+  if (health === 0) {
     const plrgrave = addSprite(plr.x, plr.y, hurtplayer);
 
     plr.remove();
@@ -3354,9 +3404,9 @@ function checkGameOver() {
 
     bgm.end()
     playTune(gameoversound);
-    for (let i = 0; i < width()/2+Math.floor(width()/3); i++) {
-      for (let j = 0; j < height()/3; j++) {
-        addSprite(i,j,black)
+    for (let i = 0; i < width() / 2 + Math.floor(width() / 3); i++) {
+      for (let j = 0; j < height() / 3; j++) {
+        addSprite(i, j, black)
       }
     }
 
@@ -3388,14 +3438,14 @@ function initGame() { //  used for restart after death
 
   chosenLevels = []
   resetMap(1)
-  
+
   clearText();
   levelOneSetDeco();
 
   health = maxhealth;
   heartsArray = [];
-  
-  
+
+
   plr.x = 2;
   plr.y = 7;
   playerDir = "DOWN";
@@ -3418,7 +3468,7 @@ function initGame() { //  used for restart after death
   gobBossEnraged = false;
 
   strbuff = false;
-  
+
   plr = getFirst(player)
 }
 
