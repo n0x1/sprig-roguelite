@@ -95,6 +95,7 @@ const lavafish = "Y"
 const lavafishspawner = "%"
 const brokenrocks = "@"
 const bomb = "#"
+const revlavafish = "^"
 
 const legendKeys = [
   black,
@@ -123,6 +124,7 @@ const legendKeys = [
   mobegg,
   ghost,
   lavafish,
+  revlavafish,
   dummy,
   candle,
   fireball,
@@ -879,21 +881,21 @@ legend.set(invincibility, [invincibility, bitmap`
 .7............7.
 ..777777777777..`])
 legend.set(hiddenadvance, [hiddenadvance, bitmap`
-......8.........
-......8.........
-.....88.........
-.....8.8....8.8.
-....8..8....8..8
-...8...8....8.88
-...88888....888.
-..8.....8...8...
-..8.....8.......
-.8.........8....
-.8.........8....
-8......8..8.....
-..33.3..8.8.....
-...33....88.....
-..3.3...........
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+...00..00..00...
+...00..00..00...
 ................`])
 legend.set(pressureplate, [pressureplate, bitmap`
 1111111111111111
@@ -1065,6 +1067,23 @@ legend.set(lavafish, [lavafish, bitmap`
 ..L..L..L.L..L..
 ..L..L..L.L..L..
 ........L.......`])
+legend.set(revlavafish, [revlavafish, bitmap`
+................
+.....666666.....
+....66066066....
+...666L66L666...
+...6366666636...
+...L33366333L...
+...3333333333...
+...3399339933...
+...3339333933...
+...3333333333...
+...1..1..1..L...
+...L.1..1.L.L...
+..LL.L.1L.L.LL..
+..L..L.LL.L..L..
+..1..1.1..L..L..
+.1.1..1.1..1..1.`])
 
 
 const frames = {
@@ -1535,7 +1554,25 @@ CCCCCCC@CC
 CC@@@@@@CC
 CCZCCCCCCC
 ..........
-XXXXXXpXXX`, //  advance portal from 5
+XXXXXXpXXX`, //  advance portal from 5 (bl)
+  map`
+XxwvxwX
+XxwpxwX
+Xx...wX
+Xx...wX
+X.....X
+X$....X
+Xm$...X
+N^....X`, // 6 hidden advance to second chamber 
+  map`
+XdX%XXXXXX
+........EX
+XXXX....XX
+mvmwg.g..X
+CvCw.....X
+wvxw.....X
+mvmwg....X
+CvCw.....p`, // 7 hidden advance from  but also noramlly accsisble cuz goblin kill's sad
 ]
 let traptriggered = false;
 let crateonplate = false;
@@ -1588,10 +1625,10 @@ function putGrassGraveyardLvl() {
 
 function levelSpecificStuff() {
   //decorative and functional
-  if (level === 5) {
+  if (level === 5 && stage === 1) {
     putGrassGraveyardLvl();
   }
-  if (level === 6) {
+  if (level === 6 && stage === 1) {
     let z = getFirst(mob)
     let c = getFirst(crate)
     addSprite(z.x, z.y, grass)
@@ -2013,6 +2050,7 @@ async function tutorialCutscene(tutorialPlayed) {
 
 let chosenLevels = [];
 // random pick blacklist defined under map bitmaps
+let levelspassed = 0 
 
 function resetMap(n) {
   if (arguments.length === 0) { // completely random set
@@ -2053,17 +2091,19 @@ function resetMap(n) {
   crateonplate = false;
   traptriggered = false;
 
-
-  if (!chosenLevels.includes(level) && arguments.length === 0)
     score++;
+  if (!chosenLevels.includes(level) && arguments.length === 0) {
+    levelspassed++;
+  }
 
   chosenLevels.push(level)
 
   if (arguments.length === 0) {
-    if (score === 8) {
+    if (levelspassed === 8) {
       level = 17 // first boss triggered at 8
       setMap(levels[level])
     }
+    if (levelspassed === 15)
 
     if (stage === 1)
       setMap(levels[level]);
@@ -2079,7 +2119,7 @@ function resetMap(n) {
 
   playTune(advancelvl);
 
-  if (stage === 1 && level != 0)
+  if (level != 0)
     addSprite(plr.x, plr.y, spawn); //spawn pad under player
 
   levelSpecificStuff();
@@ -2089,7 +2129,8 @@ function resetMap(n) {
     addSprite(0, 0, itemsArray[0])
 
   activeEnemies = []
-  lavaFishHp = 6; 
+
+  resetSingleMobHP();
 }
 
 var tempXToPreventSpawnSafetyAbuse = 0;
@@ -2276,7 +2317,7 @@ onInput("l", () => {
    plr.y = plr.y
    movementDown = false; */
   stage = 2
-  resetMap(4) //  debug
+  resetMap(6) //  debug debugging debug tags etc 
 
 })
 
@@ -2350,6 +2391,8 @@ function checkIfOnSpawnPos() {
 }
 
 
+let standardEnemyArbCD = false; // init, to prevent multi dmg from fast inputs
+
 afterInput(() => {
   const doorSprite = getFirst(door);
   const houseDoor = getFirst(housedoor);
@@ -2372,6 +2415,7 @@ afterInput(() => {
   let fireballSprites = getAll(fireball)
   let attacki = getFirst(sword);
   let lvf = getFirst(lavafish);
+  let rlvf = getFirst(revlavafish);
   let mobEggs = getAll(mobegg);
   let dummies = getAll(dummy)
   let lvfSpawner = getFirst(lavafishspawner)
@@ -2558,16 +2602,40 @@ afterInput(() => {
   if (lvf) {
     if (plr.x === lvf.x && plr.y === lvf.y)
       playerCollided()
-    if (attacki && attacki.x === lvf.x && attacki.y === lvf.y) {
+    if (!standardEnemyArbCD && attacki && attacki.x === lvf.x && attacki.y === lvf.y) {
         lavaFishHp -= swordDmg 
         playTune(hitEnemy)
-        if (lavaFishHp <= 0)
+
+        standardEnemyArbCD = true;
+        setTimeout(() => {standardEnemyArbCD = false}, 100)
+        if (lavaFishHp <= 0) {
           defeatEnemy(lvf)
+          lavaFishHp = 5
+          
+        }
+    }
+  }
+  
+  if (rlvf) {
+    if (plr.x === rlvf.x && plr.y === rlvf.y)
+      playerCollided()
+    if (!standardEnemyArbCD && attacki && attacki.x === rlvf.x && attacki.y === rlvf.y) {
+        ravaFishHp -= swordDmg 
+        playTune(hitEnemy)
+      
+      console.log(ravaFishHp)//dbug
+      
+        standardEnemyArbCD = true;
+        setTimeout(() => {standardEnemyArbCD = false}, 100)
+        if (ravaFishHp <= 0) {
+          defeatEnemy(rlvf)
+          ravaFishHp = 5
+        }
     }
   }
   if (lvfSpawner) {
     if (!getFirst(lavafish)) {
-      lavaFishHp = 6
+      lavaFishHp = 5
       addSprite(lvfSpawner.x,lvfSpawner.y,lavafish)
     }
   }
@@ -2636,7 +2704,7 @@ afterInput(() => {
     if (level === 0 && stage === 2) {
       console.log("transition")
       chosenLevels = [0]
-      randomPickBlacklist = [0] // blacklist for caverns
+      randomPickBlacklist = [0, 5] // blacklist for caverns
       resetMap()
 
       setTimeout(() => { clearText(); }, 50)
@@ -2650,7 +2718,7 @@ afterInput(() => {
 
   // hidden advance tiles
   if (hidnAdvcs) {
-    if (level === 3) {
+    if (level === 3 && stage === 1) {
       hidnAdvcs.forEach(tl => {
         if (plr.x === tl.x && plr.y === tl.y) { // im maaking a function for touch detection next time omg
           playTune(secret)
@@ -2659,10 +2727,16 @@ afterInput(() => {
         }
       })
     }
-    if (level === 11) {
+    if (level === 11 && stage === 1) {
       let adv = getFirst(hiddenadvance)
-      if (plrTouching(adv)) { // i implemented it at last
+      if (plrTouching(adv)) { // i implemented it at last ( code lore )
         resetMap(15)
+      }
+    }
+    if (level === 6 && stage === 2) {
+      let adv = getFirst(hiddenadvance)
+      if (plrTouching(adv)) {
+        resetMap(7)
       }
     }
   }
@@ -2812,7 +2886,8 @@ var moveMobsInterval = setInterval(mobMoveAll, 750);
 var spawnMobsInterval = setInterval(mobSpawn, 1500);
 var moveGhostInterval = setInterval(ghostMoveAll, 1000);
 var moveSpiderInterval = setInterval(spiderMoveAll, 480);
-var moveLavafishInterval = setInterval(lavaFishMove, 900)
+var moveLavafishInterval = setInterval(lavaFishMove, 900);
+var moveRavafishInterval = setInterval(ravaFishMove, 900);
 
 function mobMoveAll() {
   const options = ["up", "down", "left", "right"];
@@ -2845,7 +2920,7 @@ function mobMoveAll() {
     moveLogic();
     // Check for wall collision and player exclusion
     const spritesAtNextPos = getTile(newX, newY);
-    const isWallCollision = spritesAtNextPos.some(sprite => [rocks, dummy, lockeddoor, pressureplate, hppotion, mobboss, curse, mobegg, wall, wall2, wall3, water, fireshooter, spikes, crate, commonchest, fireshooter, heart, fireball, mob, spider, ghost, heart, spawn, door].includes(sprite.type));
+    const isWallCollision = spritesAtNextPos.some(sprite => [lavafish, revlavafish, rocks, dummy, lockeddoor, pressureplate, hppotion, mobboss, curse, mobegg, wall, wall2, wall3, water, fireshooter, spikes, crate, commonchest, fireshooter, heart, fireball, mob, spider, ghost, heart, spawn, door].includes(sprite.type));
     const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
     3
 
@@ -3045,8 +3120,14 @@ function fireShoot() {
 }
 setInterval(fireShoot, 500);
 
-let lavaFishHp = 6; 
-function moveEnemiesTowardsPlayer(thingtomove, playerX, playerY) {
+function resetSingleMobHP() {
+  lavaFishHp = 5;
+  ravaFishHp = 5;
+}
+
+let lavaFishHp = 5; 
+let ravaFishHp = 5;
+function moveEnemiesTowardsPlayerPrioX(thingtomove, playerX, playerY) { // Prioritizing X
   const enemies = getAll(thingtomove);
 
   enemies.forEach(enemy => {
@@ -3059,7 +3140,7 @@ function moveEnemiesTowardsPlayer(thingtomove, playerX, playerY) {
     // Check for collisions with player DELETE COMMENTS
     if (getTile(enemy.x + directionX, enemy.y + directionY).some(sprite => sprite.type === "r")) {
       return
-    } else {
+    } else if (plr.x != getFirst(spawn).x || plr.y != getFirst(spawn).y) {
       if (enemy.x != plr.x) {
         enemy.x += directionX;
       } else {
@@ -3072,11 +3153,55 @@ function moveEnemiesTowardsPlayer(thingtomove, playerX, playerY) {
   });
 }
 
-// Call the function with the player's position
+function moveEnemiesTowardsPlayerPrioY(thingtomove, playerX, playerY) { // Prioritizing X
+  const enemies = getAll(thingtomove);
+
+  enemies.forEach(enemy => {
+    const dx = playerX - enemy.x;
+    const dy = playerY - enemy.y;
+
+    const directionX = Math.sign(dx); // sign returns 1, 0, -1
+    const directionY = Math.sign(dy);
+
+    // Check for collisions with player DELETE COMMENTS
+    if (getTile(enemy.x + directionX, enemy.y + directionY).some(sprite => sprite.type === "r")) {
+      return
+    } else if (plr.x != getFirst(spawn).x || plr.y != getFirst(spawn).y) {
+      if (enemy.y != plr.y) {
+        enemy.y += directionY;
+      } else {
+        enemy.x += directionX;
+      }
+    }
+    if (plr.x === enemy.x && plr.y === enemy.y) {
+      playerCollided()
+    }
+  });
+}
 
 function lavaFishMove() {
+  let llfv = getFirst(lavafish)
+  if (llfv) {
   if (getFirst(player))
-    moveEnemiesTowardsPlayer(lavafish, plr.x, plr.y);
+    moveEnemiesTowardsPlayerPrioX(lavafish, plr.x, plr.y);
+  let mobs = getAll(mob)
+  mobs.forEach(m => {
+    if (llfv.x === m.x && llfv.y === m.y)
+      defeatEnemy(m)
+  })
+  }
+}
+function ravaFishMove() {
+let rlfv = getFirst(revlavafish)
+if (rlfv) {
+  if (getFirst(player))
+    moveEnemiesTowardsPlayerPrioY(revlavafish, plr.x,plr.y)
+  let mobs = getAll(mob)
+  mobs.forEach(m => {
+      if (getFirst(revlavafish).x === m.x && getFirst(revlavafish).y === m.y) 
+        defeatEnemy(m)
+  })
+}
 }
 
 function spawnLavaFishMob(x, y, initialHealth) {
@@ -3099,7 +3224,7 @@ function spawnEnemy(type, x, y, health) {
   activeEnemies.push(enemy); // Add the spawned enemy to activeEnemies array
 }
 
-function hitLavaFishMob(x, y, damage) {
+/* function hitLavaFishMob(x, y, damage) {
     const en = activeEnemies.find((enemy) => enemy.type === lavafish);
     
     if (en) {
@@ -3130,7 +3255,7 @@ function handleMultipleHits(swordX, swordY, damage) {
             playTune(killEnemy);
         }
     }
-}
+} */
 
 
 
@@ -3332,6 +3457,9 @@ setInterval(goblinBossAttack, 2000)
 function defeatEnemy(enemy) {
   enemy.remove();
   playTune(killEnemy);
+  score++;
+  if (enemy.type === lavafish || enemy.type === revlavafish) 
+    score += 4;
 }
 
 function defeatBoss(boss) {
@@ -3538,8 +3666,10 @@ let strbuff = false;
 let swordDmg = 1 // init plr dmg per sword attack ; can grow
 function initGame() { //  used for restart after death
   level = 1
+  levelspassed = 0 
   stage = 1
   score = 0;
+  
 
   chosenLevels = []
   resetMap(1)
