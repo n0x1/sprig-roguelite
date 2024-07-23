@@ -103,6 +103,8 @@ const clock = "-"
 const lifeelixir = "+"
 const lightningscroll = "?"
 const lightning = "~"
+const hollowboss = "="
+const amethyst = "<"
 
 const legendKeys = [
   black,
@@ -129,6 +131,7 @@ const legendKeys = [
   lightningscroll,
 
   mobboss,
+  hollowboss,
   player,
   mentor,
   door,
@@ -146,6 +149,7 @@ const legendKeys = [
   wall2,
   wall3,
   rocks,
+  amethyst,
   lava,
   bossfish,
   mob,
@@ -1200,6 +1204,23 @@ legend.set(lightning, [lightning, bitmap`
 ..066600........
 ..0661..........
 ...60.1.........`])
+legend.set(amethyst, [amethyst, bitmap`
+HHHHHHHHHHHHHHHH
+H12H11HH2HH22HHH
+H212HH111HH1L2HH
+HHLHLL2HHHHHHH2H
+HHHLHHHLHHHHHHHH
+HHHHH11LLHHLLL1H
+HHLLLLHH1HLL2L1H
+HH11HH1HLLHHH1HH
+HHH1HHHHHHHHL1HH
+H2HHHHHHHHH1LHHH
+HH2HHLLHHH11LHHH
+HHHLLLL1HH1HLHLH
+HH12HHHH1LHHHLHH
+HHL12HHHLHHHHLHH
+HLLHHHHHHHHHHHHH
+HHHHHHHHHHHHHHHH`])
 
 
 
@@ -1451,6 +1472,42 @@ L033393333333011
 LL3L3LL33L33LL0L
 30LL0L0L0LLL0L.3
 .3L13L1L3..L.L3.`],
+  },
+  [hollowboss]: {
+    "NORM": [hollowboss, bitmap`
+.......000......
+.....00HH00.....
+....00HL1H00....
+....0HLL11H00...
+...00L7LL11H0...
+...0LLLLLL100...
+...00CCCCCC0....
+....00CCC00.....
+.....00000......
+.....10L0011....
+....1H0000011...
+...1H00L00H01...
+..1LH00000H011..
+.1HH1000001H01L.
+11H1HH000HH1H11L
+1H1HH77777H1HH01`],
+    "RAGE": [hollowboss, bitmap`
+...........0....
+....01111100....
+....1111111.....
+....11L1L111..L.
+L..11L7LL5L10LLL
+LL.01LLLLL100LHL
+LHL00CCCCCC0LHHL
+LHHH00CCC00HHHHL
+LH11H00000H11HHL
+LLHHH10L001HHLL.
+.LL000000001L...
+...1H00L00LL1...
+..1LH00000H011..
+.1HH1000001H01L.
+11H1HH000HH1H11L
+1H1HH77777H1HH01`],
   }
 
 }
@@ -1460,6 +1517,7 @@ legend.set(sword, frames[sword].DOWN)
 legend.set(mobboss, frames[mobboss].NORM)
 legend.set(fireball, frames[fireball].L)
 legend.set(bossfish, frames[bossfish].NORM)
+legend.set(hollowboss, frames[hollowboss].NORM)
 
 
 setLegend(...legend.values())
@@ -1505,13 +1563,13 @@ ccccccipe`,
 
   map`
 ffffffffff
-ffffffffff
-ffafffffff
+ffCCffffff
+CCaCCf=fff
 jlqzkfffff
-feciffffff
-feniffffff
-ffffVVVVff
-Mfpfffffff`, //start
+CecifCffff
+CenifCffff
+ffff....ff
+..pfffffff`, //start
 
   // enemy lvls
   map`
@@ -1660,7 +1718,7 @@ xwvxwpxwvxw`, // first boss; 17
 ]
 const caverns = [
   map`
-vAvxwvxw
+XAXxwvxw
 v..&V..w
 v......w
 v......w
@@ -1767,12 +1825,31 @@ const fishbosslvl = 11
 
 const hollows = [
   map`
-XAXXXXXX
-X..&)..X
-X......X
-X......w
-X......w
-XXXXXvpw`, //transition lvl from caverns (stage 3, index 0)
+<A<<<XXX
+X..&).@X
+X@.....X
+X@@....w
+X@@....w
+XXXXwvpw`, //transition lvl from caverns (stage 3, index 0)
+  map`
+<XDd%XXXX
+<...XX..X
+<<......<
+<<.<.<<.<
+<..<..<.<
+<..<....<
+<....<..<
+vp<<<<<<<`,
+  map`
+wvdvD<<<<
+g..((((<<
+(.((.(((<
+(((....(<
+((.....R<
+((...Z.pv
+<((...<<B
+<<((.<<BB
+<<<(<BBBB`,
 ]
   
 let traptriggered = false;
@@ -1992,14 +2069,17 @@ const getItem = tune`
 2507.4626865671644`
 
 const clockTick = tune`
-500: B4^500,
+500: C4~500,
 500,
-500: B4^500,
+500: C4~500,
 500,
-500: B4^500,
+500: C4~500,
 500,
-500: G5/500 + F5/500,
+500: C4~500,
 12500`
+const lightningStrike = tune`
+234.375: D4/234.375 + E5/234.375 + F5/234.375 + C5-234.375 + B5-234.375,
+7265.625`
 
 const slash = tune`
 94.33962264150944,
@@ -2157,15 +2237,20 @@ function successivetracks() {
   }
 }
 
+var timestopped = false;
 function playbgm() { // plays bgm appropriate to lvl
 
   if (level === 17 && stage === 1) {
     bgm.end();
     bgm = playTune(hardbgm, Infinity)
   }
-  if (level === caverns.length - 1 && stage === 2) {
+  if (level === fishbosslvl && stage === 2) {
     bgm.end();
     bgm = playTune(hardbgm, Infinity)
+  }
+ if (timestopped) {
+    bgm = playTune(villagebgm, Infinity)
+     timestopped = false;
   }
 
 
@@ -2341,6 +2426,8 @@ function resetMap(n) {
       setMap(levels[level]);
     if (stage === 2)
       setMap(caverns[level]);
+    if (stage === 3)
+      setMap(hollows[level]);
 
   }
   playbgm()
@@ -2553,24 +2640,19 @@ onInput("l", () => {
    plr.y = plr.y 
    movementDown = false;
   
+    if (testModeOn ) {
+  stage = 3
+  resetMap(2) //  debug debugging debug tags etc 
+  }
+
+
 })
 
 onInput("k", () => {
   movementDown = false;
   console.log(itemsArray)
-
-
-  if (testModeOn && itemsArray.length === 0 ) {
-  stage = 3
-  resetMap(0) //  debug debugging debug tags etc 
-  } else {
-
+  
     useItem()
-
-  }
-
-
-
 
 
 })
@@ -2607,6 +2689,7 @@ function useItem() {
     bombExplosion(px, py)
   }
   if (currentItem === clock) {
+          bgm.end();
 clearInterval(moveMobsInterval) 
 clearInterval(spawnMobsInterval)
 clearInterval(moveGhostInterval) 
@@ -2626,6 +2709,8 @@ clearInterval(fsShootInterval)
       moveRavafishInterval = setInterval(ravaFishMove, 900);
       fsShootInterval = setInterval(fireShoot, 500);
         console.log("intervals set again")
+        timestopped = true
+        playbgm()
       }, 3500)
                      }, 1000)
   }
@@ -2636,6 +2721,7 @@ clearInterval(fsShootInterval)
   }
   if (currentItem === lightningscroll) {
 
+    playTune(lightningStrike)
     if (playerDir === "LEFT") {
         for (let i = 1; i < plr.x+1; i++)
         addSprite(plr.x-i,plr.y,lightning)
@@ -2654,7 +2740,7 @@ clearInterval(fsShootInterval)
     setTimeout(() => {
         let lbz = getAll(lightning)
       lbz.forEach(lb => { lb.remove() })
-    }, 700)
+    }, 75)
     
     
   }
@@ -2709,6 +2795,7 @@ afterInput(() => {
   let ghostSprites = getAll(ghost);
   let spiderSprites = getAll(spider);
   let fireballSprites = getAll(fireball)
+  let lightningBolts = getAll(lightning)
   let attacki = getFirst(sword);
 
   let asp = getAll(strengthparticles)
@@ -2793,6 +2880,10 @@ afterInput(() => {
   }
   plr = getFirst(player)
 
+lightningBolts.forEach(b => {
+  if (plr.x === b.x && plr.y === b.y)
+    stillDamage();
+})
 
 
 
@@ -2915,6 +3006,12 @@ afterInput(() => {
   if (lvf) {
     if (plr.x === lvf.x && plr.y === lvf.y)
       playerCollided()
+    if (lightningBolts) {
+    lightningBolts.forEach(b => {
+      if (lvf.x === b.x && lvf.y === b.y)
+        lavaFishHp -=2;
+    })
+    }
     if (!standardEnemyArbCD && attacki && attacki.x === lvf.x && attacki.y === lvf.y) {
       lavaFishHp -= swordDmg
       playTune(hitEnemy)
@@ -2932,6 +3029,12 @@ afterInput(() => {
   if (rlvf) {
     if (plr.x === rlvf.x && plr.y === rlvf.y)
       playerCollided()
+    if (lightningBolts) {
+    lightningBolts.forEach(b => {
+      if (rlvf.x === b.x && rlvf.y === b.y)
+        ravaFishHp -= 2;
+    })
+    }
     if (!standardEnemyArbCD && attacki && attacki.x === rlvf.x && attacki.y === rlvf.y) {
       ravaFishHp -= swordDmg
       playTune(hitEnemy)
@@ -2971,6 +3074,12 @@ afterInput(() => {
   if (bossFishSp) {
     if (plr.x === bossFishSp.x && plr.y === bossFishSp.y)
       playerCollided()
+    if (lightningBolts) {
+    lightningBolts.forEach(b => {
+      if (bossFishSp.x === b.x && bossFishSp.y === b.y)
+        bossFishHp -= 2;
+    })
+    }
     if (attacki && attacki.x === bossFishSp.x && attacki.y === bossFishSp.y && arbitrarySecondCd === false) {
       bossFishHp--;
       arbitrarySecondCd = true;
@@ -2982,8 +3091,9 @@ afterInput(() => {
     }
   }
 
-  
+
   //lvl specific traps
+
   if (level === 5 && plr.x === width() - 2 && plr.y === 8 && !traptriggered && stage === 1) {
     let graves = getAll(hurtplayer)
     traptriggered = true;
@@ -3103,6 +3213,12 @@ afterInput(() => {
       if (plr.x === mob.x && plr.y === mob.y) {
         playerCollided();
       }
+      if (lightningBolts) {
+    lightningBolts.forEach(b => {
+      if (b.x === mob.x && b.y === mob.y)
+        defeatEnemy(mob)
+    })
+    }
     })
     if (attacki) {
       mobSprites.forEach(mob => {
@@ -3118,6 +3234,12 @@ afterInput(() => {
       if (plr.x === ghost.x && plr.y === ghost.y) {
         playerCollided();
       }
+          if (lightningBolts) {
+    lightningBolts.forEach(b => {
+      if (b.x === ghost.x && b.y === ghost.y)
+        defeatEnemy(ghost)
+    })
+    }
     })
     if (attacki) {
       ghostSprites.forEach(ghost => {
@@ -3133,6 +3255,12 @@ afterInput(() => {
       if (plr.x === spider.x && plr.y === spider.y) {
         playerCollided();
       }
+          if (lightningBolts) {
+    lightningBolts.forEach(b => {
+      if (b.x === spider.x && b.y === spider.y)
+        defeatEnemy(spider)
+    })
+    }
     })
     if (attacki) {
       spiderSprites.forEach(spider => {
@@ -3149,6 +3277,7 @@ afterInput(() => {
         defeatEnemy(egg)
         eggCount--
       }
+      
     })
   }
 
@@ -3325,13 +3454,20 @@ function addItem(pickup, groundspritetoremove) {
     if (pickup === hppotion)
       addText("Health Potion", { x: 3, y: 1, color: color`8` })
     if (pickup === curse)
-      addText("Sacrifice", { x: 2, y: 1, color: color`6` })
-    if (pickup === bomb)
+      addText("Sacrifice", { x: 2, y: 1, color: color`2` })
+    if (pickup === bomb) {
       addText("Bomb", { x: 3, y: 1, color: color`4` })
+  itemsArray.push(bomb) // 2 uses
+    }
     if (pickup === clock)
       addText("Time Stop", { x: 2, y: 1, color: color`2` })
     if (pickup === lifeelixir)
       addText("Life Elixir", { x: 2, y: 1, color: color`3` })
+      if (pickup === lightningscroll) {
+      addText("Lightning", { x: 2, y: 1, color: color`6` })
+        itemsArray.push(lightningscroll)
+        itemsArray.push(lightningscroll) // 3 uses
+      }
 
     setTimeout(() => { clearText() }, 1000)
 
@@ -3470,9 +3606,10 @@ function fireShoot() {
     addSprite(fiya.x, fiya.y, fireball);
     let fireproj = getFirst(fireball);
     const spritesAtNextPos = getTile(fireproj.x, fireproj.y + 1);
-    const isWallCollision = spritesAtNextPos.some(sprite => [rocks, wall, wall2, wall3, heart, spawn, door, crate, commonchest, spider, mob, ghost, spikes].includes(sprite.type));
+    const isWallCollision = spritesAtNextPos.some(sprite => [amethyst, rocks, wall, wall2, wall3, heart, spawn, door, commonchest, spider, mob, ghost, spikes].includes(sprite.type));
     const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
-
+    const isCrateCollision =spritesAtNextPos.some(sprite => sprite.type === crate);
+    
     if (!isWallCollision && !isPlayerCollision)
       fireproj.y++;
 
@@ -3483,6 +3620,9 @@ function fireShoot() {
       fireproj.y++;
       playerCollided()
       fireproj.remove()
+    }
+    if (isCrateCollision) {
+      getFirst(crate).remove()
     }
   });
 }
@@ -3648,6 +3788,7 @@ async function goblinBossAttack() {
     legend.set(mobboss, frames[mobboss].RAGE)
   }
   if (gobBoss) {
+    allowBossAttack = true;
     const options = ["surroundXaoe", "surroundXaoe", "eggSummon", "sideaoe"];
     let randomIndex = Math.floor(Math.random() * options.length);
 
@@ -3830,6 +3971,7 @@ let pastFishChoice;
 let fishChoice;
 let spawnedfishdefeated = false;
 let okToChooseFishOption = true;
+var allowBossAttack = false; // init
 async function fishBossAttack() {
   let fsBo = getFirst(bossfish)
   if (bossFishHp < 16) {
@@ -3862,6 +4004,7 @@ async function fishBossAttack() {
     
   }
   if (fsBo && okToChooseFishOption && stage === 2) {
+   allowBossAttack = true;
     const options = ["bombs", "erupt", "encirclingfire", "linesslash"] // [fireslash]  & summon both fish and invul ONE TIME once raged
 
     let randomIndex = Math.floor(Math.random() * options.length);
@@ -3938,7 +4081,7 @@ function fishExpBombs() {
         for (let j = (b.y - 1); j < (b.y + 2); j++) {
           let expldTile = getTile(i, j);
 
-          if (expldTile) {
+          if (expldTile && allowBossAttack) {
             for (let k = 0; k < expldTile.length; k++) {
               if (expldTile[k].type != lockeddoor &&
                 expldTile[k].type != pressureplate &&
@@ -4029,7 +4172,7 @@ function lavaEruption(ms) {
         let wts = getAll(brokenrocks)
         wts.forEach(t => {
           addSprite(t.x, t.y, lava)
-          if (plr.x === t.x && plr.y === t.y)
+          if (plr && plr.x === t.x && plr.y === t.y)
             playerCollided();
           t.remove()
         })
@@ -4044,7 +4187,7 @@ function prepareEruption(startx, starty) { // 2x2 grid
       let xrokTil = getTile(i, j)
 
       for (let k = 0; k < xrokTil.length; k++) {
-        if (xrokTil[k].type != 'p' && xrokTil[k].type != bossfish && xrokTil[k].type != sword && xrokTil[k].type != black && xrokTil[k].type != lava)
+        if (xrokTil[k].type != 'p' && xrokTil[k].type != bossfish && xrokTil[k].type != sword && xrokTil[k].type != black && xrokTil[k].type != lava && allowBossAttack )
           xrokTil[k].remove()
       }
       addSprite(i, j, brokenrocks)
@@ -4066,12 +4209,16 @@ function startEncircle(intervalMs) {
 
 
     for (let i = fireEncircleRuncount + 1; i < w; i++) {
-      addSprite(i, fireEncircleRuncount, fireball)
+    if (allowBossAttack) {
+            addSprite(i, fireEncircleRuncount, fireball)
+    }
         if (plr.x === i && plr.y === fireEncircleRuncount)
             playerCollided()
     }
     for (let i = fireEncircleRuncount; i < w; i++) {
+      if (allowBossAttack) {
       addSprite(i, h, fireball)
+      }
         if (plr.x === i && plr.y === h)
             playerCollided()
     }
@@ -4114,8 +4261,10 @@ function startLines(intervalMs) {
 
     if (!lineRunning) {
       for (let cc = 0; cc < h; cc++) {
+        if (allowBossAttack) {
         addSprite(lineFireRuncount, cc, fireball)
         addSprite(w - lineFireRuncount, cc, fireball)
+        }
         if (plr.x === lineFireRuncount && plr.y === cc)
           playerCollided()
         if (plr.x === (w - lineFireRuncount) && plr.y === cc)
@@ -4277,7 +4426,7 @@ function boostAttackSpeed(timeActive) {
 }
 
 function bombExplosion(startx, starty) {
-  bgm.end();
+
   playTune(bombTick);
   setTimeout(() => {
     getFirst(bomb).remove();
@@ -4293,6 +4442,7 @@ function bombExplosion(startx, starty) {
               expldTile[k].type != lava &&
               expldTile[k].type != hppotion &&
               expldTile[k].type != mobboss &&
+              expldTile[k].type != hollowboss &&
               expldTile[k].type != bossfish &&
               expldTile[k].type != curse &&
               expldTile[k].type != water &&
@@ -4316,7 +4466,6 @@ function bombExplosion(startx, starty) {
         }
       }
     }
-    bgm = playTune(villagebgm, Infinity);
   }, 2790);
 }
 
@@ -4432,7 +4581,8 @@ function initGame() { //  used for restart after death
   stage = 1
   score = 0;
 
-
+   allowBossAttack = false;
+  
   chosenLevels = []
   resetMap(1)
   
