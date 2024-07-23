@@ -1072,39 +1072,39 @@ L.....1...L.0L..
 ...1.....L...00.
 ................`])
 legend.set(lavafish, [lavafish, bitmap`
-................
-.....888888.....
-....88388388....
-...8883883888...
-...8383333838...
-...8388338838...
-...3333333333...
-...3399339933...
-...3399339933...
-...3333333333...
-...L..L..L..L...
-...L.L.L..L.L...
-..LL.L.LL.L.LL..
-..L..L..L.L..L..
-..L..L..L.L..L..
-........L.......`])
+.....000000.....
+....08888880....
+...0883883880...
+..088838838880..
+..083833338380..
+..083883388380..
+..033333333330..
+..033993399330..
+..033993399330..
+..033333333330..
+..0L00L00L00L0..
+..0L0L.L..L0L0..
+.0LL0L0LL.L0LL0.
+.0L0.L0.L0L.0L0.
+.0L0.L0.L0L00L0.
+..0.....L0...0..`])
 legend.set(revlavafish, [revlavafish, bitmap`
-................
-.....666666.....
-....66066066....
-...666L66L666...
-...6366666636...
-...L33366333L...
-...3333333333...
-...3399339933...
-...3339333933...
-...3333333333...
-...1..1..1..L...
-...L.1..1.L.L...
-..LL.L.1L.L.LL..
-..L..L.LL.L..L..
-..1..1.1..L..L..
-.1.1..1.1..1..1.`])
+.....000000.....
+....09999990....
+...0990990990...
+..0999L99L9990..
+..098999999890..
+..0L88899888L0..
+..088888888880..
+..088338833880..
+..088838883880..
+..088888888880..
+..0100100100L0..
+..0L010.10L0L0..
+.0LL0L.1L.L0LL0.
+.0L0.L0LL0L.0L0.
+.010.10000L.0L0.
+01.1..1.1..1..10`])
 
 
 
@@ -1409,14 +1409,14 @@ cccccci.e
 ccccccipe`,
 
   map`
-fffffv.vxw
-fffff((fff
+ffffffffff
+ffffffffff
 ffafffffff
-jlqzkffT&&
-Eeciffff&&
-EenifVVfff
-.fffffffff
-Pfp.dfffff`, //start
+jlqzkfffff
+feciffffff
+feniffffff
+ffffffffff
+ffpfffffff`, //start
 
   // enemy lvls
   map`
@@ -1570,7 +1570,7 @@ v..&V..w
 v......w
 v......w
 v......w
-vvvxwvpw`, // transition level 0
+vvvxwvpw`, // transition level from surface 0
   map`
 wdxDXXXX
 w...$$XX
@@ -1583,7 +1583,7 @@ XXXwvpvx`, // 1 fire shooter
   map`
 wvdvxXXXXX
 XX$...CCCX
-.....CCC.X
+.t..tCCC.X
 .Z..CCC..X
 XX.CCC.Z.R
 XXCCC....X
@@ -1631,10 +1631,34 @@ mvmwg.g..X
 CvCw.....X
 wvxw.....X
 mvmwg....X
-CvCw.....p`, // 7 hidden advance from  but also noramlly accsisble cuz goblin kill's sad
-
+CvCw.....p`, // 7 hidden advance from  but also noramlly accsisble cuz goblin kill's sad and ghosts out of graves
   map`
-.....L......
+vdXXX
+X.YXX
+X(.(X
+X(.(X
+X(.(X
+X(.(X
+X(.(X
+X(.(X
+X(.(X
+XXpXX`, // 8 one thing lava walkway
+  map`
+Xd.XX((XXX
+XXt((t(tCC
+XXt((..(C.
+XXt....(..
+XX.(C..(..
+XX.((.....
+(X^...(..p`, //ghosts and lava
+  map`
+XpXDXXXX
+..v.m..d
+Z.v.m..X
+..XXXXXX
+R.(((((Y`, // crate with more goblin jail
+  map`
+X....L...XXX
 ............
 ............
 .....*......
@@ -1642,7 +1666,7 @@ CvCw.....p`, // 7 hidden advance from  but also noramlly accsisble cuz goblin ki
 ............
 ............
 ............
-.....p......`, //fishboss 8 for now
+XX...p.....X`, //fishboss 11 for now
 ]
 let traptriggered = false;
 let crateonplate = false;
@@ -2057,7 +2081,7 @@ let mapJustChanged = true;
 
 
 
-let maxhealth = 3;
+let maxhealth = 3
 var health = maxhealth;
 let heartsArray = [];
 let itemsArray = []
@@ -2153,30 +2177,33 @@ function resetMap(n) {
       setMap(caverns[level])
     }
   }
-
-
+  console.log("Stats:")
+  console.log("Stage: " + stage);
   console.log("Level: " + level);
   console.log("Score: " + score);
-
-
+  console.log("RPB: " + randomPickBlacklist)
+  console.log("chosenLevels: " + chosenLevels)
+  console.log("Levels Passed: " + levelspassed)
+  
   mapJustChanged = true;
   crateonplate = false;
   traptriggered = false;
 
   score++;
-  if (!chosenLevels.includes(level) && arguments.length === 0) {
+  if (!chosenLevels.includes(level) && arguments.length === 0 && !randomPickBlacklist.includes(level)) {
     levelspassed++;
   }
 
   chosenLevels.push(level)
 
   if (arguments.length === 0) {
-    if (levelspassed === 8) {
+    if (stage === 1 && levelspassed >= 8) {
       level = 17 // first boss triggered at 8
       setMap(levels[level])
     }
-    if (levelspassed === 15) {
-      //
+    if (stage === 2 && levelspassed >= 14) {
+      level = 11
+      setMap(caverns[level])
     }
 
     if (stage === 1)
@@ -2307,6 +2334,7 @@ function basicAttack() {
     // Reset cooldown and remove sword
     cooldown = true;
     setTimeout(() => {
+    if (getFirst(sword))
       getFirst(sword).remove();
       setTimeout(() => {
         cooldown = false;
@@ -2371,7 +2399,7 @@ onInput("j", () => { // RESET game if game over is on
 
 onInput("l", () => {
   movementDown = false;
-  /* let tempdir = playerDir
+  let tempdir = playerDir
    if (tempdir === "UP") {
      playerDir = "RIGHT"
      basicAttack();
@@ -2380,7 +2408,7 @@ onInput("l", () => {
      playerDir = "UP"
      basicAttack();
    } else if (tempdir === "RIGHT") {
-     playerDir = "DOWN"a
+     playerDir = "DOWN"
      basicAttack();
    }
    if (tempdir === "DOWN") {
@@ -2389,9 +2417,9 @@ onInput("l", () => {
    }
    plr.x = plr.x
    plr.y = plr.y
-   movementDown = false; */
-  stage = 2
-  resetMap(8) //  debug debugging debug tags etc 
+   movementDown = false; 
+  /* stage = 2
+  resetMap(10) //  debug debugging debug tags etc */
 
 })
 
@@ -2454,10 +2482,10 @@ function useItem() {
 
 }
 
-var movementDown = false; // init
+let movementDown = false; // init
 
 function checkIfOnSpawnPos() {
-  if (movementDown === true && getFirst(spawn) && getFirst(player).x === getFirst(spawn).x && getFirst(player).y === getFirst(spawn).y) {
+  if (movementDown && getFirst(spawn) && getFirst(player).x === getFirst(spawn).x && getFirst(player).y === getFirst(spawn).y) {
     return false;
   } else {
     return true;
@@ -2550,9 +2578,9 @@ afterInput(() => {
   }
 
   if (boostactive === true) { //speedboost logic
-    if (getFirst(boostparticles))
+    if (getFirst(boostparticles) && getFirst(player))
       getFirst(boostparticles).remove();
-    const bp = addSprite(plr.x, plr.y, boostparticles)
+      const bp = addSprite(plr.x, plr.y, boostparticles)
   } else {
     let boosts = getAll(boostparticles)
     boosts.forEach(b => { b.remove(); })
@@ -2568,7 +2596,7 @@ afterInput(() => {
 
   //heal 
   if (healingHeart) {
-    if (plr.x === healingHeart.x && plr.y === healingHeart.y)
+    if (plr && plr.x === healingHeart.x && plr.y === healingHeart.y)
       heartPickup();
   }
   plr = getFirst(player)
@@ -2577,12 +2605,12 @@ afterInput(() => {
 
 
   waterSprites.forEach(watersprite => {
-    if (plr.x === watersprite.x && plr.y === watersprite.y)
+    if (plr && plr.x === watersprite.x && plr.y === watersprite.y)
       playerCollided();
   })
 
   lavaSps.forEach(lv => {
-    if (plr.x === lv.x && plr.y === lv.y)
+    if (plr && plr.x === lv.x && plr.y === lv.y)
       playerCollided(2) // 2 dmg
 
 
@@ -2609,6 +2637,12 @@ afterInput(() => {
         playTune(secret)
         getFirst(spikes).remove();
         crateonplate = true;
+      }
+      if (level === 10 && stage === 2) {
+            playTune(secret)
+                crateonplate = true;
+        let w2s = getAll(wall2)
+        w2s.forEach(w2 => {w2.remove()})
       }
     }
   });
@@ -2757,7 +2791,7 @@ afterInput(() => {
 
   
   //lvl specific traps
-  if (level === 5 && plr.x === width() - 2 && plr.y === 8 && !traptriggered) {
+  if (level === 5 && plr.x === width() - 2 && plr.y === 8 && !traptriggered && stage === 1) {
     let graves = getAll(hurtplayer)
     traptriggered = true;
 
@@ -2767,7 +2801,17 @@ afterInput(() => {
       addSprite(grave.x, grave.y, ghost)
     })
   }
-  if (level === 15) {
+  if (level === 7 && stage === 2 && traptriggered === false && plr.x === 8 ) {
+      let graves = getAll(hurtplayer)
+    traptriggered = true;
+
+    graves.forEach(grave => {
+      playTune(danger);
+
+      addSprite(grave.x, grave.y, ghost)
+    })
+  }
+  if (level === 15 && stage === 1) {
     if (movementDown === true) {
       function randomSpikes() {
         let sps = getAll(spikes)
@@ -2807,7 +2851,8 @@ afterInput(() => {
     if (level === 0 && stage === 2) {
       console.log("transition")
       chosenLevels = [0]
-      randomPickBlacklist = [0, 5] // blacklist for caverns
+      randomPickBlacklist = [0, 4] // blacklist for caverns
+    
       resetMap()
 
       setTimeout(() => { clearText(); }, 50)
@@ -3492,7 +3537,7 @@ function startslashing(dir, delayBetweenSlashMs) {
           tile.remove();
           let slashes = getAll(bossslash)
           slashes.forEach(s => {
-            if (plr.x === s.x && plr.y === s.y) {
+            if (plr && plr.x === s.x && plr.y === s.y) {
               clearAllSlashes();
               playerCollided();
             }
@@ -3571,18 +3616,40 @@ let bossFishHp = 30; // put all these in init once done
 let bossFishEnraged = false; // init false
 let pastFishChoice;
 let fishChoice;
+let spawnedfishdefeated = false;
+let okToChooseFishOption = true;
 async function fishBossAttack() {
   let fsBo = getFirst(bossfish)
   if (bossFishHp < 16) {
     if (!bossFishEnraged) {
       bossFishEnraged = true;
-          addSprite(0,1,revlavafish)
-        addSprite(width()-1,1,lavafish)
+      addSprite(0,1,revlavafish)
+      addSprite(width()-1,1,lavafish)
+      okToChooseFishOption = false;
       playTune(bossRage)
       legend.set(bossfish, frames[bossfish].RAGE)
+      fsBo.remove();
     }
+
+    if (getFirst(revlavafish)) {
+      addSprite(getFirst(revlavafish).x,getFirst(revlavafish).y,lava)
+    }
+    if (getFirst(lavafish)) {
+      addSprite(getFirst(lavafish).x,getFirst(lavafish).y,lava)
+    }
+
+    
+    if (!spawnedfishdefeated && !getFirst(lavafish) && !getFirst(revlavafish)) { // set spawned fish to defeated tho
+      addSprite(5,4,bossfish);
+      let lvsps = getAll(lava)
+      lvsps.forEach(l => {l.remove()})
+      spawnedfishdefeated = true;
+      okToChooseFishOption = true;
+      fishBossAttack()
+    }
+    
   }
-  if (fsBo) {
+  if (fsBo && okToChooseFishOption) {
     const options = ["bombs", "erupt", "encirclingfire", "linesslash"] // [fireslash]  & summon both fish and invul ONE TIME once raged
 
     let randomIndex = Math.floor(Math.random() * options.length);
@@ -3596,17 +3663,18 @@ async function fishBossAttack() {
 
     if (fishChoice === 'bombs') {
       let xopt = [fsBo.x - 1, fsBo.x + 1]
-      let yopt = [3, 4, 5]
+      let yopt = [2, 3, 4, 5]
       let bombN = 2
       if (bossFishEnraged) {
-            bombN = 3;
+            bombN = 4;
+      }
         
         setTimeout(() => {
           selRandomBombs()
                 fishExpBombs()
 
         },1500)
-      }
+
       
       function selRandomBombs() {
       for (let i = 0; i < bombN; i++) {
@@ -4176,13 +4244,23 @@ function initGame() { //  used for restart after death
 
   //reset item
   itemsArray = [];
+  clearTile(0,0)
+  addSprite(0,0,grass)
 
   // reset bosses stats
   eggCount = 0;
   eggOpenTime = 1000;
   gobBossHp = 25;
   gobBossEnraged = false;
+  
+   bossFishHp = 30;
+  bossFishEnraged = false; 
+  pastFishChoice;
+ fishChoice;
+spawnedfishdefeated = false;
+ okToChooseFishOption = true;
 
+  
   strbuff = false;
 
   plr = getFirst(player)
