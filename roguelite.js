@@ -12,7 +12,7 @@ Explore a randomly generated dungeon filled with enemies, secrets, and upgrades.
 STAGES
 I: Surface
 II: Caverns
-III: Hallows
+III: Hollows
 */
 
 
@@ -30,7 +30,7 @@ III: Hallows
 
    storyboard final boss battle in burning village save mentor
 */
-
+let testModeOn = true;
 
 const dirVectors = {
   "RIGHT": [1, 0],
@@ -98,6 +98,11 @@ const bomb = "#"
 const revlavafish = "^"
 const bossfish = "*"
 const lava = "("
+const epicchest = ")"
+const clock = "-"
+const lifeelixir = "+"
+const lightningscroll = "?"
+const lightning = "~"
 
 const legendKeys = [
   black,
@@ -109,6 +114,7 @@ const legendKeys = [
   roofoverhangright,
   bossslash,
   sword,
+  lightning,
 
   invincibility,
   strengthparticles,
@@ -118,6 +124,9 @@ const legendKeys = [
   curse,
   energydrink,
   bomb,
+  clock,
+  lifeelixir,
+  lightningscroll,
 
   mobboss,
   player,
@@ -143,6 +152,7 @@ const legendKeys = [
   spider,
   commonchest,
   rarechest,
+  epicchest,
   hurtplayer,
   spawn,
   grass,
@@ -748,6 +758,23 @@ legend.set(rarechest, [rarechest, bitmap`
 0699999999999960
 0L999999999999L0
 0000000000000000`])
+legend.set(epicchest, [epicchest, bitmap`
+....00000000....
+...05L5LL5L50...
+..0LL5L55L5LL0..
+.0LLLLLLLLLLLL0.
+0HHLLLLLLLLLLHH0
+0LLHHHLLLLHHHLL0
+0LL7LLHHHHLLLLL0
+0LLL7LHLLHLLLLL7
+07771HHHHHH17770
+0L7LLHH22HHLLL70
+0L77LHHHHHHLLL70
+07LLHLLLLLLHLLL7
+7LHHLLLLLLLLHHL0
+0HL5L55LL55L5LH0
+055L5L7557L5L550
+0000070007700000`])
 legend.set(bridge, [bridge, bitmap`
 CC999CC999CC99CC
 C1999CC999CC991C
@@ -1037,6 +1064,23 @@ legend.set(energydrink, [energydrink, bitmap`
 ..099996629990..
 ..099996299990..
 ...0000000000...`])
+legend.set(clock, [clock, bitmap`
+..8.......FFF...
+.......FFFF.F...
+.....FF......F..
+.H...000000..F..
+..H.00L1LL00F...
+...00LL1L2L00..8
+H..0LLL122LL0...
+.H.0111221110.H.
+...0LLL2LLLL0H..
+H..0LLL12LLL0.H.
+...00LL1L200....
+.H.H0001000..H..
+..H..00000.H....
+..........H.....
+8...........H...
+..............8.`])
 legend.set(rocks, [rocks, bitmap`
 LLLLLLLLLLLLLLLL
 LLLLLLLLLLLLL11L
@@ -1105,6 +1149,57 @@ legend.set(revlavafish, [revlavafish, bitmap`
 .0L0.L0LL0L.0L0.
 .010.10000L.0L0.
 01.1..1.1..1..10`])
+legend.set(lifeelixir, [lifeelixir, bitmap`
+..........3..3..
+......CC.3.33...
+......CC........
+.....0000.......
+....008800......
+....08H280......
+....0H8H20......
+....0H88H0......
+....0H8HH0......
+....0HHH80......
+....08HH80......
+....08H8H0......
+....08HHH0......
+....08HH80......
+....088HH0......
+....000000......`])
+legend.set(lightningscroll, [lightningscroll, bitmap`
+................
+....CCCLLCLCLL..
+...CCLLLL666LLC.
+..CCLLCL666LCC..
+..CLLCC666LLCC..
+..CLLL666LLLC...
+.CCL6666LLLLC...
+.CCL6666LLLC....
+.CCCL6666LLC....
+.CCCLL66LLL.....
+CCCCC666LCC.....
+CCC6666CCC......
+CCC66CCCCC......
+CCCCCCCCC.......
+................
+................`])
+legend.set(lightning, [lightning, bitmap`
+...........0....
+..........060...
+.........0660...
+.....1..06660...
+......106661....
+......06660.1...
+....006660...1..
+...066660.......
+...0666600......
+....0666660.....
+.....066660.....
+.1.0066660......
+..1666660.......
+..066600........
+..0661..........
+...60.1.........`])
 
 
 
@@ -1371,8 +1466,8 @@ setLegend(...legend.values())
 
 
 const commonLootPool = [hppotion, energydrink]
-const rareLootPool = [curse, bomb]
-const epicLootPool = []
+const rareLootPool = [curse, bomb, lightningscroll]
+const epicLootPool = [clock, lifeelixir]
 
 const breakablesArray = getAll(mobegg)
 
@@ -1415,8 +1510,8 @@ ffafffffff
 jlqzkfffff
 feciffffff
 feniffffff
-ffffffffff
-ffpfffffff`, //start
+ffffVVVVff
+Mfpfffffff`, //start
 
   // enemy lvls
   map`
@@ -1668,6 +1763,18 @@ X....L...XXX
 ............
 XX...p.....X`, //fishboss 11 for now
 ]
+const fishbosslvl = 11
+
+const hollows = [
+  map`
+XAXXXXXX
+X..&)..X
+X......X
+X......w
+X......w
+XXXXXvpw`, //transition lvl from caverns (stage 3, index 0)
+]
+  
 let traptriggered = false;
 let crateonplate = false;
 
@@ -1765,6 +1872,9 @@ function levelSpecificStuff() {
   }
   if (level === 5 && stage === 2) {
     addSprite(0, 0, candle)
+  }
+  if (level === 0 && stage === 3) {
+        addSprite(2, 0, candle)
   }
   /*  if (level < 9) {
 let decowall = getAll(wall2);
@@ -1880,6 +1990,16 @@ const getItem = tune`
 89.55223880597015: C5^89.55223880597015 + E5^89.55223880597015,
 89.55223880597015: A5-89.55223880597015,
 2507.4626865671644`
+
+const clockTick = tune`
+500: B4^500,
+500,
+500: B4^500,
+500,
+500: B4^500,
+500,
+500: G5/500 + F5/500,
+12500`
 
 const slash = tune`
 94.33962264150944,
@@ -2169,12 +2289,23 @@ function resetMap(n) {
         resetMap() //recursively call until its a not picked/dungeon lvl
       }
     }
+    if (stage === 3) {
+      level = (Math.floor(Math.random() * hollows.length));
+      if (level === 0)
+        resetMap()
+      if (chosenLevels.includes(level) || randomPickBlacklist.includes(level)) {
+        console.log("recursive") // check if lvl has been chosen already
+        resetMap() //recursively call until its a not picked/dungeon lvl
+      }
+    }
   } else if (arguments.length === 1) { // set for specific continuations (calling with n)
     level = n;
     if (stage === 1)
       setMap(levels[level])
     else if (stage === 2) {
       setMap(caverns[level])
+    } else if (stage === 3) {
+      setMap(hollows[level])
     }
   }
   console.log("Stats:")
@@ -2202,7 +2333,7 @@ function resetMap(n) {
       setMap(levels[level])
     }
     if (stage === 2 && levelspassed >= 14) {
-      level = 11
+      level = fishbosslvl
       setMap(caverns[level])
     }
 
@@ -2398,7 +2529,10 @@ onInput("j", () => { // RESET game if game over is on
 });
 
 onInput("l", () => {
-  movementDown = false;
+  
+
+
+    movementDown = false;
   let tempdir = playerDir
    if (tempdir === "UP") {
      playerDir = "RIGHT"
@@ -2416,19 +2550,23 @@ onInput("l", () => {
      basicAttack();
    }
    plr.x = plr.x
-   plr.y = plr.y
-   movementDown = false; 
-  /* stage = 2
-  resetMap(10) //  debug debugging debug tags etc */
-
+   plr.y = plr.y 
+   movementDown = false;
+  
 })
 
 onInput("k", () => {
   movementDown = false;
   console.log(itemsArray)
 
-  if (itemsArray[0]) {
+
+  if (testModeOn && itemsArray.length === 0 ) {
+  stage = 3
+  resetMap(0) //  debug debugging debug tags etc 
+  } else {
+
     useItem()
+
   }
 
 
@@ -2438,6 +2576,8 @@ onInput("k", () => {
 })
 
 function useItem() {
+  let mW = width()
+  let mH = height()
   let itemTile = getTile(0, 0)
   let lgn = itemTile.length - 1
   let tmpblock = itemTile[1]
@@ -2466,7 +2606,58 @@ function useItem() {
 
     bombExplosion(px, py)
   }
+  if (currentItem === clock) {
+clearInterval(moveMobsInterval) 
+clearInterval(spawnMobsInterval)
+clearInterval(moveGhostInterval) 
+clearInterval(moveSpiderInterval) 
+clearInterval(moveLavafishInterval) 
+clearInterval(moveRavafishInterval) 
+clearInterval(fsShootInterval) 
 
+    setTimeout(() => {  
+      playTune(clockTick);
+      setTimeout(() => {
+          moveMobsInterval = setInterval(mobMoveAll, 750);
+          spawnMobsInterval = setInterval(mobSpawn, 1500);
+            moveGhostInterval = setInterval(ghostMoveAll, 1000);
+        moveSpiderInterval = setInterval(spiderMoveAll, 480);
+      moveLavafishInterval = setInterval(lavaFishMove, 900);
+      moveRavafishInterval = setInterval(ravaFishMove, 900);
+      fsShootInterval = setInterval(fireShoot, 500);
+        console.log("intervals set again")
+      }, 3500)
+                     }, 1000)
+  }
+  if (currentItem === lifeelixir) {
+    maxhealth++;
+    potionHeal()
+    
+  }
+  if (currentItem === lightningscroll) {
+
+    if (playerDir === "LEFT") {
+        for (let i = 1; i < plr.x+1; i++)
+        addSprite(plr.x-i,plr.y,lightning)
+    } else     if (playerDir === "RIGHT") {
+        for (let i = plr.x+1; i < mW; i++)
+        addSprite(i,plr.y,lightning)
+    } 
+      else  if (playerDir === "UP") {
+        for (let i = plr.y-1; i >= 0; i--)
+        addSprite(plr.x,i,lightning)
+    } 
+        else  if (playerDir === "DOWN") {
+        for (let i = plr.y+1; i < mH; i++)
+        addSprite(plr.x,i,lightning)
+    } 
+    setTimeout(() => {
+        let lbz = getAll(lightning)
+      lbz.forEach(lb => { lb.remove() })
+    }, 700)
+    
+    
+  }
 
 
   itemsArray.pop()
@@ -2506,6 +2697,7 @@ afterInput(() => {
   const spawnSprite = getFirst(spawn)
   const comChst = getFirst(commonchest)
   const rrChst = getFirst(rarechest)
+  let epChst = getFirst(epicchest)
   //const epic chest
   const hidnAdvcs = getAll(hiddenadvance)
 
@@ -2785,6 +2977,7 @@ afterInput(() => {
       setTimeout(() => { arbitrarySecondCd = false }, 70)
     }
     if (bossFishHp <= 0) {
+      fireballSprites.forEach(f => {f.remove()})
       defeatBoss(bossFishSp)
     }
   }
@@ -2889,10 +3082,16 @@ afterInput(() => {
     }
   }
   //boss advancing
-  if (level === 17 && stage === 1) {
+  if (level === 17 && stage === 1) { // mobboss
     if (doorSprite && plr.x === doorSprite.x && plr.y === doorSprite.y) {
       stage = 2;
       resetMap(0) // caverns
+    }
+  }
+  if (level === fishbosslvl && stage === 2) { //fish boss
+    if (doorSprite && plr.x === doorSprite.x && plr.y === doorSprite.y) {
+      stage = 3;
+      resetMap(0) // hollows
     }
   }
 
@@ -2990,6 +3189,14 @@ afterInput(() => {
       playTune(getItem);
     }
   }
+  if (epChst && plr.x === epChst.x && plr.y === epChst.y) {
+    let rndId = Math.floor(Math.random() * epicLootPool.length)
+    let fcall = addItem(epicLootPool[rndId]);
+    if (fcall === true) {
+      epChst.remove();
+      playTune(getItem);
+    }
+  }
 
   // BOSS HP BARS
 
@@ -3044,6 +3251,7 @@ var moveGhostInterval = setInterval(ghostMoveAll, 1000);
 var moveSpiderInterval = setInterval(spiderMoveAll, 480);
 var moveLavafishInterval = setInterval(lavaFishMove, 900);
 var moveRavafishInterval = setInterval(ravaFishMove, 900);
+var fsShootInterval = setInterval(fireShoot, 500);
 
 function mobMoveAll() {
   const options = ["up", "down", "left", "right"];
@@ -3120,6 +3328,10 @@ function addItem(pickup, groundspritetoremove) {
       addText("Sacrifice", { x: 2, y: 1, color: color`6` })
     if (pickup === bomb)
       addText("Bomb", { x: 3, y: 1, color: color`4` })
+    if (pickup === clock)
+      addText("Time Stop", { x: 2, y: 1, color: color`2` })
+    if (pickup === lifeelixir)
+      addText("Life Elixir", { x: 2, y: 1, color: color`3` })
 
     setTimeout(() => { clearText() }, 1000)
 
@@ -3274,7 +3486,7 @@ function fireShoot() {
     }
   });
 }
-setInterval(fireShoot, 500);
+
 
 function resetSingleMobHP() {
   lavaFishHp = 5;
@@ -3631,10 +3843,10 @@ async function fishBossAttack() {
       fsBo.remove();
     }
 
-    if (getFirst(revlavafish)) {
+    if (getFirst(revlavafish) && !spawnedfishdefeated) {
       addSprite(getFirst(revlavafish).x,getFirst(revlavafish).y,lava)
     }
-    if (getFirst(lavafish)) {
+    if (getFirst(lavafish) && !spawnedfishdefeated) {
       addSprite(getFirst(lavafish).x,getFirst(lavafish).y,lava)
     }
 
@@ -3649,7 +3861,7 @@ async function fishBossAttack() {
     }
     
   }
-  if (fsBo && okToChooseFishOption) {
+  if (fsBo && okToChooseFishOption && stage === 2) {
     const options = ["bombs", "erupt", "encirclingfire", "linesslash"] // [fireslash]  & summon both fish and invul ONE TIME once raged
 
     let randomIndex = Math.floor(Math.random() * options.length);
@@ -4191,7 +4403,7 @@ function checkGameOver() {
         addSprite(i, j, black)
       }
     }
-
+  setTimeout(() => {
     addText("Game Over", {
       x: 1,
       y: 2,
@@ -4207,6 +4419,7 @@ function checkGameOver() {
       y: 4,
       color: color`4`
     })
+  }, 200)
   }
 }
 
@@ -4222,6 +4435,10 @@ function initGame() { //  used for restart after death
 
   chosenLevels = []
   resetMap(1)
+  
+        
+  
+  getAll(fireball).forEach(f => {f.remove()})
 
   clearText();
   levelOneSetDeco();
