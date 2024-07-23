@@ -118,7 +118,7 @@ const legendKeys = [
   curse,
   energydrink,
   bomb,
-  
+
   mobboss,
   player,
   mentor,
@@ -137,6 +137,7 @@ const legendKeys = [
   wall2,
   wall3,
   rocks,
+  lava,
   bossfish,
   mob,
   spider,
@@ -153,7 +154,6 @@ const legendKeys = [
   healingheart,
   spikes,
   water,
-  lava,
   warningtile,
   advancetile,
   mobspawner,
@@ -1739,8 +1739,8 @@ function levelSpecificStuff() {
     /* spawnLavaFishMob(3, 3, 5); 
     console.log("SPAWNED LVF") */
   }
-    if (level === 5 && stage === 2) {
-    addSprite(0,0,candle)
+  if (level === 5 && stage === 2) {
+    addSprite(0, 0, candle)
   }
   /*  if (level < 9) {
 let decowall = getAll(wall2);
@@ -2019,7 +2019,7 @@ function playbgm() { // plays bgm appropriate to lvl
     bgm.end();
     bgm = playTune(hardbgm, Infinity)
   }
-  if (level === caverns.length-1 && stage === 2) {
+  if (level === caverns.length - 1 && stage === 2) {
     bgm.end();
     bgm = playTune(hardbgm, Infinity)
   }
@@ -2124,7 +2124,7 @@ async function tutorialCutscene(tutorialPlayed) {
 
 let chosenLevels = [];
 // random pick blacklist defined under map bitmaps
-let levelspassed = 0 
+let levelspassed = 0
 
 function resetMap(n) {
   if (arguments.length === 0) { // completely random set
@@ -2163,7 +2163,7 @@ function resetMap(n) {
   crateonplate = false;
   traptriggered = false;
 
-    score++;
+  score++;
   if (!chosenLevels.includes(level) && arguments.length === 0) {
     levelspassed++;
   }
@@ -2471,6 +2471,7 @@ afterInput(() => {
   const doorSprite = getFirst(door);
   const houseDoor = getFirst(housedoor);
   const gobBossSprite = getFirst(mobboss);
+  const bossFishSp = getFirst(bossfish);
 
   let healingHeart = getFirst(healingheart);
 
@@ -2490,8 +2491,8 @@ afterInput(() => {
   let fireballSprites = getAll(fireball)
   let attacki = getFirst(sword);
 
-      let asp = getAll(strengthparticles)
-  
+  let asp = getAll(strengthparticles)
+
   let lvf = getFirst(lavafish);
   let rlvf = getFirst(revlavafish);
   let mobEggs = getAll(mobegg);
@@ -2558,10 +2559,10 @@ afterInput(() => {
   }
   if (strbuff === true) {
     if (asp)
-      asp.forEach(ptc => {ptc.remove()})
+      asp.forEach(ptc => { ptc.remove() })
     addSprite(plr.x, plr.y, strengthparticles)
-  } else if (asp) 
-      asp.forEach(ptc => {ptc.remove()})
+  } else if (asp)
+    asp.forEach(ptc => { ptc.remove() })
 
 
 
@@ -2584,7 +2585,7 @@ afterInput(() => {
     if (plr.x === lv.x && plr.y === lv.y)
       playerCollided(2) // 2 dmg
 
-    
+
   })
 
 
@@ -2689,44 +2690,44 @@ afterInput(() => {
     if (plr.x === lvf.x && plr.y === lvf.y)
       playerCollided()
     if (!standardEnemyArbCD && attacki && attacki.x === lvf.x && attacki.y === lvf.y) {
-        lavaFishHp -= swordDmg 
-        playTune(hitEnemy)
+      lavaFishHp -= swordDmg
+      playTune(hitEnemy)
 
-        standardEnemyArbCD = true;
-        setTimeout(() => {standardEnemyArbCD = false}, 100)
-        if (lavaFishHp <= 0) {
-          defeatEnemy(lvf)
-          lavaFishHp = 5
-          
-        }
+      standardEnemyArbCD = true;
+      setTimeout(() => { standardEnemyArbCD = false }, 100)
+      if (lavaFishHp <= 0) {
+        defeatEnemy(lvf)
+        lavaFishHp = 5
+
+      }
     }
   }
-  
+
   if (rlvf) {
     if (plr.x === rlvf.x && plr.y === rlvf.y)
       playerCollided()
     if (!standardEnemyArbCD && attacki && attacki.x === rlvf.x && attacki.y === rlvf.y) {
-        ravaFishHp -= swordDmg 
-        playTune(hitEnemy)
-      
-      console.log(ravaFishHp)//dbug
-      
-        standardEnemyArbCD = true;
-        setTimeout(() => {standardEnemyArbCD = false}, 100)
-        if (ravaFishHp <= 0) {
-          defeatEnemy(rlvf)
-          ravaFishHp = 5
-        }
+      ravaFishHp -= swordDmg
+      playTune(hitEnemy)
+
+      console.log(ravaFishHp) //dbug
+
+      standardEnemyArbCD = true;
+      setTimeout(() => { standardEnemyArbCD = false }, 100)
+      if (ravaFishHp <= 0) {
+        defeatEnemy(rlvf)
+        ravaFishHp = 5
+      }
     }
   }
   if (lvfSpawner) {
     if (!getFirst(lavafish)) {
       lavaFishHp = 5
-      addSprite(lvfSpawner.x,lvfSpawner.y,lavafish)
+      addSprite(lvfSpawner.x, lvfSpawner.y, lavafish)
     }
   }
-  
-  if (gobBossSprite) { // dmg boss
+
+  if (gobBossSprite) { // dmg mob boss
     if (plr.x === gobBossSprite.x && plr.y === gobBossSprite.y)
       playerCollided(2)
     if (attacki && attacki.x === gobBossSprite.x && attacki.y === gobBossSprite.y && arbitrarySecondCd === false) {
@@ -2739,7 +2740,22 @@ afterInput(() => {
       let eggstoclear = getAll(mobegg)
       eggstoclear.forEach(e => { e.remove() })
     }
+  } 
+  //dmg fish boss
+  if (bossFishSp) {
+    if (plr.x === bossFishSp.x && plr.y === bossFishSp.y)
+      playerCollided()
+    if (attacki && attacki.x === bossFishSp.x && attacki.y === bossFishSp.y && arbitrarySecondCd === false) {
+      bossFishHp--;
+      arbitrarySecondCd = true;
+      setTimeout(() => { arbitrarySecondCd = false }, 70)
+    }
+    if (bossFishHp <= 0) {
+      defeatBoss(bossFishSp)
+    }
   }
+
+  
   //lvl specific traps
   if (level === 5 && plr.x === width() - 2 && plr.y === 8 && !traptriggered) {
     let graves = getAll(hurtplayer)
@@ -2799,7 +2815,7 @@ afterInput(() => {
 
       setTimeout(() => { clearText() }, 2000)
     }
-    if (level  === 4 && stage === 2)
+    if (level === 4 && stage === 2)
       resetMap(5)
   }
 
@@ -2828,7 +2844,7 @@ afterInput(() => {
     }
   }
   //boss advancing
-  if (level === 17) {
+  if (level === 17 && stage === 1) {
     if (doorSprite && plr.x === doorSprite.x && plr.y === doorSprite.y) {
       stage = 2;
       resetMap(0) // caverns
@@ -2938,6 +2954,14 @@ afterInput(() => {
       x: 2,
       y: 1,
       color: color`4`
+    })
+  }
+    if (bossFishSp && bossFishHp > 0) {
+    clearText();
+    addText("HP: " + bossFishHp, {
+      x: 2,
+      y: 1,
+      color: color`8`
     })
   }
 
@@ -3212,8 +3236,9 @@ function resetSingleMobHP() {
   ravaFishHp = 5;
 }
 
-let lavaFishHp = 5; 
+let lavaFishHp = 5;
 let ravaFishHp = 5;
+
 function moveEnemiesTowardsPlayerPrioX(thingtomove, playerX, playerY) { // Prioritizing X
   const enemies = getAll(thingtomove);
 
@@ -3269,45 +3294,46 @@ function moveEnemiesTowardsPlayerPrioY(thingtomove, playerX, playerY) { // Prior
 function lavaFishMove() {
   let llfv = getFirst(lavafish)
   if (llfv) {
-  if (getFirst(player))
-    moveEnemiesTowardsPlayerPrioX(lavafish, plr.x, plr.y);
-  let mobs = getAll(mob)
-  mobs.forEach(m => {
-    if (llfv.x === m.x && llfv.y === m.y)
-      defeatEnemy(m)
-  })
+    if (getFirst(player))
+      moveEnemiesTowardsPlayerPrioX(lavafish, plr.x, plr.y);
+    let mobs = getAll(mob)
+    mobs.forEach(m => {
+      if (llfv.x === m.x && llfv.y === m.y)
+        defeatEnemy(m)
+    })
   }
 }
+
 function ravaFishMove() {
-let rlfv = getFirst(revlavafish)
-if (rlfv) {
-  if (getFirst(player))
-    moveEnemiesTowardsPlayerPrioY(revlavafish, plr.x,plr.y)
-  let mobs = getAll(mob)
-  mobs.forEach(m => {
-      if (getFirst(revlavafish).x === m.x && getFirst(revlavafish).y === m.y) 
+  let rlfv = getFirst(revlavafish)
+  if (rlfv) {
+    if (getFirst(player))
+      moveEnemiesTowardsPlayerPrioY(revlavafish, plr.x, plr.y)
+    let mobs = getAll(mob)
+    mobs.forEach(m => {
+      if (getFirst(revlavafish).x === m.x && getFirst(revlavafish).y === m.y)
         defeatEnemy(m)
-  })
-}
+    })
+  }
 }
 
 function spawnLavaFishMob(x, y, initialHealth) {
-    addSprite(x, y, lavafish);
+  addSprite(x, y, lavafish);
 
-    spawnEnemy(lavafish, 3, 3, 5)
+  spawnEnemy(lavafish, 3, 3, 5)
 
   console.log(activeEnemies)
 }
 
 function spawnEnemy(type, x, y, health) {
-    const enemy = {
-        type: type,
-        x: x, // (starting pos)
-        y: y, // (starting pos)
-        health: health,
-        // Add other enemy properties as needed
-    };
-    
+  const enemy = {
+    type: type,
+    x: x, // (starting pos)
+    y: y, // (starting pos)
+    health: health,
+    // Add other enemy properties as needed
+  };
+
   activeEnemies.push(enemy); // Add the spawned enemy to activeEnemies array
 }
 
@@ -3542,51 +3568,71 @@ setInterval(goblinBossAttack, 2000)
 
 
 let bossFishHp = 30; // put all these in init once done
-let bossFishEnraged = false;
+let bossFishEnraged = false; // init false
 let pastFishChoice;
-  let fishChoice;
+let fishChoice;
 async function fishBossAttack() {
   let fsBo = getFirst(bossfish)
   if (bossFishHp < 16) {
-    if (!fishBossEnraged) {
+    if (!bossFishEnraged) {
       bossFishEnraged = true;
+          addSprite(0,1,revlavafish)
+        addSprite(width()-1,1,lavafish)
       playTune(bossRage)
       legend.set(bossfish, frames[bossfish].RAGE)
     }
   }
   if (fsBo) {
-    const options = ["bombs", "erupt", "encirclingfire", "linesslash" ] // [fireslash]  & summon both fish and invul ONE TIME once raged
+    const options = ["bombs", "erupt", "encirclingfire", "linesslash"] // [fireslash]  & summon both fish and invul ONE TIME once raged
 
     let randomIndex = Math.floor(Math.random() * options.length);
     fishChoice = options[randomIndex];
-    
+
     if (pastFishChoice === fishChoice) {
       pastFishChoice = fishChoice;
       fishBossAttack();
-      
+
     }
-    
+
     if (fishChoice === 'bombs') {
-      let xopt = [fsBo.x-1, fsBo.x+1]
-      let yopt = [3,4,5]
+      let xopt = [fsBo.x - 1, fsBo.x + 1]
+      let yopt = [3, 4, 5]
+      let bombN = 2
+      if (bossFishEnraged) {
+            bombN = 3;
+        
+        setTimeout(() => {
+          selRandomBombs()
+                fishExpBombs()
+
+        },1500)
+      }
+      
+      function selRandomBombs() {
+      for (let i = 0; i < bombN; i++) {
       let rx = Math.floor(Math.random() * xopt.length);
       let ry = Math.floor(Math.random() * yopt.length);
       let cx = xopt[rx]
       let cy = yopt[ry]
+      addSprite(cx, cy, bomb)
+      }
+      }
+      selRandomBombs()
       
-      addSprite(cx,cy,bomb)
-      fishExpBombs();
-      
-      fishBombCd = true;
+      fishExpBombs()
+
     }
     if (fishChoice === 'erupt') { // add a cooldown so bomb isnt twice in a row
-            lavaEruption(200);
+      lavaEruption(200);
 
-    } if (fishChoice === 'linesslash') {
-            startLines(660)
 
-    } if (fishChoice === 'encirclingfire') { 
-            startEncircle(500);
+    }
+    if (fishChoice === 'linesslash') {
+      startLines(500)
+
+    }
+    if (fishChoice === 'encirclingfire') {
+      startEncircle(500);
 
     }
 
@@ -3602,195 +3648,255 @@ function fishExpBombs() {
   aBmbs.forEach(b => {
     for (let i = (b.x - 1); i < (b.x + 2); i++) {
       for (let j = (b.y - 1); j < (b.y + 2); j++) {
-        addSprite(i,j,warningtile)
+        addSprite(i, j, warningtile)
       }
     }
   })
   setTimeout(() => {
     aBmbs.forEach(b => {
       for (let i = (b.x - 1); i < (b.x + 2); i++) {
-      for (let j = (b.y - 1); j < (b.y + 2); j++) {
-        let expldTile = getTile(i, j);
-        
-        if (expldTile) {
-          for (let k = 0; k < expldTile.length; k++) {
-            if (expldTile[k].type != lockeddoor &&
-              expldTile[k].type != pressureplate &&
-             expldTile[k].type != housedoor &&
-              expldTile[k].type != hppotion &&
-                             expldTile[k].type != lava &&
-              expldTile[k].type != mobboss &&
-               expldTile[k].type != bossfish &&
-              expldTile[k].type != curse &&
-              expldTile[k].type != water &&
-              expldTile[k].type != crate &&
-              expldTile[k].type != commonchest &&
-              expldTile[k].type != rarechest &&
-              // expldTile[k].type != epicchest &&
-              expldTile[k].type != heart &&
-              expldTile[k].type != spawn &&
-              expldTile[k].type != door &&
-                              expldTile[k].type != brokenrocks &&
+        for (let j = (b.y - 1); j < (b.y + 2); j++) {
+          let expldTile = getTile(i, j);
+
+          if (expldTile) {
+            for (let k = 0; k < expldTile.length; k++) {
+              if (expldTile[k].type != lockeddoor &&
+                expldTile[k].type != pressureplate &&
+                expldTile[k].type != housedoor &&
+                expldTile[k].type != hppotion &&
+                expldTile[k].type != lava &&
+                expldTile[k].type != mobboss &&
+                expldTile[k].type != bossfish &&
+                expldTile[k].type != curse &&
+                expldTile[k].type != water &&
+                expldTile[k].type != crate &&
+                expldTile[k].type != commonchest &&
+                expldTile[k].type != rarechest &&
+                // expldTile[k].type != epicchest &&
+                expldTile[k].type != heart &&
+                expldTile[k].type != spawn &&
                 expldTile[k].type != door &&
-               expldTile[k].type != healingheart &&
+                expldTile[k].type != brokenrocks &&
+                expldTile[k].type != door &&
+                expldTile[k].type != healingheart &&
                 expldTile[k].type != advancetile &&
-               expldTile[k].type != hiddenadvance && 
-                               expldTile[k].type != black && 
+                expldTile[k].type != hiddenadvance &&
+                expldTile[k].type != black &&
                 expldTile[k].type != player) {
-              expldTile[k].remove()
-              // addSprite(i, j, brokenrocks); // add back if not  conflicts with eruption
-            } else if (expldTile[k].type === player) {
-              playerCollided()
+                expldTile[k].remove()
+                // addSprite(i, j, brokenrocks); // add back if not  conflicts with eruption
+              } else if (expldTile[k].type === player) {
+                playerCollided()
+              }
             }
           }
+          let wts = getAll(warningtile)
+          wts.forEach(wt => { wt.remove() })
         }
-        let wts = getAll(warningtile)
-        wts.forEach(wt => {wt.remove()})
       }
-    }
     })
 
 
-  }, 2790);
+  }, 1400);
+  
 }
 
 function lavaEruption(ms) {
   let tming = ms; // ms between
-  
-  prepareEruption(2,5) // 0 timeout
+  let fsBo = getFirst(bossfish)
+
+  if (bossFishEnraged) {
+    let fishposrandomOpts = [
+      [2, 5],
+      [5, 4],
+      [8, 5],
+      [2, 2],
+      [5, 1],
+      [8, 2]
+    ] // reappear and disappear
+    let rndind2 = Math.floor(Math.random() * fishposrandomOpts.length)
+    let movementTil = fishposrandomOpts[rndind2]
+    console.log(movementTil)
+    fsBo.remove();
+    setTimeout(() => { addSprite(movementTil[0], movementTil[1], bossfish) }, tming * 14)
+  }
+
+
+
+  prepareEruption(2, 5) // 0 timeout
   setTimeout(() => {
-      prepareEruption(5,4)
-  },tming*3)
+    prepareEruption(5, 4)
+  }, tming * 3)
   setTimeout(() => {
-      prepareEruption(8,5)
-  },tming*5)
+    prepareEruption(8, 5)
+  }, tming * 5)
   setTimeout(() => {
-      prepareEruption(2,2)
-  },tming*7)
-    setTimeout(() => {
-      prepareEruption(5,1)
-  },tming*9)
+    prepareEruption(2, 2)
+  }, tming * 7)
+  setTimeout(() => {
+    prepareEruption(5, 1)
+  }, tming * 9)
+  setTimeout(() => {
+    prepareEruption(8, 2)
+  }, tming * 11)
+  setTimeout(() => {
+    let ltz = getAll(lava)
+    ltz.forEach(ll => { ll.remove() })
+  }, tming * 15)
+  setTimeout(() => {
+    for (let i = 2; i <= 16; i += 2) {
       setTimeout(() => {
-      prepareEruption(8,2)
-  },tming*11)
-        setTimeout(() => {
-      let ltz = getAll(lava)
-          ltz.forEach(ll => {ll.remove()})
-  },tming*15)
-setTimeout(() => {
-for (let i = 2; i <= 14; i+= 2) {
-  setTimeout(() => {
-      let wts = getAll(brokenrocks) 
-      wts.forEach(t => {
-        addSprite(t.x,t.y,lava)
-        if (plr.x === t.x && plr.y === t.y)
-          playerCollided();
-        t.remove()
-      })
-  }, tming*i )
+        let wts = getAll(brokenrocks)
+        wts.forEach(t => {
+          addSprite(t.x, t.y, lava)
+          if (plr.x === t.x && plr.y === t.y)
+            playerCollided();
+          t.remove()
+        })
+      }, tming * i)
+    }
+  }, 150)
 }
-}, 150)
-}
+
 function prepareEruption(startx, starty) { // 2x2 grid 
   for (let i = startx; i < startx + 2; i++) {
     for (let j = starty; j < starty + 2; j++) {
-      let xrokTil = getTile(i,j)
+      let xrokTil = getTile(i, j)
 
       for (let k = 0; k < xrokTil.length; k++) {
         if (xrokTil[k].type != 'p' && xrokTil[k].type != bossfish && xrokTil[k].type != sword && xrokTil[k].type != black && xrokTil[k].type != lava)
           xrokTil[k].remove()
       }
-      addSprite(i,j,brokenrocks)
+      addSprite(i, j, brokenrocks)
     }
   }
-    playTune(danger);
+  playTune(danger);
 }
 
 function startEncircle(intervalMs) {
-let encircleInterval = setInterval(fireEncircle, intervalMs)
-let fireEncircleRuncount = 0;
+  let encircleInterval = setInterval(fireEncircle, intervalMs)
+  let fireEncircleRuncount = 0;
 
-function fireEncircle() {
+  function fireEncircle() {
 
-  let w = width()
-  let h = (height()-1)
-  w -= fireEncircleRuncount
-  h -= fireEncircleRuncount
-
-
-  for (let i = fireEncircleRuncount+1; i < w; i++) {
-    addSprite(i,fireEncircleRuncount,fireball)
-  }
-  for (let i = fireEncircleRuncount; i < w; i++) {
-    addSprite(i,h,fireball)
-  }
+    let w = width()
+    let h = (height() - 1)
+    w -= fireEncircleRuncount
+    h -= fireEncircleRuncount
 
 
-  fireEncircleRuncount++
-
-  if (fireEncircleRuncount >= 5) {
-    clearInterval(encircleInterval)
-    fireEncircleRuncount = 0;
-    let fz = getAll(fireball)
-    setTimeout(() => {
-    fz.forEach(f => {f.remove()})
-      
-    if (bossFishEnraged) { // ADD SOMETING FOR ENRAGED
-      
+    for (let i = fireEncircleRuncount + 1; i < w; i++) {
+      addSprite(i, fireEncircleRuncount, fireball)
+        if (plr.x === i && plr.y === fireEncircleRuncount)
+            playerCollided()
     }
-      
-    }, 350)
-    
+    for (let i = fireEncircleRuncount; i < w; i++) {
+      addSprite(i, h, fireball)
+        if (plr.x === i && plr.y === h)
+            playerCollided()
+    }
+
+
+    fireEncircleRuncount++
+
+    if (fireEncircleRuncount >= 5) {
+      clearInterval(encircleInterval)
+      fireEncircleRuncount = 0;
+      let fz = getAll(fireball)
+      setTimeout(() => {
+        fz.forEach(f => { 
+          f.remove() 
+        })
+
+        if (bossFishEnraged) { // ADD SOMETING FOR ENRAGED
+
+        }
+
+      }, 350)
+
+    }
+
+
+
   }
-
-  
-
-}
 }
 
 let lineRunning = false;
-let lineFireRuncount = 0;
+let middleWarning = false;
 function startLines(intervalMs) {
-  if (lineRunning === false) {
   let lineInterval = setInterval(lineFire, intervalMs)
-  lineFire();
-  } else {
-    return
-  }
-  function lineFire() {
-    lineRunning = true;
-    let w = width()-1
-    let h = height()-1
+  let lineFireRuncount = 0;
 
-    console.log("LINEFIRE DEBUG")
-    
-    for (let cc = 0; cc < h; cc++) {
-      addSprite(lineFireRuncount, cc, fireball)
-      addSprite(w-lineFireRuncount, cc, fireball)
-    }
+
+  function lineFire() {
+    let w = width() - 1
+    let h = height() - 1
+
+    if (!lineRunning) {
+      for (let cc = 0; cc < h; cc++) {
+        addSprite(lineFireRuncount, cc, fireball)
+        addSprite(w - lineFireRuncount, cc, fireball)
+        if (plr.x === lineFireRuncount && plr.y === cc)
+          playerCollided()
+        if (plr.x === (w - lineFireRuncount) && plr.y === cc)
+          playerCollided()
+      }
+    } else
+        return 
 
     setTimeout(() => {
-        let fz = getAll(fireball)
-        fz.forEach(f => {f.remove()})
+      let fz = getAll(fireball)
+      fz.forEach(f => { 
+        f.remove() 
+      })
     }, (intervalMs / 3))
-    
-    
-    if (lineFireRuncount >= 4) {
-        lineFireRuncount = 0;
-        lineRunning = false;
-    } else if (lineFireRuncount < 4) {
-        lineFireRuncount++;
+
+if (bossFishEnraged) {
+    if (lineFireRuncount >= 5) { // one extra
+      lineFireRuncount = 0;
+      let checkundef = clearInterval(lineInterval);
+      if (checkundef === undefined)
+        console.log('supposedly worked Enraged')
+      lineRunning = false;
+      middleWarning = false;
+
+    } else if (lineFireRuncount < 5) {
+      
+    if (!middleWarning) {
+      for (let q = 0; q < h; q++) {
+        addSprite(5,q,warningtile)
+        addSprite(6,q,warningtile)
+      }
+      setTimeout(() => {     
+        let wts = getAll(warningtile)
+      wts.forEach(w => {w.remove()})}, 500)
+      middleWarning = true;
     }
+      
+      lineFireRuncount++;
+    }
+} else {
+      if (lineFireRuncount >= 4) {
+      lineFireRuncount = 0;
+      let checkundef = clearInterval(lineInterval);
+      if (checkundef === undefined)
+        console.log('supposedly worked')
+      lineRunning = false;
+    } else if (lineFireRuncount < 4) {
+      lineFireRuncount++;
+    }
+}
+
   }
 }
 
 setInterval(fishBossAttack, 3000)
-  
+
 function defeatEnemy(enemy) {
   enemy.remove();
   playTune(killEnemy);
   score++;
-  if (enemy.type === lavafish || enemy.type === revlavafish) 
+  if (enemy.type === lavafish || enemy.type === revlavafish)
     score += 4;
 }
 
@@ -3853,12 +3959,12 @@ function potionHeal() {
     createHeartsArray(health);
   }
   if (health === maxhealth) {
-        addText("max health: " + maxhealth, {
+    addText("max health: " + maxhealth, {
       x: (width() / 2),
       y: 3,
       color: color`3`
     })
-        setTimeout(() => {
+    setTimeout(() => {
       clearText();
     }, 1500);
   }
@@ -3903,11 +4009,11 @@ function bombExplosion(startx, starty) {
           for (let k = 0; k < expldTile.length; k++) {
             if (expldTile[k].type != lockeddoor &&
               expldTile[k].type != pressureplate &&
-             expldTile[k].type != housedoor &&
-                             expldTile[k].type != lava &&
+              expldTile[k].type != housedoor &&
+              expldTile[k].type != lava &&
               expldTile[k].type != hppotion &&
               expldTile[k].type != mobboss &&
-               expldTile[k].type != bossfish &&
+              expldTile[k].type != bossfish &&
               expldTile[k].type != curse &&
               expldTile[k].type != water &&
               expldTile[k].type != crate &&
@@ -3917,12 +4023,12 @@ function bombExplosion(startx, starty) {
               expldTile[k].type != heart &&
               expldTile[k].type != spawn &&
               expldTile[k].type != door &&
-                expldTile[k].type != door &&
-               expldTile[k].type != healingheart &&
-                  expldTile[k].type != advancetile &&
-                 expldTile[k].type != hiddenadvance &&
-                               expldTile[k].type != black && 
-               expldTile[k].type != player){
+              expldTile[k].type != door &&
+              expldTile[k].type != healingheart &&
+              expldTile[k].type != advancetile &&
+              expldTile[k].type != hiddenadvance &&
+              expldTile[k].type != black &&
+              expldTile[k].type != player) {
               expldTile[k].remove()
               addSprite(i, j, brokenrocks);
             }
@@ -3933,7 +4039,7 @@ function bombExplosion(startx, starty) {
     bgm = playTune(villagebgm, Infinity);
   }, 2790);
 }
-  
+
 let invincible = false;
 
 function playerCollided(dmg) { //collide with normal mob
@@ -3942,9 +4048,9 @@ function playerCollided(dmg) { //collide with normal mob
       health--;
     if (arguments.length >= 1) {
       health -= dmg;
-      setTimeout(() => {playTune(hit);},100)
+      setTimeout(() => { playTune(hit); }, 100)
     }
-    
+
     invincible = true;
     handleHealthUI(health);
     createHeartsArray(health);
@@ -4041,10 +4147,10 @@ let strbuff = false;
 let swordDmg = 1 // init plr dmg per sword attack ; can grow
 function initGame() { //  used for restart after death
   level = 1
-  levelspassed = 0 
+  levelspassed = 0
   stage = 1
   score = 0;
-  
+
 
   chosenLevels = []
   resetMap(1)
