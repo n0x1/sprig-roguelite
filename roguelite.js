@@ -118,7 +118,8 @@ const legendKeys = [
   curse,
   energydrink,
   bomb,
-
+  
+  mobboss,
   player,
   mentor,
   door,
@@ -136,7 +137,6 @@ const legendKeys = [
   wall2,
   wall3,
   rocks,
-  mobboss,
   bossfish,
   mob,
   spider,
@@ -3543,10 +3543,10 @@ setInterval(goblinBossAttack, 2000)
 
 let bossFishHp = 30; // put all these in init once done
 let bossFishEnraged = false;
-let fishBombCd = false;
+let pastFishChoice;
+  let fishChoice;
 async function fishBossAttack() {
   let fsBo = getFirst(bossfish)
-  let choice;
   if (bossFishHp < 16) {
     if (!fishBossEnraged) {
       bossFishEnraged = true;
@@ -3555,13 +3555,18 @@ async function fishBossAttack() {
     }
   }
   if (fsBo) {
-    console.log("Lava Jellyfish Fight")
-    const options = ["bombs", "erupt"] // [, pool, fireslash]  & summon both fish and invul ONE TIME once raged
+    const options = ["bombs", "erupt", "encirclingfire", "linesslash" ] // [fireslash]  & summon both fish and invul ONE TIME once raged
 
     let randomIndex = Math.floor(Math.random() * options.length);
-    choice = options[randomIndex];
-
-    if (choice === 'bombs' && fishBombCd === false) {
+    fishChoice = options[randomIndex];
+    
+    if (pastFishChoice === fishChoice) {
+      pastFishChoice = fishChoice;
+      fishBossAttack();
+      
+    }
+    
+    if (fishChoice === 'bombs') {
       let xopt = [fsBo.x-1, fsBo.x+1]
       let yopt = [3,4,5]
       let rx = Math.floor(Math.random() * xopt.length);
@@ -3573,18 +3578,20 @@ async function fishBossAttack() {
       fishExpBombs();
       
       fishBombCd = true;
-    } else if (choice === 'bombs' && fishBombCd === true) {
-      fishBossAttack()
-    } 
-    
-    if (choice === 'erupt') { // add a cooldown so bomb isnt twice in a row
-            lavaEruption(200);
-            fishBombCd = false;
-    } if (choice === 'pool') {
-            fishBombCd = false;
-    } if (choice === fireslash) { // fire slash lines
-            fishBombCd = false;
     }
+    if (fishChoice === 'erupt') { // add a cooldown so bomb isnt twice in a row
+            lavaEruption(200);
+
+    } if (fishChoice === 'linesslash') {
+            startLines(660)
+
+    } if (fishChoice === 'encirclingfire') { 
+            startEncircle(500);
+
+    }
+
+
+    pastFishChoice = fishChoice;
   }
 }
 
@@ -3604,7 +3611,7 @@ function fishExpBombs() {
       for (let i = (b.x - 1); i < (b.x + 2); i++) {
       for (let j = (b.y - 1); j < (b.y + 2); j++) {
         let expldTile = getTile(i, j);
-        console.log(`Exploding tiles at (${i}, ${j}):`, expldTile);
+        
         if (expldTile) {
           for (let k = 0; k < expldTile.length; k++) {
             if (expldTile[k].type != lockeddoor &&
@@ -3670,8 +3677,8 @@ function lavaEruption(ms) {
       let ltz = getAll(lava)
           ltz.forEach(ll => {ll.remove()})
   },tming*15)
-
-for (let i = 2; i <= 18; i+= 3) {
+setTimeout(() => {
+for (let i = 2; i <= 14; i+= 2) {
   setTimeout(() => {
       let wts = getAll(brokenrocks) 
       wts.forEach(t => {
@@ -3680,15 +3687,15 @@ for (let i = 2; i <= 18; i+= 3) {
           playerCollided();
         t.remove()
       })
-  }, tming*i)
+  }, tming*i )
 }
+}, 150)
 }
-
 function prepareEruption(startx, starty) { // 2x2 grid 
   for (let i = startx; i < startx + 2; i++) {
     for (let j = starty; j < starty + 2; j++) {
       let xrokTil = getTile(i,j)
-      console.log(xrokTil)
+
       for (let k = 0; k < xrokTil.length; k++) {
         if (xrokTil[k].type != 'p' && xrokTil[k].type != bossfish && xrokTil[k].type != sword && xrokTil[k].type != black && xrokTil[k].type != lava)
           xrokTil[k].remove()
@@ -3698,7 +3705,86 @@ function prepareEruption(startx, starty) { // 2x2 grid
   }
     playTune(danger);
 }
-setInterval(fishBossAttack, 2000)
+
+function startEncircle(intervalMs) {
+let encircleInterval = setInterval(fireEncircle, intervalMs)
+let fireEncircleRuncount = 0;
+
+function fireEncircle() {
+
+  let w = width()
+  let h = (height()-1)
+  w -= fireEncircleRuncount
+  h -= fireEncircleRuncount
+
+
+  for (let i = fireEncircleRuncount+1; i < w; i++) {
+    addSprite(i,fireEncircleRuncount,fireball)
+  }
+  for (let i = fireEncircleRuncount; i < w; i++) {
+    addSprite(i,h,fireball)
+  }
+
+
+  fireEncircleRuncount++
+
+  if (fireEncircleRuncount >= 5) {
+    clearInterval(encircleInterval)
+    fireEncircleRuncount = 0;
+    let fz = getAll(fireball)
+    setTimeout(() => {
+    fz.forEach(f => {f.remove()})
+      
+    if (bossFishEnraged) { // ADD SOMETING FOR ENRAGED
+      
+    }
+      
+    }, 350)
+    
+  }
+
+  
+
+}
+}
+
+let lineRunning = false;
+let lineFireRuncount = 0;
+function startLines(intervalMs) {
+  if (lineRunning === false) {
+  let lineInterval = setInterval(lineFire, intervalMs)
+  lineFire();
+  } else {
+    return
+  }
+  function lineFire() {
+    lineRunning = true;
+    let w = width()-1
+    let h = height()-1
+
+    console.log("LINEFIRE DEBUG")
+    
+    for (let cc = 0; cc < h; cc++) {
+      addSprite(lineFireRuncount, cc, fireball)
+      addSprite(w-lineFireRuncount, cc, fireball)
+    }
+
+    setTimeout(() => {
+        let fz = getAll(fireball)
+        fz.forEach(f => {f.remove()})
+    }, (intervalMs / 3))
+    
+    
+    if (lineFireRuncount >= 4) {
+        lineFireRuncount = 0;
+        lineRunning = false;
+    } else if (lineFireRuncount < 4) {
+        lineFireRuncount++;
+    }
+  }
+}
+
+setInterval(fishBossAttack, 3000)
   
 function defeatEnemy(enemy) {
   enemy.remove();
