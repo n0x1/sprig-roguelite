@@ -97,6 +97,7 @@ const brokenrocks = "@"
 const bomb = "#"
 const revlavafish = "^"
 const bossfish = "*"
+const lava = "("
 
 const legendKeys = [
   black,
@@ -152,6 +153,7 @@ const legendKeys = [
   healingheart,
   spikes,
   water,
+  lava,
   warningtile,
   advancetile,
   mobspawner,
@@ -780,6 +782,23 @@ legend.set(water, [water, bitmap`
 7777755577757577
 7777777777777777
 7777777777777777`])
+legend.set(lava, [lava, bitmap`
+3333333333333333
+3333L33333333333
+3333393399939333
+33999L3333393333
+3933333333333333
+3333333333333333
+3333333333333333
+39333333333L3393
+339999333393L933
+3333333333333333
+3333333333333333
+3333333333333333
+333393L393339333
+33333999333939L3
+3L33333333333333
+33333L3333333333`])
 legend.set(fireshooter, [fireshooter, bitmap`
 0000000000000000
 01LL00000000LL10
@@ -1363,7 +1382,7 @@ function setPlayerSprite(direction) {
 }
 
 
-setSolids([dummy, lockeddoor, rocks, wall, wall2, wall3, fireshooter, crate, housewall, housewallleft, housewallright, roofbody, player, mentor, mobboss, mobegg])
+setSolids([dummy, lockeddoor, rocks, wall, wall2, wall3, fireshooter, crate, housewall, housewallleft, housewallright, roofbody, player, mentor, mobegg])
 
 const mentorDialogue = [
   "Move: w,a,s,d",
@@ -1391,7 +1410,7 @@ ccccccipe`,
 
   map`
 fffffv.vxw
-ffffff*fff
+fffff((fff
 ffafffffff
 jlqzkffT&&
 Eeciffff&&
@@ -2463,6 +2482,7 @@ afterInput(() => {
 
   let crates = getAll(crate); // destroy on mob hit
   let waterSprites = getAll(water);
+  let lavaSps = getAll(lava)
   let spikeSprites = getAll(spikes);
   let mobSprites = getAll(mob); // collision via player movement chec
   let ghostSprites = getAll(ghost);
@@ -2558,6 +2578,13 @@ afterInput(() => {
   waterSprites.forEach(watersprite => {
     if (plr.x === watersprite.x && plr.y === watersprite.y)
       playerCollided();
+  })
+
+  lavaSps.forEach(lv => {
+    if (plr.x === lv.x && plr.y === lv.y)
+      playerCollided(2) // 2 dmg
+
+    
   })
 
 
@@ -2700,7 +2727,8 @@ afterInput(() => {
   }
   
   if (gobBossSprite) { // dmg boss
-
+    if (plr.x === gobBossSprite.x && plr.y === gobBossSprite.y)
+      playerCollided(2)
     if (attacki && attacki.x === gobBossSprite.x && attacki.y === gobBossSprite.y && arbitrarySecondCd === false) {
       gobBossHp--;
       arbitrarySecondCd = true;
@@ -3515,6 +3543,7 @@ setInterval(goblinBossAttack, 2000)
 
 let bossFishHp = 30; // put all these in init once done
 let bossFishEnraged = false;
+let fishBombCd = false;
 async function fishBossAttack() {
   let fsBo = getFirst(bossfish)
   let choice;
@@ -3527,28 +3556,34 @@ async function fishBossAttack() {
   }
   if (fsBo) {
     console.log("Lava Jellyfish Fight")
-    const options = ["bombs"] // [, erupt, pool, fireslash]  & summon both fish and invul ONE TIME once raged
+    const options = ["bombs", "erupt"] // [, pool, fireslash]  & summon both fish and invul ONE TIME once raged
 
     let randomIndex = Math.floor(Math.random() * options.length);
     choice = options[randomIndex];
 
-    if (choice === 'bombs') {
-      const xopt = [3,4,5]
-      const yopt = [3,4,5]
+    if (choice === 'bombs' && fishBombCd === false) {
+      let xopt = [fsBo.x-1, fsBo.x+1]
+      let yopt = [3,4,5]
       let rx = Math.floor(Math.random() * xopt.length);
       let ry = Math.floor(Math.random() * yopt.length);
       let cx = xopt[rx]
       let cy = yopt[ry]
-
+      
       addSprite(cx,cy,bomb)
-      
       fishExpBombs();
-    } else if (choice === erupt) { // add a cooldown so bomb isnt twice in a row
       
-    } else if (choice === pool) {
-      
-    } else { // fire slash lines
-      
+      fishBombCd = true;
+    } else if (choice === 'bombs' && fishBombCd === true) {
+      fishBossAttack()
+    } 
+    
+    if (choice === 'erupt') { // add a cooldown so bomb isnt twice in a row
+            lavaEruption(200);
+            fishBombCd = false;
+    } if (choice === 'pool') {
+            fishBombCd = false;
+    } if (choice === fireslash) { // fire slash lines
+            fishBombCd = false;
     }
   }
 }
@@ -3556,6 +3591,14 @@ async function fishBossAttack() {
 function fishExpBombs() {
   let aBmbs = getAll(bomb)
   playTune(bombTick);
+
+  aBmbs.forEach(b => {
+    for (let i = (b.x - 1); i < (b.x + 2); i++) {
+      for (let j = (b.y - 1); j < (b.y + 2); j++) {
+        addSprite(i,j,warningtile)
+      }
+    }
+  })
   setTimeout(() => {
     aBmbs.forEach(b => {
       for (let i = (b.x - 1); i < (b.x + 2); i++) {
@@ -3568,6 +3611,7 @@ function fishExpBombs() {
               expldTile[k].type != pressureplate &&
              expldTile[k].type != housedoor &&
               expldTile[k].type != hppotion &&
+                             expldTile[k].type != lava &&
               expldTile[k].type != mobboss &&
                expldTile[k].type != bossfish &&
               expldTile[k].type != curse &&
@@ -3579,18 +3623,22 @@ function fishExpBombs() {
               expldTile[k].type != heart &&
               expldTile[k].type != spawn &&
               expldTile[k].type != door &&
+                              expldTile[k].type != brokenrocks &&
                 expldTile[k].type != door &&
                expldTile[k].type != healingheart &&
                 expldTile[k].type != advancetile &&
                expldTile[k].type != hiddenadvance && 
+                               expldTile[k].type != black && 
                 expldTile[k].type != player) {
               expldTile[k].remove()
-              addSprite(i, j, brokenrocks);
+              // addSprite(i, j, brokenrocks); // add back if not  conflicts with eruption
             } else if (expldTile[k].type === player) {
               playerCollided()
             }
           }
         }
+        let wts = getAll(warningtile)
+        wts.forEach(wt => {wt.remove()})
       }
     }
     })
@@ -3599,6 +3647,57 @@ function fishExpBombs() {
   }, 2790);
 }
 
+function lavaEruption(ms) {
+  let tming = ms; // ms between
+  
+  prepareEruption(2,5) // 0 timeout
+  setTimeout(() => {
+      prepareEruption(5,4)
+  },tming*3)
+  setTimeout(() => {
+      prepareEruption(8,5)
+  },tming*5)
+  setTimeout(() => {
+      prepareEruption(2,2)
+  },tming*7)
+    setTimeout(() => {
+      prepareEruption(5,1)
+  },tming*9)
+      setTimeout(() => {
+      prepareEruption(8,2)
+  },tming*11)
+        setTimeout(() => {
+      let ltz = getAll(lava)
+          ltz.forEach(ll => {ll.remove()})
+  },tming*15)
+
+for (let i = 2; i <= 18; i+= 3) {
+  setTimeout(() => {
+      let wts = getAll(brokenrocks) 
+      wts.forEach(t => {
+        addSprite(t.x,t.y,lava)
+        if (plr.x === t.x && plr.y === t.y)
+          playerCollided();
+        t.remove()
+      })
+  }, tming*i)
+}
+}
+
+function prepareEruption(startx, starty) { // 2x2 grid 
+  for (let i = startx; i < startx + 2; i++) {
+    for (let j = starty; j < starty + 2; j++) {
+      let xrokTil = getTile(i,j)
+      console.log(xrokTil)
+      for (let k = 0; k < xrokTil.length; k++) {
+        if (xrokTil[k].type != 'p' && xrokTil[k].type != bossfish && xrokTil[k].type != sword && xrokTil[k].type != black && xrokTil[k].type != lava)
+          xrokTil[k].remove()
+      }
+      addSprite(i,j,brokenrocks)
+    }
+  }
+    playTune(danger);
+}
 setInterval(fishBossAttack, 2000)
   
 function defeatEnemy(enemy) {
@@ -3719,6 +3818,7 @@ function bombExplosion(startx, starty) {
             if (expldTile[k].type != lockeddoor &&
               expldTile[k].type != pressureplate &&
              expldTile[k].type != housedoor &&
+                             expldTile[k].type != lava &&
               expldTile[k].type != hppotion &&
               expldTile[k].type != mobboss &&
                expldTile[k].type != bossfish &&
@@ -3735,6 +3835,7 @@ function bombExplosion(startx, starty) {
                expldTile[k].type != healingheart &&
                   expldTile[k].type != advancetile &&
                  expldTile[k].type != hiddenadvance &&
+                               expldTile[k].type != black && 
                expldTile[k].type != player){
               expldTile[k].remove()
               addSprite(i, j, brokenrocks);
@@ -3749,11 +3850,16 @@ function bombExplosion(startx, starty) {
   
 let invincible = false;
 
-function playerCollided() { //collide with normal mob
+function playerCollided(dmg) { //collide with normal mob
   if (!invincible) {
-
+    if (arguments.length === 0)
+      health--;
+    if (arguments.length >= 1) {
+      health -= dmg;
+      setTimeout(() => {playTune(hit);},100)
+    }
+    
     invincible = true;
-    health--;
     handleHealthUI(health);
     createHeartsArray(health);
     checkGameOver() // to get best grave placement
@@ -3789,7 +3895,8 @@ function playerCollided() { //collide with normal mob
 
     setTimeout(() => {
       invincible = false;
-      getFirst(invincibility).remove();
+      if (getFirst(invincibility))
+        getFirst(invincibility).remove();
     }, 1000);
   }
 }
@@ -3807,9 +3914,10 @@ function stillDamage() { // same but without resetting to spawn
 }
 
 function checkGameOver() {
-  if (health === 0) {
+  if (health <= 0) { // if game over (maybe add invincibility item)
     const plrgrave = addSprite(plr.x, plr.y, hurtplayer);
 
+    clearText();
     plr.remove();
     if (getFirst(invincibility))
       getFirst(invincibility).remove();
