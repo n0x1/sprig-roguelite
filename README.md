@@ -8,7 +8,7 @@ Playable on sprig web or console!
 
 /* ABOUT:
 
-Explore a randomly generated dungeon filled with enemies, secrets, and upgrades. Find a way to its rumored bottom at the core of Earth.
+Explore a randomly generated dungeon filled with enemies, secrets, and upgrades. Face bosses, grow stronger, and eventually find the way to its rumored bottom at the core of Earth.
 
 STAGES
 I: Surface
