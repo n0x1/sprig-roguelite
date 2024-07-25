@@ -39,6 +39,14 @@ const dirVectors = {
   "DOWN": [0, 1]
 }
 
+const directions = [
+    { x: 0, y: -1 },
+    { x: 1, y: 0 }, 
+    { x: 0, y: 1 },  
+    { x: -1, y: 0 }  // idk whuch to use is better
+];
+
+
 const player = "p"
 const hurtplayer = "g" //game over
 const mobboss = "b"
@@ -105,6 +113,7 @@ const lightningscroll = "?"
 const lightning = "~"
 const hollowboss = "="
 const amethyst = "<"
+const skeleton = ">"
 
 const legendKeys = [
   black,
@@ -153,6 +162,7 @@ const legendKeys = [
   lava,
   bossfish,
   mob,
+  skeleton,
   spider,
   commonchest,
   rarechest,
@@ -1221,7 +1231,23 @@ HH12HHHH1LHHHLHH
 HHL12HHHLHHHHLHH
 HLLHHHHHHHHHHHHH
 HHHHHHHHHHHHHHHH`])
-
+legend.set(skeleton, [skeleton, bitmap`
+....00000000....
+...0111111110...
+...0110111010...
+...0101101100...
+...0111111110...
+....01110010....
+.....000000.....
+....011111100...
+...0LLLLLLLL0.L.
+..001111111L00L.
+.L0LLLLLLLL000L.
+LL0L11111LL0FFFF
+L.000000000..FF.
+...00...00...FF.
+....0...0.....F.
+....0...0.....F.`])
 
 
 const frames = {
@@ -1535,7 +1561,7 @@ function setPlayerSprite(direction) {
 }
 
 
-setSolids([dummy, lockeddoor, rocks, wall, wall2, wall3, fireshooter, crate, housewall, housewallleft, housewallright, roofbody, player, mentor, mobegg])
+setSolids([dummy, amethyst, lockeddoor, rocks, wall, wall2, wall3, fireshooter, crate, housewall, housewallleft, housewallright, roofbody, player, mentor, mobegg])
 
 const mentorDialogue = [
   "Move: w,a,s,d",
@@ -1566,8 +1592,8 @@ ffffffffff
 ffCCffffff
 CCaCCf=fff
 jlqzkfffff
-CecifCffff
-CenifCffff
+CecifCf>ff
+CenifCwwww
 ffff....ff
 ..pfffffff`, //start
 
@@ -1811,6 +1837,15 @@ Z.v.m..X
 ..XXXXXX
 R.(((((Y`, // crate with more goblin jail
   map`
+vdvXXXX
+v>...XX
+vxw...X
+V.X...$
+v..y...
+((.....
+X((Xy..
+X((X..p`, //skeleton
+  map`
 X....L...XXX
 ............
 ............
@@ -1819,9 +1854,26 @@ X....L...XXX
 ............
 ............
 ............
-XX...p.....X`, //fishboss 11 for now
+XX...p.....X`, //fishboss 12 for now
+  map`
+XXX%XXXX
+XXX...XX
+X@....@@
+X.XXX@@.
+X.X@@..@
+X.X@.@..
+N>X@..vp`, // just kepeing boss at 12 this is lil skellies of 13 and spawner
+  map`
+X.>.Ddv
+X.X...v
+X.t..$v
+X.X...v
+X.m..$v
+X.X...v
+X.....v
+X.p...v`,
 ]
-const fishbosslvl = 11
+const fishbosslvl = 12
 
 const hollows = [
   map`
@@ -1843,13 +1895,13 @@ vp<<<<<<<`,
   map`
 wvdvD<<<<
 g..((((<<
-(.((.(((<
+(>((.(((<
 (((....(<
 ((.....R<
 ((...Z.pv
 <((...<<B
 <<((.<<BB
-<<<(<BBBB`,
+<<<(<BBBB`, // crate 2
 ]
   
 let traptriggered = false;
@@ -2376,8 +2428,9 @@ function resetMap(n) {
     }
     if (stage === 3) {
       level = (Math.floor(Math.random() * hollows.length));
-      if (level === 0)
+      if (level === 0) {
         resetMap()
+      }
       if (chosenLevels.includes(level) || randomPickBlacklist.includes(level)) {
         console.log("recursive") // check if lvl has been chosen already
         resetMap() //recursively call until its a not picked/dungeon lvl
@@ -2449,7 +2502,7 @@ function resetMap(n) {
 
   activeEnemies = []
 
-  resetSingleMobHP();
+  resetSingleMobHP(); // reset skeletons, fish, etc
 }
 
 var tempXToPreventSpawnSafetyAbuse = 0;
@@ -2697,7 +2750,7 @@ clearInterval(moveSpiderInterval)
 clearInterval(moveLavafishInterval) 
 clearInterval(moveRavafishInterval) 
 clearInterval(fsShootInterval) 
-
+clearInterval(skeleint)
     setTimeout(() => {  
       playTune(clockTick);
       setTimeout(() => {
@@ -2708,6 +2761,7 @@ clearInterval(fsShootInterval)
       moveLavafishInterval = setInterval(lavaFishMove, 900);
       moveRavafishInterval = setInterval(ravaFishMove, 900);
       fsShootInterval = setInterval(fireShoot, 500);
+      skeleint = setInterval(skeleLoop, 670)
         console.log("intervals set again")
         timestopped = true
         playbgm()
@@ -2895,9 +2949,40 @@ lightningBolts.forEach(b => {
   lavaSps.forEach(lv => {
     if (plr && plr.x === lv.x && plr.y === lv.y)
       playerCollided(2) // 2 dmg
+    if (crates) {
+      crates.forEach(c => {
+        if (c.x === lv.x && c.y === lv.y) {
+          c.remove();
+          playTune(cratebreak)
+        }
+      })
+    }
 
 
   })
+  let skele = getFirst(skeleton)
+  if (skele) {
+    if (plr.x === skele.x && plr.y === skele.y)
+      playerCollided()
+    if (lightningBolts) {
+    lightningBolts.forEach(b => {
+      if (skele.x === b.x && skele.y === b.y)
+        skeletonHp -=2;
+    })
+    }
+    if (!standardEnemyArbCD && attacki && attacki.x === skele.x && attacki.y === skele.y) {
+      skeletonHp -= swordDmg
+      playTune(hitEnemy)
+
+      standardEnemyArbCD = true;
+      setTimeout(() => { standardEnemyArbCD = false }, 100)
+      if (skeletonHp <= 0) {
+        defeatEnemy(skele)
+        skeletonHp = 6
+
+      }
+    }
+  }
 
 
   crates.forEach(crate => { //pressureplate n door stuff
@@ -2921,11 +3006,20 @@ lightningBolts.forEach(b => {
         getFirst(spikes).remove();
         crateonplate = true;
       }
-      if (level === 10 && stage === 2) {
+      if (level === 10 && stage === 2 && !crateonplate) {
             playTune(secret)
                 crateonplate = true;
         let w2s = getAll(wall2)
         w2s.forEach(w2 => {w2.remove()})
+      }
+      if (level === 2 && stage === 3 && !crateonplate) {
+        playTune(secret)
+        crateonplate= true;
+        clearTile(2,2)
+                clearTile(1,3)
+          clearTile(3,1)
+        clearTile(3,2)
+          clearTile(2,3)
       }
     }
   });
@@ -3020,7 +3114,7 @@ lightningBolts.forEach(b => {
       setTimeout(() => { standardEnemyArbCD = false }, 100)
       if (lavaFishHp <= 0) {
         defeatEnemy(lvf)
-        lavaFishHp = 5
+        lavaFishHp = 4
 
       }
     }
@@ -3045,13 +3139,13 @@ lightningBolts.forEach(b => {
       setTimeout(() => { standardEnemyArbCD = false }, 100)
       if (ravaFishHp <= 0) {
         defeatEnemy(rlvf)
-        ravaFishHp = 5
+        ravaFishHp = 4
       }
     }
   }
   if (lvfSpawner) {
     if (!getFirst(lavafish)) {
-      lavaFishHp = 5
+      lavaFishHp = 4
       addSprite(lvfSpawner.x, lvfSpawner.y, lavafish)
     }
   }
@@ -3188,6 +3282,12 @@ lightningBolts.forEach(b => {
       let adv = getFirst(hiddenadvance)
       if (plrTouching(adv)) {
         resetMap(7)
+      }
+    }
+    if (level === 13 && stage === 2) {
+         let adv = getFirst(hiddenadvance)
+      if (plrTouching(adv)) {
+        resetMap(14)
       }
     }
   }
@@ -3413,7 +3513,7 @@ function mobMoveAll() {
     moveLogic();
     // Check for wall collision and player exclusion
     const spritesAtNextPos = getTile(newX, newY);
-    const isWallCollision = spritesAtNextPos.some(sprite => [lavafish, revlavafish, rocks, dummy, lockeddoor, pressureplate, hppotion, mobboss, curse, mobegg, wall, wall2, wall3, water, fireshooter, spikes, crate, commonchest, fireshooter, heart, fireball, mob, spider, ghost, heart, spawn, door].includes(sprite.type));
+    const isWallCollision = spritesAtNextPos.some(sprite => [lava, lavafish, revlavafish, rocks, dummy, lockeddoor, pressureplate, hppotion, mobboss, curse, mobegg, wall, wall2, wall3, water, fireshooter, spikes, crate, commonchest, fireshooter, heart, fireball, mob, spider, ghost, heart, spawn, door].includes(sprite.type));
     const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
     3
 
@@ -3629,12 +3729,14 @@ function fireShoot() {
 
 
 function resetSingleMobHP() {
-  lavaFishHp = 5;
-  ravaFishHp = 5;
+  lavaFishHp = 4;
+  ravaFishHp = 4;
+  skeletonHp = 6;
 }
 
-let lavaFishHp = 5;
-let ravaFishHp = 5;
+let lavaFishHp = 4;
+let ravaFishHp = 4;
+let skeletonHp = 6;
 
 function moveEnemiesTowardsPlayerPrioX(thingtomove, playerX, playerY) { // Prioritizing X
   const enemies = getAll(thingtomove);
@@ -3728,27 +3830,133 @@ function spawnEnemy(type, x, y, health) {
     x: x, // (starting pos)
     y: y, // (starting pos)
     health: health,
-    // Add other enemy properties as needed
+    // 
   };
 
-  activeEnemies.push(enemy); // Add the spawned enemy to activeEnemies array
+  activeEnemies.push(enemy); // deprecated ? (idk)
 }
 
-/* function hitLavaFishMob(x, y, damage) {
-    const en = activeEnemies.find((enemy) => enemy.type === lavafish);
-    
-    if (en) {
-        en.health -= damage; // Deal damage 
-        console.log("RAN HIT")
-        if (en.health <= 0) {
+const obstacleTypes = [wall, wall2, wall3, amethyst, lava];
 
-            getFirst(lavafish).remove(); // Remove the sprite from the map
-            activeEnemies.splice(activeEnemies.indexOf(en), 1); // Remove  stats
+function isObstacle(x, y) {
+    const sprites = getTile(x, y); // Get all sprites at the specified position
+    return sprites.some(sprite => obstacleTypes.includes(sprite.type));
+}
+
+function moveTowardsAvoidingObstacles(enemy, plr) {
+  if (enemy) {
+    const dx = plr.x - enemy.x;
+    const dy = plr.y - enemy.y;
+
+    let nextX = enemy.x;
+    let nextY = enemy.y;
+
+    if (Math.abs(dx) > Math.abs(dy)) {
+        nextX = enemy.x + Math.sign(dx);
+        if (isObstacle(nextX, enemy.y)) {
+            nextX = enemy.x; // Reset if the next step is an obstacle
         }
+    } else {
+        nextY = enemy.y + Math.sign(dy);
+        if (isObstacle(enemy.x, nextY)) {
+            nextY = enemy.y; // Reset if the next step is an obstacle
+        }
+    }
+
+    // If horizontal move is blocked, try vertical and vice versa
+    if (nextX === enemy.x && nextY === enemy.y) {
+        if (Math.abs(dx) > Math.abs(dy)) {
+            nextY = enemy.y + Math.sign(dy);
+            if (isObstacle(enemy.x, nextY)) {
+                nextY = enemy.y; // Reset if the next step is an obstacle
+            }
+        } else {
+            nextX = enemy.x + Math.sign(dx);
+            if (isObstacle(nextX, enemy.y)) {
+                nextX = enemy.x; // Reset if the next step is an obstacle
+            }
+        }
+    }
+
+    enemy.x = nextX;
+    enemy.y = nextY;
+
+
+    if (enemy.x === plr.x && enemy.y === plr.y)
+       playerCollided()
+  }
+}
+
+// Example game loop
+function skeleLoop() {
+  let enemy = getFirst(skeleton)
+    if (enemy && enemy.x !== plr.x || enemy.y !== plr.y) {
+        moveTowardsAvoidingObstacles(enemy, plr);
+    } else {
+        //
     }
 }
 
-// Function to handle multiple hits needed to take down the lava fish 
+let skeleint = setInterval(skeleLoop, 670)
+
+
+
+function getNeighbors(x, y) {
+    return directions.map(dir => ({ x: x + dir.x, y: y + dir.y }));
+}
+
+function heuristic(a, b) {
+    return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+}
+
+function aStarSearch(start, goal) {
+    const openSet = [start];
+    const cameFrom = new Map();
+    const gScore = new Map();
+    const fScore = new Map();
+
+    gScore.set(`${start.x},${start.y}`, 0);
+    fScore.set(`${start.x},${start.y}`, heuristic(start, goal));
+
+    while (openSet.length > 0) {
+        const current = openSet.shift();
+        if (current.x === goal.x && current.y === goal.y) {
+            // Reconstruct path
+            let path = [];
+            let node = current;
+            while (cameFrom.has(`${node.x},${node.y}`)) {
+                path.push(node);
+                node = cameFrom.get(`${node.x},${node.y}`);
+            }
+            path.push(start);
+            return path.reverse();
+        }
+
+        const neighbors = getNeighbors(current.x, current.y);
+        for (const neighbor of neighbors) {
+            if (isObstacle(neighbor.x, neighbor.y)) continue;
+
+            const tentativeGScore = (gScore.get(`${current.x},${current.y}`) || Infinity) + 1;
+            if (tentativeGScore < (gScore.get(`${neighbor.x},${neighbor.y}`) || Infinity)) {
+                cameFrom.set(`${neighbor.x},${neighbor.y}`, current);
+                gScore.set(`${neighbor.x},${neighbor.y}`, tentativeGScore);
+                fScore.set(`${neighbor.x},${neighbor.y}`, tentativeGScore + heuristic(neighbor, goal));
+
+                if (!openSet.some(node => node.x === neighbor.x && node.y === neighbor.y)) {
+                    openSet.push(neighbor);
+                }
+            }
+        }
+    }
+
+    return []; // No path found
+}
+
+
+
+
+
+// kinda deprecated?
 function handleMultipleHits(swordX, swordY, damage) {
     const en = activeEnemies.find(enemy => {
         return swordX === enemy.x && swordY === enemy.y && enemy.type === 'Y';
@@ -3765,7 +3973,7 @@ function handleMultipleHits(swordX, swordY, damage) {
             playTune(killEnemy);
         }
     }
-} */
+} 
 
 
 
