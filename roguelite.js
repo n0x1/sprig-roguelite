@@ -114,6 +114,7 @@ const lightning = "~"
 const hollowboss = "="
 const amethyst = "<"
 const skeleton = ">"
+const bat = ","
 
 const legendKeys = [
   black,
@@ -146,6 +147,7 @@ const legendKeys = [
   door,
   lockeddoor,
   mobegg,
+  bat,
   ghost,
   lavafish,
   revlavafish,
@@ -1248,6 +1250,23 @@ L.000000000..FF.
 ...00...00...FF.
 ....0...0.....F.
 ....0...0.....F.`])
+legend.set(bat, [bat, bitmap`
+................
+...0........0...
+..0000....0000..
+..0LL000000LL0..
+.00LLLLLLLLLL00.
+.00LL77LL77L000.
+0H00LLLLLLL0HH00
+0HHH00LLLL0HHHH0
+0HHHH00LL00HHHH0
+0HHHHH0LL0HHHHH0
+0HHHH00LL00HHHH0
+0HH00.0LL0.00HH0
+0HH0..0LL0..0HH0
+0H0...0LL0...0H0
+.0....0LL0....0.
+.......00.......`])
 
 
 const frames = {
@@ -1592,7 +1611,7 @@ ffffffffff
 ffCCffffff
 CCaCCf=fff
 jlqzkfffff
-CecifCf>ff
+Cecifff,ff
 CenifCwwww
 ffff....ff
 ..pfffffff`, //start
@@ -1846,23 +1865,13 @@ v..y...
 X((Xy..
 X((X..p`, //skeleton
   map`
-X....L...XXX
-............
-............
-.....*......
-............
-............
-............
-............
-XX...p.....X`, //fishboss 12 for now
-  map`
 XXX%XXXX
 XXX...XX
 X@....@@
 X.XXX@@.
 X.X@@..@
 X.X@.@..
-N>X@..vp`, // just kepeing boss at 12 this is lil skellies of 13 and spawner
+N>X@..vp`, //12 this is lil skellies of 13 and spawner
   map`
 X.>.Ddv
 X.X...v
@@ -1872,8 +1881,18 @@ X.m..$v
 X.X...v
 X.....v
 X.p...v`,
+  map`
+X....L...XXX
+............
+............
+.....*......
+............
+............
+............
+............
+XX...p.....X`, //fishboss 14 for now
 ]
-const fishbosslvl = 12
+const fishbosslvl = 14
 
 const hollows = [
   map`
@@ -1902,6 +1921,19 @@ g..((((<<
 <((...<<B
 <<((.<<BB
 <<<(<BBBB`, // crate 2
+  map`
+XXvdX<<<
+<XX<XX<<
+<<.....<
+<...,..<
+<.....,<
+<,.....<
+<......<
+<.....,<
+<......<
+<<.....<
+<<....<<
+<<<pv<<<`, // bat amethyst cave with clearing it
 ]
   
 let traptriggered = false;
@@ -2419,8 +2451,6 @@ function resetMap(n) {
     }
     if (stage === 2) {
       level = (Math.floor(Math.random() * caverns.length));
-      if (level === 0)
-        resetMap()
       if (chosenLevels.includes(level) || randomPickBlacklist.includes(level)) {
         console.log("recursive") // check if lvl has been chosen already
         resetMap() //recursively call until its a not picked/dungeon lvl
@@ -2428,9 +2458,6 @@ function resetMap(n) {
     }
     if (stage === 3) {
       level = (Math.floor(Math.random() * hollows.length));
-      if (level === 0) {
-        resetMap()
-      }
       if (chosenLevels.includes(level) || randomPickBlacklist.includes(level)) {
         console.log("recursive") // check if lvl has been chosen already
         resetMap() //recursively call until its a not picked/dungeon lvl
@@ -2470,7 +2497,7 @@ function resetMap(n) {
       level = 17 // first boss triggered at 8
       setMap(levels[level])
     }
-    if (stage === 2 && levelspassed >= 14) {
+    if (stage === 2 && levelspassed >= 16) {
       level = fishbosslvl
       setMap(caverns[level])
     }
@@ -2694,8 +2721,8 @@ onInput("l", () => {
    movementDown = false;
   
     if (testModeOn ) {
-  stage = 3
-  resetMap(2) //  debug debugging debug tags etc 
+  stage = 2
+  resetMap(fishbosslvl) //  debug debugging debug tags etc 
   }
 
 
@@ -2850,6 +2877,7 @@ afterInput(() => {
   let spiderSprites = getAll(spider);
   let fireballSprites = getAll(fireball)
   let lightningBolts = getAll(lightning)
+  let bats = getAll(bat)
   let attacki = getFirst(sword);
 
   let asp = getAll(strengthparticles)
@@ -2886,9 +2914,9 @@ afterInput(() => {
       setTimeout(() => { clearText() }, 2000)
     }
   } // tutorial and mentor
-  if (doorSprite && level != levels.length - 1) {
+  if (doorSprite && ((stage === 1 && level != levels.length - 1) || (stage === 2 && level != fishbosslvl))) { // heres th error
     if (plr.x === doorSprite.x && plr.y === doorSprite.y) {
-      resetMap(); // Load the next level (mob levels)
+      resetMap(); // Load the next level
     }
   }
 
@@ -3175,7 +3203,7 @@ lightningBolts.forEach(b => {
     })
     }
     if (attacki && attacki.x === bossFishSp.x && attacki.y === bossFishSp.y && arbitrarySecondCd === false) {
-      bossFishHp--;
+      bossFishHp -= swordDmg;
       arbitrarySecondCd = true;
       setTimeout(() => { arbitrarySecondCd = false }, 70)
     }
@@ -3237,6 +3265,10 @@ lightningBolts.forEach(b => {
       }
     }
   }
+  if (level === 3 && stage === 3) {
+    if (!getFirst(bat))
+      clearTile(3,1)
+  }
 
   //doors for specific lvls levelspecific stuff
   const portal = getFirst(advancetile);
@@ -3246,7 +3278,7 @@ lightningBolts.forEach(b => {
       resetMap(9)
     }
     if (level === 0 && stage === 2) {
-      console.log("transition")
+      console.log("caverns transition")
       chosenLevels = [0]
       randomPickBlacklist = [0, 4] // blacklist for caverns
     
@@ -3259,7 +3291,20 @@ lightningBolts.forEach(b => {
     }
     if (level === 4 && stage === 2)
       resetMap(5)
+
+      if (level === 0 && stage === 3) {
+    console.log("hollows transition")
+    chosenLevels = [0]
+    randomPickBlacklist = [0] // blacklist for hollows
+    resetMap()
+    setTimeout(() => { clearText(); }, 50)
+    setTimeout(() => { addText("III: Hollows", { x: 4, y: 3, color: color`0` }) }, 100)
+
+    setTimeout(() => { clearText() }, 2000)
   }
+    
+    }
+
 
   // hidden advance tiles
   if (hidnAdvcs) {
@@ -3284,10 +3329,10 @@ lightningBolts.forEach(b => {
         resetMap(7)
       }
     }
-    if (level === 13 && stage === 2) {
-         let adv = getFirst(hiddenadvance)
+    if (level === 12 && stage === 2) {
+       let adv = getFirst(hiddenadvance)
       if (plrTouching(adv)) {
-        resetMap(14)
+        resetMap(13)
       }
     }
   }
@@ -3299,10 +3344,15 @@ lightningBolts.forEach(b => {
     }
   }
   if (level === fishbosslvl && stage === 2) { //fish boss
-    if (doorSprite && plr.x === doorSprite.x && plr.y === doorSprite.y) {
+    console.log("fishbos")
+    if (doorSprite) { 
+      console.log("thers a door (defeated)")
+      if (plr.x === doorSprite.x && plr.y === doorSprite.y) {
+      console.log("Reset to hollows pls work")
       stage = 3;
       resetMap(0) // hollows
     }
+                    }
   }
 
 
@@ -3366,6 +3416,26 @@ lightningBolts.forEach(b => {
       spiderSprites.forEach(spider => {
         if (attacki.x === spider.x && attacki.y === spider.y) {
           defeatEnemy(spider)
+        }
+      })
+    }
+  }
+  if (bats) {
+    bats.forEach(bat => {
+      if (plr.x === bat.x && plr.y === bat.y) {
+        playerCollided();
+      }
+          if (lightningBolts) {
+    lightningBolts.forEach(b => {
+      if (b.x === bat.x && b.y === bat.y)
+        defeatEnemy(bat)
+    })
+    }
+    })
+    if (attacki) {
+      bats.forEach(bat => {
+        if (attacki.x === bat.x && attacki.y === bat.y) {
+          defeatEnemy(bat)
         }
       })
     }
@@ -3748,7 +3818,7 @@ function moveEnemiesTowardsPlayerPrioX(thingtomove, playerX, playerY) { // Prior
     const directionX = Math.sign(dx); // sign returns 1, 0, -1
     const directionY = Math.sign(dy);
 
-    // Check for collisions with player DELETE COMMENTS
+
     if (getTile(enemy.x + directionX, enemy.y + directionY).some(sprite => sprite.type === "r")) {
       return
     } else if (plr.x != getFirst(spawn).x || plr.y != getFirst(spawn).y) {
@@ -3764,17 +3834,17 @@ function moveEnemiesTowardsPlayerPrioX(thingtomove, playerX, playerY) { // Prior
   });
 }
 
-function moveEnemiesTowardsPlayerPrioY(thingtomove, playerX, playerY) { // Prioritizing X
+function moveEnemiesTowardsPlayerPrioY(thingtomove, playerX, playerY) { // Prioritizing Y
   const enemies = getAll(thingtomove);
 
   enemies.forEach(enemy => {
     const dx = playerX - enemy.x;
     const dy = playerY - enemy.y;
 
-    const directionX = Math.sign(dx); // sign returns 1, 0, -1
+    const directionX = Math.sign(dx); 
     const directionY = Math.sign(dy);
 
-    // Check for collisions with player DELETE COMMENTS
+
     if (getTile(enemy.x + directionX, enemy.y + directionY).some(sprite => sprite.type === "r")) {
       return
     } else if (plr.x != getFirst(spawn).x || plr.y != getFirst(spawn).y) {
@@ -3789,6 +3859,8 @@ function moveEnemiesTowardsPlayerPrioY(thingtomove, playerX, playerY) { // Prior
     }
   });
 }
+
+
 
 function lavaFishMove() {
   let llfv = getFirst(lavafish)
@@ -3816,6 +3888,69 @@ function ravaFishMove() {
   }
 }
 
+// bats cannot go through other bats
+function smartMoveThruWalls(enemy, plr) {
+  if (getFirst(spawn) && enemy && (plr.x !== getFirst(spawn).x || plr.y !== getFirst(spawn).y)) {
+  if (enemy) {
+    const dx = plr.x - enemy.x;
+    const dy = plr.y - enemy.y;
+
+    let nextX = enemy.x;
+    let nextY = enemy.y;
+
+    if (Math.abs(dx) > Math.abs(dy)) {
+        nextX = enemy.x + Math.sign(dx);
+        if (isObstacle(nextX, enemy.y)) {
+            nextX = enemy.x; // Reset if the next step is an obstacle
+        }
+    } else {
+        nextY = enemy.y + Math.sign(dy);
+        if (isObstacle(enemy.x, nextY)) {
+            nextY = enemy.y; // Reset if the next step is an obstacle
+        }
+    }
+
+    // If horizontal move is blocked, try vertical and vice versa
+    if (nextX === enemy.x && nextY === enemy.y) {
+        if (Math.abs(dx) > Math.abs(dy)) {
+            nextY = enemy.y + Math.sign(dy);
+            if (isObstacle(enemy.x, nextY)) {
+                nextY = enemy.y; // Reset if the next step is an obstacle
+            }
+        } else {
+            nextX = enemy.x + Math.sign(dx);
+            if (isObstacle(nextX, enemy.y)) {
+                nextX = enemy.x; // Reset if the next step is an obstacle
+            }
+        }
+    }
+
+
+
+    if (nextX != getFirst(spawn).x || nextY != getFirst(spawn).y) {
+      enemy.x = nextX;
+      enemy.y = nextY;
+    }
+
+
+    if (enemy.x === plr.x && enemy.y === plr.y)
+       playerCollided()
+  }
+  }
+}
+
+function batMoveAll() {
+  let batz = getAll(bat);
+  if (batz) {
+    batz.forEach(bt => {
+      if (getFirst(player)) {
+        smartMoveThruWalls(bt, plr);
+      }
+    });
+  }
+}
+setInterval(batMoveAll, 420)
+
 function spawnLavaFishMob(x, y, initialHealth) {
   addSprite(x, y, lavafish);
 
@@ -3836,12 +3971,20 @@ function spawnEnemy(type, x, y, health) {
   activeEnemies.push(enemy); // deprecated ? (idk)
 }
 
-const obstacleTypes = [wall, wall2, wall3, amethyst, lava];
+const obstacleTypes = [wall, wall2, wall3, amethyst, lava, water, pressureplate, crate, mob, spider, fireball, spawn, lockeddoor, door, heart, commonchest, rarechest, epicchest]; // universal
 
-function isObstacle(x, y) {
+const batObstacles = [fireball, bat, lavafish, revlavafish, door, lockeddoor, commonchest, rarechest, epicchest, spawn]
+
+function isObstacle(x, y) { // reuse in a* 
     const sprites = getTile(x, y); // Get all sprites at the specified position
     return sprites.some(sprite => obstacleTypes.includes(sprite.type));
 }
+
+function isBatObstacle(x, y) {
+    const sprites = getTile(x, y);
+    return sprites.some(sprite => batObstacles.includes(sprite.type));
+}
+
 
 function moveTowardsAvoidingObstacles(enemy, plr) {
   if (enemy) {
@@ -3887,11 +4030,11 @@ function moveTowardsAvoidingObstacles(enemy, plr) {
   }
 }
 
-// Example game loop
+
 function skeleLoop() {
-  let enemy = getFirst(skeleton)
-    if (enemy && enemy.x !== plr.x || enemy.y !== plr.y) {
-        moveTowardsAvoidingObstacles(enemy, plr);
+  let en = getFirst(skeleton);
+    if (en && (en.x !== plr.x || en.y !== plr.y)) {
+        moveTowardsAvoidingObstacles(en, plr);
     } else {
         //
     }
@@ -3904,54 +4047,6 @@ let skeleint = setInterval(skeleLoop, 670)
 function getNeighbors(x, y) {
     return directions.map(dir => ({ x: x + dir.x, y: y + dir.y }));
 }
-
-function heuristic(a, b) {
-    return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
-}
-
-function aStarSearch(start, goal) {
-    const openSet = [start];
-    const cameFrom = new Map();
-    const gScore = new Map();
-    const fScore = new Map();
-
-    gScore.set(`${start.x},${start.y}`, 0);
-    fScore.set(`${start.x},${start.y}`, heuristic(start, goal));
-
-    while (openSet.length > 0) {
-        const current = openSet.shift();
-        if (current.x === goal.x && current.y === goal.y) {
-            // Reconstruct path
-            let path = [];
-            let node = current;
-            while (cameFrom.has(`${node.x},${node.y}`)) {
-                path.push(node);
-                node = cameFrom.get(`${node.x},${node.y}`);
-            }
-            path.push(start);
-            return path.reverse();
-        }
-
-        const neighbors = getNeighbors(current.x, current.y);
-        for (const neighbor of neighbors) {
-            if (isObstacle(neighbor.x, neighbor.y)) continue;
-
-            const tentativeGScore = (gScore.get(`${current.x},${current.y}`) || Infinity) + 1;
-            if (tentativeGScore < (gScore.get(`${neighbor.x},${neighbor.y}`) || Infinity)) {
-                cameFrom.set(`${neighbor.x},${neighbor.y}`, current);
-                gScore.set(`${neighbor.x},${neighbor.y}`, tentativeGScore);
-                fScore.set(`${neighbor.x},${neighbor.y}`, tentativeGScore + heuristic(neighbor, goal));
-
-                if (!openSet.some(node => node.x === neighbor.x && node.y === neighbor.y)) {
-                    openSet.push(neighbor);
-                }
-            }
-        }
-    }
-
-    return []; // No path found
-}
-
 
 
 
@@ -4782,7 +4877,7 @@ function checkGameOver() {
 
 let stage = 1;
 let strbuff = false;
-let swordDmg = 1 // init plr dmg per sword attack ; can grow
+let swordDmg = 14 // init plr dmg per sword attack ; can grow
 function initGame() { //  used for restart after death
   level = 1
   levelspassed = 0
