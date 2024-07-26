@@ -591,6 +591,23 @@ LL0CC666666CC0LL
 660CC666666CC066
 L60C6CCCCCC6C06L
 1166CCCCCCCC6611`])
+legend.set(finaldoor, [finaldoor, bitmap`
+2LL0LL000000LLL2
+22LL00L00L0LLL22
+L22LL000000LL22L
+LL2LL000000L2LLL
+LLL0000110000LLL
+0LL0000110000LL0
+L000001111000000
+LL000011110000LL
+LL000011110000LL
+L00000111100002L
+0L00001111000022
+LL000111111000L2
+22000111111000LL
+2L0011111111000L
+2L01111111111000
+LL011111111110LL`])
 legend.set(spawn, [spawn, bitmap`
 7777777777777777
 7771LL1111LL1777
@@ -1307,6 +1324,7 @@ legend.set(plasmasword, [plasmasword, bitmap`
 00..0000........`])
 
 
+
 const frames = {
   [player]: {
     "LEFT": [player, bitmap`
@@ -1618,7 +1636,7 @@ function setPlayerSprite(direction) {
 }
 
 
-setSolids([dummy, amethyst, lockeddoor, rocks, wall, wall2, wall3, fireshooter, crate, housewall, housewallleft, housewallright, roofbody, player, mentor, mobegg])
+setSolids([dummy, amethyst, black, lockeddoor, rocks, wall, wall2, wall3, fireshooter, crate, housewall, housewallleft, housewallright, roofbody, player, mentor, mobegg])
 
 const mentorDialogue = [
   "Move: w,a,s,d",
@@ -1932,33 +1950,37 @@ XX...p.....X`, //fishboss 14 for now
 ]
 const fishbosslvl = 14
 
+
 const hollows = [
   map`
 <A<<<XXX
-X..&).@X
-X@.....X
+<..&).@X
+<@.....X
 X@@....w
 X@@....w
 XXXXwvpw`, //transition lvl from caverns (stage 3, index 0)
   map`
-<XDd%XXXX
-<...XX..X
-<<......<
-<<.<.<<.<
-<..<..<.<
+<UDd%U<UU
+U...XX..U
+U<......<
+<<.<.<<.U
+U..<..<.U
 <..<....<
-<....<..<
-vp<<<<<<<`,
+<....<..U
+vp<<<<U<U`,
   map`
-wvdvD<<<<
-g..((((<<
-(>((.(((<
-(((....(<
-((.....R<
-((...Z.pv
-<((...<<B
-<<((.<<BB
-<<<(<BBBB`, // crate 2
+XXvLX<<<
+<XX.XX<<
+<<.....<
+<...,..<
+<.....,<
+<,.....<
+<......<
+<.....,<
+<......<
+<<.....<
+<<....<<
+<<<pv<<<`, // crate 2
   map`
 XXvLX<<<
 <XX.XX<<
@@ -1980,18 +2002,60 @@ BGBB.((((
 BGBB..(((
 .GEB..(((
 .GBBB..(X
-dvBBB...p`,
+dvBBB...p`, // 4
   map`
-<<<<<vLvx
-<<<......
-<<.......
-<.>...>..
-<........
-<<]......
-<XX$@....
-<<XXvxwvp`,
-]
+<<<<<vLvxwv
+<<<.......v
+<<........v
+<.>...>...v
+<.........v
+<<].......v
+<XX$@.....<
+<<XXvxwvp<<`,
+map`
+UX<N<(<((
+<X...>..(
+U<...X..(
+c<.y...X(
+<U.X.y..(
+U<...X.y(
+<c...p..X
+UUcUUUUUU`, // 6 adv portal to 7
+  map`
+(<D0R<<<(
+((((G(<<(
+X.(XGX<<t
+X..TGVXT.
+X.@]Z@@].
+(X$@@.@@.
+(L@@.p.@$`, // 7 via 6
+  map`
+<U<U<U<v<U<
+<<<<<<<v<<d
+....<..m..^
+........C..
+.......<.,.
+p..<Cy....<`,
+    map`
+X.&B<d<<<<<
+H.Bfffff<<<
+ffffff<.<<<
+XXX<<<...0<
+.X.......<<
+........(X<
+......((((%
+p...X((((((`, // 9
+  map`
+UUUUAUUUU
+UUU...UUU
+UU..F..UU
+UU..@..UU
+UUU...UUU
+UUUUpUUUU`, // 10 hollowsPreFightLvl
   
+] 
+const hollowsPreFightLvl = 10
+
 let traptriggered = false;
 let crateonplate = false;
 
@@ -2092,6 +2156,20 @@ function levelSpecificStuff() {
   }
   if (level === 0 && stage === 3) {
         addSprite(2, 0, candle)
+  }
+  if (level === hollowsPreFightLvl && stage === 3) {
+    addText("At last... \navenge me", {
+      x:2,
+      y:3,
+        color:color`9`
+    })
+    let decider;
+    if (maxhealth >= 4) {
+      decider = 'plasmasword'
+    } else {
+      decider = 'lifeelixir'
+    }
+    addSprite(getFirst(brokenrocks).x,getFirst(brokenrocks).y, decider)
   }
   /*  if (level < 9) {
 let decowall = getAll(wall2);
@@ -2495,6 +2573,11 @@ let chosenLevels = [];
 // random pick blacklist defined under map bitmaps
 let levelspassed = 0
 
+let mobs = [ // for skeleton tracking
+  // { sprite: createSprite("mob", { x: 2, y: 3 }), hp: 100 },
+  // { sprite: createSprite("mob", { x: 5, y: 8 }), hp: 150 }
+];
+
 function resetMap(n) {
   if (arguments.length === 0) { // completely random set
     if (stage === 1) {
@@ -2557,6 +2640,10 @@ function resetMap(n) {
       level = fishbosslvl
       setMap(caverns[level])
     }
+    if (stage === 3 && levelspassed >= 22) {
+      level = hollowsPreFightLvl
+      setMap(hollows[level])
+    }
 
     if (stage === 1)
       setMap(levels[level]);
@@ -2577,9 +2664,9 @@ function resetMap(n) {
   if (level != 0)
     addSprite(plr.x, plr.y, spawn); //spawn pad under player
 
-  levelSpecificStuff();
   clearText();
-
+  levelSpecificStuff();
+  
   if (itemsArray[0])
     addSprite(0, 0, itemsArray[0])
 
@@ -2778,7 +2865,7 @@ onInput("l", () => {
   
     if (testModeOn ) {
   stage = 3
-  resetMap(5) //  debug debugging debug tags etc 
+  resetMap(hollowsPreFightLvl) //  debug debugging debug tags etc 
   }
 
 
@@ -2837,11 +2924,13 @@ clearInterval(moveRavafishInterval)
 clearInterval(fsShootInterval) 
 clearInterval(skeleint)
 clearInterval(batSpawnInterval)
+    clearInterval(batMoveInt)
     setTimeout(() => {  
       playTune(clockTick);
       setTimeout(() => {
           moveMobsInterval = setInterval(mobMoveAll, 750);
           spawnMobsInterval = setInterval(mobSpawn, 1500);
+        batMoveInt = setInterval(batMoveAll, 480)
         batSpawnInterval = setInterval(batSpawn,3000)
             moveGhostInterval = setInterval(ghostMoveAll, 1000);
         moveSpiderInterval = setInterval(spiderMoveAll, 480);
@@ -3084,7 +3173,7 @@ lightningBolts.forEach(b => {
 
 
   crates.forEach(crate => { //pressureplate n door stuff
-    if (crate.x === doorSprite.x && crate.y === doorSprite.y) {
+    if (doorSprite && crate.x === doorSprite.x && crate.y === doorSprite.y) {
       crate.remove();
       playTune(cratebreak);
     }
@@ -3118,6 +3207,12 @@ lightningBolts.forEach(b => {
           clearTile(3,1)
         clearTile(3,2)
           clearTile(2,3)
+      }
+        if (level === 7 && stage === 3 && !crateonplate) {
+        playTune(secret)
+        crateonplate= true;
+          addSprite(getFirst(lockeddoor).x,getFirst(lockeddoor).y,door)
+          getFirst(lockeddoor).remove();
       }
     }
   });
@@ -3373,14 +3468,13 @@ lightningBolts.forEach(b => {
       if (level === 0 && stage === 3) {
     console.log("hollows transition")
     chosenLevels = [0]
-    randomPickBlacklist = [0] // blacklist for hollows
+    randomPickBlacklist = [0, 7,] // blacklist for hollows
     resetMap()
     setTimeout(() => { clearText(); }, 50)
     setTimeout(() => { addText("III: Hollows", { x: 4, y: 3, color: color`0` }) }, 100)
 
     setTimeout(() => { clearText() }, 2000)
   }
-    
     }
 
 
@@ -3413,6 +3507,13 @@ lightningBolts.forEach(b => {
         resetMap(13)
       }
     }
+    if (level === 6 && stage === 3) {
+       let adv = getFirst(hiddenadvance)
+      if (plrTouching(adv)) {
+        resetMap(7)
+      }
+    }
+    
   }
   //boss advancing
   if (level === 17 && stage === 1) { // mobboss
@@ -3825,7 +3926,7 @@ function spiderMoveAll() {
     }
 
     const spritesAtNextPos = getTile(spiderSprite.x, spiderSprite.y);
-    const isWallCollision = spritesAtNextPos.some(sprite => [rocks, wall, wall2, wall3, water, commonchest, crate, heart, fireball, mob, ghost, spikes].includes(sprite.type));
+    const isWallCollision = spritesAtNextPos.some(sprite => [rocks,lava,amethyst, wall, wall2, wall3, water, commonchest, crate, heart, fireball, mob, ghost, spikes].includes(sprite.type));
     const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
 
     if (isWallCollision) {
@@ -4044,7 +4145,7 @@ function batMoveAll() {
     });
   }
 }
-setInterval(batMoveAll, 420)
+let batMoveInt = setInterval(batMoveAll, 480)
 
 function spawnLavaFishMob(x, y, initialHealth) {
   addSprite(x, y, lavafish);
@@ -4068,7 +4169,7 @@ function spawnEnemy(type, x, y, health) {
   activeEnemies.push(enemy); 
 }
 
-const obstacleTypes = [wall, wall2, wall3, amethyst, skeleton,lava, water, pressureplate, crate, mob, spider, fireball, spawn, lockeddoor, door, heart, commonchest, rarechest, epicchest]; // universal
+const obstacleTypes = [wall, wall2, rocks, wall3, amethyst, skeleton,lava, water, pressureplate, crate, mob, spider, fireball, spawn, lockeddoor, door, heart, commonchest, rarechest, epicchest]; // universal
 
 const batObstacles = [fireball, bat, lavafish, revlavafish, door, lockeddoor, commonchest, rarechest, epicchest, spawn]
 
