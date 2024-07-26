@@ -115,6 +115,8 @@ const hollowboss = "="
 const amethyst = "<"
 const skeleton = ">"
 const bat = ","
+const batspawner = "0"
+const plasmasword = "1"
 
 const legendKeys = [
   black,
@@ -139,9 +141,12 @@ const legendKeys = [
   clock,
   lifeelixir,
   lightningscroll,
+  plasmasword,
 
   mobboss,
   hollowboss,
+  lavafish,
+  revlavafish,
   player,
   mentor,
   door,
@@ -149,8 +154,6 @@ const legendKeys = [
   mobegg,
   bat,
   ghost,
-  lavafish,
-  revlavafish,
   dummy,
   candle,
   fireball,
@@ -184,10 +187,11 @@ const legendKeys = [
   advancetile,
   mobspawner,
   lavafishspawner,
+  batspawner,
   pressureplate,
   hiddenadvance,
   brokenrocks,
-
+  
 ]
 
 
@@ -1267,6 +1271,40 @@ legend.set(bat, [bat, bitmap`
 0H0...0LL0...0H0
 .0....0LL0....0.
 .......00.......`])
+legend.set(batspawner, [batspawner, bitmap`
+HHHHHHH7HHHHHHHH
+HH710011710L1HHH
+H1000010L000HH07
+H8802000L00HH00H
+HL888H02020200LH
+55L18LH2222720LH
+HL51L02H0227020H
+H115H20HHH2H002H
+HL52H50HH2HH000H
+HL002050H22HH22H
+H000H022HH222HHH
+H11HH005H2HHH0HH
+HLHH1057CH7HHH7H
+HHH15577CH0HHHHH
+HHL55L7HHHL7HLHH
+HHHHHHHHHHHHHHHH`])
+legend.set(plasmasword, [plasmasword, bitmap`
+............000.
+...........0HH0.
+..........0H7H0.
+.........0H7H0..
+........0H7HH0..
+.......0HHHH0...
+......0HHH00....
+.....0HHHH0.....
+00..0HHH00......
+0500HHHH0.......
+0550HH000.......
+0555HH00........
+.05550..........
+.0055500........
+00000550........
+00..0000........`])
 
 
 const frames = {
@@ -1568,9 +1606,9 @@ legend.set(hollowboss, frames[hollowboss].NORM)
 setLegend(...legend.values())
 
 
-const commonLootPool = [hppotion, energydrink]
-const rareLootPool = [curse, bomb, lightningscroll]
-const epicLootPool = [clock, lifeelixir]
+const commonLootPool = [hppotion, energydrink, curse]
+const rareLootPool = [bomb, clock, lightningscroll]
+const epicLootPool = [lifeelixir, plasmasword]
 
 const breakablesArray = getAll(mobegg)
 
@@ -1922,8 +1960,8 @@ g..((((<<
 <<((.<<BB
 <<<(<BBBB`, // crate 2
   map`
-XXvdX<<<
-<XX<XX<<
+XXvLX<<<
+<XX.XX<<
 <<.....<
 <...,..<
 <.....,<
@@ -1934,6 +1972,24 @@ XXvdX<<<
 <<.....<
 <<....<<
 <<<pv<<<`, // bat amethyst cave with clearing it
+  map`
+.....XX<<
+..X..(X0<
+B.X..((((
+BGBB.((((
+BGBB..(((
+.GEB..(((
+.GBBB..(X
+dvBBB...p`,
+  map`
+<<<<<vLvx
+<<<......
+<<.......
+<.>...>..
+<........
+<<]......
+<XX$@....
+<<XXvxwvp`,
 ]
   
 let traptriggered = false;
@@ -2721,8 +2777,8 @@ onInput("l", () => {
    movementDown = false;
   
     if (testModeOn ) {
-  stage = 2
-  resetMap(fishbosslvl) //  debug debugging debug tags etc 
+  stage = 3
+  resetMap(5) //  debug debugging debug tags etc 
   }
 
 
@@ -2769,7 +2825,9 @@ function useItem() {
     bombExplosion(px, py)
   }
   if (currentItem === clock) {
-          bgm.end();
+        bgm.end();
+
+clearInterval(bossFishInt)
 clearInterval(moveMobsInterval) 
 clearInterval(spawnMobsInterval)
 clearInterval(moveGhostInterval) 
@@ -2778,16 +2836,19 @@ clearInterval(moveLavafishInterval)
 clearInterval(moveRavafishInterval) 
 clearInterval(fsShootInterval) 
 clearInterval(skeleint)
+clearInterval(batSpawnInterval)
     setTimeout(() => {  
       playTune(clockTick);
       setTimeout(() => {
           moveMobsInterval = setInterval(mobMoveAll, 750);
           spawnMobsInterval = setInterval(mobSpawn, 1500);
+        batSpawnInterval = setInterval(batSpawn,3000)
             moveGhostInterval = setInterval(ghostMoveAll, 1000);
         moveSpiderInterval = setInterval(spiderMoveAll, 480);
       moveLavafishInterval = setInterval(lavaFishMove, 900);
       moveRavafishInterval = setInterval(ravaFishMove, 900);
       fsShootInterval = setInterval(fireShoot, 500);
+      bossFishInt = setInterval(fishBossAttack, 3000)
       skeleint = setInterval(skeleLoop, 670)
         console.log("intervals set again")
         timestopped = true
@@ -2914,10 +2975,13 @@ afterInput(() => {
       setTimeout(() => { clearText() }, 2000)
     }
   } // tutorial and mentor
-  if (doorSprite && ((stage === 1 && level != levels.length - 1) || (stage === 2 && level != fishbosslvl))) { // heres th error
-    if (plr.x === doorSprite.x && plr.y === doorSprite.y) {
+  if (doorSprite) { 
+    if (stage === 1 && level != 17 && plr.x === doorSprite.x && plr.y === doorSprite.y)
       resetMap(); // Load the next level
-    }
+    if (stage === 2 && level != 14 && plr.x === doorSprite.x && plr.y === doorSprite.y)
+      resetMap()
+    if (stage === 3 && plr.x === doorSprite.x && plr.y === doorSprite.y)
+        resetMap()
   }
 
   if (getAll(housedoor).length > 0 && plr.x === houseDoor.x && plr.y === houseDoor.y) {
@@ -2988,28 +3052,34 @@ lightningBolts.forEach(b => {
 
 
   })
-  let skele = getFirst(skeleton)
+  let skele = getAll(skeleton)
   if (skele) {
-    if (plr.x === skele.x && plr.y === skele.y)
+    skele.forEach(s => {
+    if (plr.x === s.x && plr.y === s.y)
       playerCollided()
     if (lightningBolts) {
     lightningBolts.forEach(b => {
-      if (skele.x === b.x && skele.y === b.y)
+      if (s.x === b.x && s.y === b.y)
         skeletonHp -=2;
     })
     }
-    if (!standardEnemyArbCD && attacki && attacki.x === skele.x && attacki.y === skele.y) {
+    if (!standardEnemyArbCD && attacki && attacki.x === s.x && attacki.y === s.y) {
       skeletonHp -= swordDmg
       playTune(hitEnemy)
 
       standardEnemyArbCD = true;
       setTimeout(() => { standardEnemyArbCD = false }, 100)
       if (skeletonHp <= 0) {
-        defeatEnemy(skele)
+        defeatEnemy(s)
         skeletonHp = 6
+        if (getFirst(skeleton)) {
+          playTune(heal)
+          playTune(danger)
+        }
 
       }
     }
+  })
   }
 
 
@@ -3266,8 +3336,16 @@ lightningBolts.forEach(b => {
     }
   }
   if (level === 3 && stage === 3) {
-    if (!getFirst(bat))
-      clearTile(3,1)
+    if (!getFirst(bat)) {
+      addSprite(getFirst(lockeddoor).x,getFirst(lockeddoor).y,door)
+      getFirst(lockeddoor).remove();
+    }
+  }
+  if (level === 5 && stage === 3) {
+    if (!getFirst(skeleton)) {
+      addSprite(getFirst(lockeddoor).x,getFirst(lockeddoor).y,door)
+      getFirst(lockeddoor).remove();
+    }
   }
 
   //doors for specific lvls levelspecific stuff
@@ -3538,7 +3616,6 @@ function checkCollisionforFireBalls() {
 
 
 
-
 let mobCounter = 0;
 let ghostCounter = 0;
 let spiderCounter = 0;
@@ -3667,6 +3744,13 @@ function mobSpawn() {
     }
   })
 }
+function batSpawn() {
+  let batSpawner = getFirst(batspawner)
+  if (batSpawner) {
+    addSprite(batSpawner.x,batSpawner.y,bat)
+  }
+}
+batSpawnInterval = setInterval(batSpawn,3000)
 
 function ghostMoveAll() {
   const options = ["up", "down", "left", "right"];
@@ -3872,6 +3956,13 @@ function lavaFishMove() {
       if (llfv.x === m.x && llfv.y === m.y)
         defeatEnemy(m)
     })
+
+
+
+    if (stage === 2 && level === 14 && !spawnedfishdefeated) {
+      addSprite(llfv.x,llfv.y,lava)
+    }
+
   }
 }
 
@@ -3885,6 +3976,10 @@ function ravaFishMove() {
       if (getFirst(revlavafish).x === m.x && getFirst(revlavafish).y === m.y)
         defeatEnemy(m)
     })
+
+    if (stage === 2 && level === 14 && !spawnedfishdefeated) {
+      addSprite(getFirst(revlavafish).x,getFirst(revlavafish).y,lava)
+    }
   }
 }
 
@@ -3900,12 +3995,12 @@ function smartMoveThruWalls(enemy, plr) {
 
     if (Math.abs(dx) > Math.abs(dy)) {
         nextX = enemy.x + Math.sign(dx);
-        if (isObstacle(nextX, enemy.y)) {
+        if (isBatObstacle(nextX, enemy.y)) {
             nextX = enemy.x; // Reset if the next step is an obstacle
         }
     } else {
         nextY = enemy.y + Math.sign(dy);
-        if (isObstacle(enemy.x, nextY)) {
+        if (isBatObstacle(enemy.x, nextY)) {
             nextY = enemy.y; // Reset if the next step is an obstacle
         }
     }
@@ -3914,12 +4009,12 @@ function smartMoveThruWalls(enemy, plr) {
     if (nextX === enemy.x && nextY === enemy.y) {
         if (Math.abs(dx) > Math.abs(dy)) {
             nextY = enemy.y + Math.sign(dy);
-            if (isObstacle(enemy.x, nextY)) {
+            if (isBatObstacle(enemy.x, nextY)) {
                 nextY = enemy.y; // Reset if the next step is an obstacle
             }
         } else {
             nextX = enemy.x + Math.sign(dx);
-            if (isObstacle(nextX, enemy.y)) {
+            if (isBatObstacle(nextX, enemy.y)) {
                 nextX = enemy.x; // Reset if the next step is an obstacle
             }
         }
@@ -3959,6 +4054,8 @@ function spawnLavaFishMob(x, y, initialHealth) {
   console.log(activeEnemies)
 }
 
+
+
 function spawnEnemy(type, x, y, health) {
   const enemy = {
     type: type,
@@ -3968,10 +4065,10 @@ function spawnEnemy(type, x, y, health) {
     // 
   };
 
-  activeEnemies.push(enemy); // deprecated ? (idk)
+  activeEnemies.push(enemy); 
 }
 
-const obstacleTypes = [wall, wall2, wall3, amethyst, lava, water, pressureplate, crate, mob, spider, fireball, spawn, lockeddoor, door, heart, commonchest, rarechest, epicchest]; // universal
+const obstacleTypes = [wall, wall2, wall3, amethyst, skeleton,lava, water, pressureplate, crate, mob, spider, fireball, spawn, lockeddoor, door, heart, commonchest, rarechest, epicchest]; // universal
 
 const batObstacles = [fireball, bat, lavafish, revlavafish, door, lockeddoor, commonchest, rarechest, epicchest, spawn]
 
@@ -4032,12 +4129,12 @@ function moveTowardsAvoidingObstacles(enemy, plr) {
 
 
 function skeleLoop() {
-  let en = getFirst(skeleton);
-    if (en && (en.x !== plr.x || en.y !== plr.y)) {
-        moveTowardsAvoidingObstacles(en, plr);
-    } else {
-        //
-    }
+  let en = getAll(skeleton);
+    if (en) {
+        en.forEach(e => {
+        moveTowardsAvoidingObstacles(e, plr);
+      })
+    } 
 }
 
 let skeleint = setInterval(skeleLoop, 670)
@@ -4288,12 +4385,6 @@ async function fishBossAttack() {
       fsBo.remove();
     }
 
-    if (getFirst(revlavafish) && !spawnedfishdefeated) {
-      addSprite(getFirst(revlavafish).x,getFirst(revlavafish).y,lava)
-    }
-    if (getFirst(lavafish) && !spawnedfishdefeated) {
-      addSprite(getFirst(lavafish).x,getFirst(lavafish).y,lava)
-    }
 
     
     if (!spawnedfishdefeated && !getFirst(lavafish) && !getFirst(revlavafish)) { // set spawned fish to defeated tho
@@ -4538,8 +4629,8 @@ function startEncircle(intervalMs) {
           f.remove() 
         })
 
-        if (bossFishEnraged) { // ADD SOMETING FOR ENRAGED
-
+        if (bossFishEnraged) { 
+          // idk this boss is already hard so keeping for now
         }
 
       }, 350)
@@ -4622,7 +4713,7 @@ if (bossFishEnraged) {
   }
 }
 
-setInterval(fishBossAttack, 3000)
+let bossFishInt = setInterval(fishBossAttack, 3000)
 
 function defeatEnemy(enemy) {
   enemy.remove();
@@ -4634,7 +4725,7 @@ function defeatEnemy(enemy) {
 
 function defeatBoss(boss) {
   boss.remove()
-  score += 10;
+  score += 100;
 
   let exit = getFirst(lockeddoor)
   addSprite(exit.x, exit.y, door) // heal player after defeated boss
@@ -4642,8 +4733,12 @@ function defeatBoss(boss) {
 
   let attackwarners = getAll(warningtile)
   let slashes = getAll(bossslash)
+  let fiyaz = getAll(fireball)
+  let lavas = getAll(lava)
   attackwarners.forEach(tile => { tile.remove() })
   slashes.forEach(s => { s.remove(); })
+  fiyaz.forEach(f => {f.remove()})
+  lavas.forEach(l => { l.remove() })
   playTune(killEnemy);
   bgm.end();
   clearText();
@@ -4877,7 +4972,7 @@ function checkGameOver() {
 
 let stage = 1;
 let strbuff = false;
-let swordDmg = 14 // init plr dmg per sword attack ; can grow
+let swordDmg = 1 // init plr dmg per sword attack ; can grow
 function initGame() { //  used for restart after death
   level = 1
   levelspassed = 0
