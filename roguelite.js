@@ -114,6 +114,7 @@ const batspawner = "0"
 const plasmasword = "1"
 const finaldoor = "2"
 const plasmaslash = "3"
+const star = "4"
 
 const legendKeys = [
   black,
@@ -141,6 +142,7 @@ const legendKeys = [
   lightningscroll,
   plasmasword,
 
+  star,
   mobboss,
   hollowboss,
   lavafish,
@@ -1236,6 +1238,23 @@ legend.set(lightning, [lightning, bitmap`
 ..066600........
 ..0661..........
 ...60.1.........`])
+legend.set(star, [star, bitmap`
+.......00.......
+......0550......
+......0550......
+.....055550.....
+0000055555500000
+0555555775555550
+.05555557755550.
+..055555577550..
+...0555555750...
+...0555555550...
+..055555555550..
+..055555555550..
+.05555500555550.
+.055500..005550.
+05500......00550
+000..........000`])
 legend.set(plasmaslash, [plasmaslash, bitmap`
 ...............4
 ..4...........44
@@ -4916,11 +4935,14 @@ if (bossFishEnraged) {
 
 let bossFishInt = setInterval(fishBossAttack, 3000)
 
+
 let finalBossHp = 75; // init 75 is good i think
 let finalBossEnraged = false;
 let finalBossMsBetweenAttacks = 3000
 let finalBossChoice;
 let finalBossPrevChoice;
+let chosenStars = [];
+let starCounter = 0;
 async function finalBossAttack() {
   let hob = getFirst(hollowboss);
   let choice;
@@ -4936,7 +4958,7 @@ async function finalBossAttack() {
   }
   if (hob) {
     allowBossAttack = true;
-    const options = ["slashes"];
+    const options = ["slashes", "stars"];
     let randomIndex = Math.floor(Math.random() * options.length);
       
     finalBossChoice = options[randomIndex];
@@ -4948,10 +4970,23 @@ async function finalBossAttack() {
 
     if (finalBossChoice === 'slashes')
     {
-      console.log('slashes')
+      hob.x=6;
+      hob.y=2;
       finBossSlashes()
 
     }
+        if (finalBossChoice === 'stars') 
+    {
+      
+      for (let i = 2; i < 11; i++) {
+            addSprite(i,1,star)
+      }
+
+      setTimeout(() => { shootStars() }, 50)
+     
+
+    }
+
 
 
     finalBossPrevChoice = finalBossChoice
@@ -4962,25 +4997,93 @@ function finBossSlashes() {
         addSprite(i, i, warningtile);
         addSprite(i + 1, i, warningtile);
         addSprite(i + 2, i, warningtile);
+
+                if (finalBossEnraged) {
+                   addSprite(i + 3,i,warningtile)
+              }
     }
+  
 
     setTimeout(() => {
+      
         startslashing('down', 25);
         setTimeout(() => {
+          
     for (let i = 2; i < height(); i++) {
         addSprite(i, height()- i, warningtile);
         addSprite(i + 1, height()-i, warningtile);
         addSprite(i + 2, height()-i, warningtile);
+      
         }
-        setTimeout(() => {      
-          startslashing('up', 25);}, 200)}, 450)
-          setTimeout(()=> {
-            for (let i = 1; i < width()-2; i++) {
+          
+        setTimeout(() => { // slash      
+          
+          startslashing('up', 25)
+                 setTimeout(()=> {
+                   
+            for (let i = 1; i < width()-1; i++) {
               addSprite(i,5,warningtile)
+             addSprite(i,4,warningtile)
+                           addSprite(i,3,warningtile)
+              if (finalBossEnraged) {
+                   addSprite(i,6,warningtile)
+              }
             }
+
+               setTimeout(() => { startslashing('down', 100) },500)
           }, 200)
-        }, 700);
+          
+        }, 450)
+
+          
+        }, 200) // transition
+      
+}, 700)
 }
+
+function shootStars() { // this naming is confusing oops
+  let stars = getAll(star)
+  
+  if (starCounter > 6) {
+    console.log("Exiting stars")
+    starCounter = 0 ;
+
+      stars.forEach(s => { 
+        s.remove() 
+      })
+      chosenStars = []
+      stars = []
+      return;
+
+  }
+
+  let randomStarId = Math.floor(Math.random() * stars.length)
+  let isChosen = chosenStars.includes(stars[randomStarId]);
+
+    if (!isChosen) {
+      if (stars[randomStarId].type === star)
+        chosenStars.push(stars[randomStarId]);
+        starCounter++;
+      setTimeout(() => {
+        starMove()
+        shootStars();
+    }, 400);
+      
+    } else {
+        shootStars();
+    }
+}
+
+function starMove() {
+  console.log(chosenStars)
+  console.log(starCounter)
+  chosenStars.forEach( str => {
+    str.y++;
+  })
+  
+}
+
+
 let finalBossInt = setInterval(finalBossAttack,finalBossMsBetweenAttacks)
 
 
