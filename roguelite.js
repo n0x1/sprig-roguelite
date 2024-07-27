@@ -2095,7 +2095,7 @@ UUUUpUUUU`, // 10 hollowsPreFightLvl
 <...........<
 <...........<
 <...........<
-<<.........<<
+<...........<
 <<<<<<p<<<<<<`, //the final boss 11 
   
 ] 
@@ -3123,6 +3123,7 @@ afterInput(() => {
   let rlvf = getFirst(revlavafish);
   let mobEggs = getAll(mobegg);
   let dummies = getAll(dummy)
+  let stars = getAll(star);
   let lvfSpawner = getFirst(lavafishspawner)
 
   if (checkIfOnSpawnPos() === false) {
@@ -3352,6 +3353,13 @@ lightningBolts.forEach(b => {
         })
       })
     }
+  }
+
+  if (stars) {
+    stars.forEach( s=> {
+      if (plr.x === s.x && plr.y === s.y)
+        playerCollided();
+    })
   }
 
   
@@ -4977,12 +4985,24 @@ async function finalBossAttack() {
     }
         if (finalBossChoice === 'stars') 
     {
-      
+          starCounter = 0
+          stars = []
       for (let i = 2; i < 11; i++) {
-            addSprite(i,1,star)
+             addSprite(i,1,warningtile)
       }
+            addSprite(1,2,warningtile)
+            addSprite(11,2,warningtile)
+      setTimeout(() => {
+          for (let i = 2; i < 11; i++) {
+            addSprite(i,1,star)
 
-      setTimeout(() => { shootStars() }, 50)
+      }
+              addSprite(1,2,star)
+            addSprite(11,2,star)
+        let wts = getAll(warningtile)
+        wts.forEach(w=> {w.remove() })
+        shootStars() 
+      }, 400)
      
 
     }
@@ -5040,45 +5060,58 @@ function finBossSlashes() {
       
 }, 700)
 }
-
+let shootStarsTimer = setTimeout(shootStars, 300);
 function shootStars() { // this naming is confusing oops
-  let stars = getAll(star)
+let stars = getAll(star)
   
-  if (starCounter > 6) {
+  if (!getFirst(star)) { // exit
     console.log("Exiting stars")
-    starCounter = 0 ;
-
+    starCounter = 0
       stars.forEach(s => { 
         s.remove() 
       })
-      chosenStars = []
-      stars = []
       return;
 
   }
 
   let randomStarId = Math.floor(Math.random() * stars.length)
-  let isChosen = chosenStars.includes(stars[randomStarId]);
-
-    if (!isChosen) {
-      if (stars[randomStarId].type === star)
-        chosenStars.push(stars[randomStarId]);
-        starCounter++;
-      setTimeout(() => {
+  let randomStar = stars[randomStarId];
+    if (randomStar && !chosenStars.includes(randomStar)) {
+        chosenStars.push(randomStar);
+        stars.splice(randomStarId, 1)
         starMove()
-        shootStars();
-    }, 400);
-      
-    } else {
-        shootStars();
-    }
+        clearTimeout(shootStarsTimer);
+        shootStarsTimer = setTimeout(shootStars, 200);
+    } else if (randomStar && chosenStars.length != stars.length) {
+      try {
+        randomStarId = Math.floor(Math.random() * stars.length)
+        randomStar = stars[randomStarId];
+        shootStars()
+      }
+      catch (error) {
+      console.error(error);
+            console.log("Stack overflow; exiting stars") 
+    starCounter = 0 
+            stars.forEach(s => { 
+        s.remove() 
+      })      
+      return;
+} 
+
+    } else
+        starMove()
 }
 
 function starMove() {
-  console.log(chosenStars)
-  console.log(starCounter)
+starCounter++;
+  console.log(getAll(star))
   chosenStars.forEach( str => {
-    str.y++;
+    if (str != undefined) {
+      if (str.y < 7) {
+        str.y++;
+      } else
+        str.remove();
+    }
   })
   
 }
