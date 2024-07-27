@@ -1,10 +1,12 @@
-Playable on sprig web or console!
-/*
+Made for Hack Club's Sprig
+https://sprig.hackclub.com/
+
+
 @title: Darkening Descent
 @author: noxi
 @tags: [advanced, roguelite]
 @addedOn: 2024-07-07
-*/
+
 
 /* ABOUT:
 
@@ -14,4 +16,3 @@ STAGES
 I: Surface
 II: Caverns
 III: Hallows
-*/
