@@ -115,6 +115,7 @@ const plasmasword = "1"
 const finaldoor = "2"
 const plasmaslash = "3"
 const star = "4"
+const purplelightning = "5"
 
 const legendKeys = [
   black,
@@ -128,6 +129,7 @@ const legendKeys = [
   plasmaslash,
   sword,
   lightning,
+  purplelightning,
 
   invincibility,
   strengthparticles,
@@ -1238,6 +1240,23 @@ legend.set(lightning, [lightning, bitmap`
 ..066600........
 ..0661..........
 ...60.1.........`])
+legend.set(purplelightning, [purplelightning, bitmap`
+...........0....
+.....77...0H0...
+.......777HH0...
+.....5..0HH777..
+......50HHH5..7.
+..777.0HHH77777.
+..7.00HHH0.775..
+..77HHHH0.......
+...0777H00......
+..7.0HH77777....
+..7..0HHHH0.....
+.5700HHHH0......
+..57HHHH0.......
+..0H7H00........
+..0H75..........
+...H075.........`])
 legend.set(star, [star, bitmap`
 .......00.......
 ......0550......
@@ -1357,6 +1376,7 @@ legend.set(plasmasword, [plasmasword, bitmap`
 .0011100.55.....
 00000110...555..
 00..0000........`])
+
 
 
 
@@ -4946,7 +4966,7 @@ let bossFishInt = setInterval(fishBossAttack, 3000)
 
 
 let finalBossHp = 75; // init 75 is good i think
-let finalBossEnraged = false;
+let finalBossEnraged = true;
 let finalBossMsBetweenAttacks = 3000
 let finalBossChoice;
 let finalBossPrevChoice;
@@ -4967,7 +4987,7 @@ async function finalBossAttack() {
   }
   if (hob) {
     allowBossAttack = true;
-    const options = ["slashes", "stars", "home"];
+    const options = ["slashes", "stars", "home", "beam"];
     let randomIndex = Math.floor(Math.random() * options.length);
       
     finalBossChoice = options[randomIndex];
@@ -5015,35 +5035,85 @@ async function finalBossAttack() {
     }
 if (finalBossChoice === 'home') {
   homing()
+  setTimeout(() => {  homing() }, 1200)
+  setTimeout(() => {  homing() }, 2100)
 }
-
-
-
+if (finalBossChoice === 'beam') {
+hob.y = 1
+hob.x = 6;
+    
+beam()
+setTimeout(() => {beam()}, 950)
+setTimeout(() => {
+  if (finalBossEnraged)  {
+    beam()
+  }
+}, 1900)
+}
 
     finalBossPrevChoice = finalBossChoice
 }
 }
 
+function beam(startx, starty) {
+let start = { x: plr.x, y: plr.y+1 }
+let end = { x: 6, y: 2 }
+
+let dx = end.x - start.x
+let dy = end.y - start.y
+
+let bms = getAll(purplelightning)
+if (bms) {
+  bms.forEach(b => {b.remove() })
+}
+
+for (let i = 0; i <= Math.max(Math.abs(dx), Math.abs(dy)); i++) {
+  let x = start.x + Math.round((i / Math.max(Math.abs(dx), Math.abs(dy))) * dx)
+  let y = start.y + Math.round((i / Math.max(Math.abs(dx), Math.abs(dy))) * dy)
+  
+  addSprite(x, y, warningtile)
+    addSprite(x-1, y, warningtile)
+      addSprite(x+1, y, warningtile)
+}
+  
+setTimeout(() => {
+let wts = getAll(warningtile)
+wts.forEach(w => {
+  addSprite(w.x,w.y,purplelightning)
+  playTune(lightningStrike)
+  if (plr.x === w.x && plr.y === w.y) 
+    playerCollided()
+  w.remove();
+})
+  setTimeout(() => {
+      let bms = getAll(purplelightning)
+if (bms) {
+  bms.forEach(b => {b.remove() })
+}
+  }, 100)
+},800)
+
+
+}
+  
 function homing() {
   let plrx = plr.x
   let plry = plr.y
 function isTileEmpty(x, y) {
 
   const tileSprites = getTile(x, y)
-  const hasAmethyst = tileSprites.some(sprite => sprite.type === "amethyst")
-  const hasSpawn = tileSprites.some(sprite => sprite.type === "spawn")
-  const hasDoor = tileSprites.some(sprite => sprite.type === "lockeddoor")
-    const mapWidth = width()
+  const hasCollide = tileSprites.some(sprite => [wall2,amethyst,spawn,lockeddoor].includes(sprite.type))
+  const mapWidth = width()
   const mapHeight = height()
   const isWithinBounds = x >= 0 && x < mapWidth && y >= 0 && y < mapHeight
 
 
-  return  isWithinBounds || (!hasAmethyst && !hasSpawn && !hasDoor) 
+  return (isWithinBounds && !hasCollide)
 }
   
     for (let m = plrx - 1; m <= plrx + 1; m++) {
       for (let n = plry - 1; n <= plry + 1; n++) {
-        if (isTileEmpty(m, n) === true) {
+        if (isTileEmpty(m, n)) {
           addSprite(m, n, warningtile)
         }
       }
@@ -5112,7 +5182,7 @@ function finBossSlashes() {
               }
             }
 
-               setTimeout(() => { startslashing('down', 100) },500)
+               setTimeout(() => { startslashing('down', 70) },500)
           }, 200)
           
         }, 450)
