@@ -4418,6 +4418,7 @@ async function goblinBossAttack() {
     if (pastGobChoice === gobChoice) {
       pastGobChoice = gobChoice;
       goblinBossAttack();
+      return;
 
     }
     if (gobChoice === "surroundXaoe") {
@@ -4635,7 +4636,7 @@ async function fishBossAttack() {
     if (pastFishChoice === fishChoice) {
       pastFishChoice = fishChoice;
       fishBossAttack();
-
+      return;
     }
 
     if (fishChoice === 'bombs') {
@@ -4966,13 +4967,15 @@ async function finalBossAttack() {
   }
   if (hob) {
     allowBossAttack = true;
-    const options = ["slashes", "stars"];
+    const options = ["slashes", "stars", "home"];
     let randomIndex = Math.floor(Math.random() * options.length);
       
     finalBossChoice = options[randomIndex];
 
-    if (finalBossChoice === finalBossPrevChoice)
+    if (finalBossChoice === finalBossPrevChoice) {
       finalBossAttack()
+      return;
+    }
 
     //attacks
 
@@ -4985,8 +4988,14 @@ async function finalBossAttack() {
     }
         if (finalBossChoice === 'stars') 
     {
+      let removingexcess = getAll(star)
+      if (removingexcess) {
+        removingexcess.forEach(sr => {sr.remove() })
+      }
+        console.log(chosenStars)
+      
           starCounter = 0
-          stars = []
+
       for (let i = 2; i < 11; i++) {
              addSprite(i,1,warningtile)
       }
@@ -5003,14 +5012,67 @@ async function finalBossAttack() {
         wts.forEach(w=> {w.remove() })
         shootStars() 
       }, 400)
-     
-
     }
+if (finalBossChoice === 'home') {
+  homing()
+}
+
 
 
 
     finalBossPrevChoice = finalBossChoice
 }
+}
+
+function homing() {
+  let plrx = plr.x
+  let plry = plr.y
+function isTileEmpty(x, y) {
+
+  const tileSprites = getTile(x, y)
+  const hasAmethyst = tileSprites.some(sprite => sprite.type === "amethyst")
+  const hasSpawn = tileSprites.some(sprite => sprite.type === "spawn")
+  const hasDoor = tileSprites.some(sprite => sprite.type === "lockeddoor")
+    const mapWidth = width()
+  const mapHeight = height()
+  const isWithinBounds = x >= 0 && x < mapWidth && y >= 0 && y < mapHeight
+
+
+  return  isWithinBounds || (!hasAmethyst && !hasSpawn && !hasDoor) 
+}
+  
+    for (let m = plrx - 1; m <= plrx + 1; m++) {
+      for (let n = plry - 1; n <= plry + 1; n++) {
+        if (isTileEmpty(m, n) === true) {
+          addSprite(m, n, warningtile)
+        }
+      }
+    }
+
+    if (finalBossEnraged) {
+      for (let k = -2; k < 3; k += 4) {
+        if (isTileEmpty(plrx-k, plry) === true) {
+          addSprite(plrx - k, plry, warningtile)
+        }
+        if (isTileEmpty(plrx, plry-k) === true) {
+          addSprite(plrx, plry - k, warningtile)
+        }
+      }
+    }
+
+    let tileChoices = getAll(warningtile)
+    let randIndexForThisTile = Math.floor(Math.random() * tileChoices.length)
+    let randTile = tileChoices[randIndexForThisTile]
+
+
+    setTimeout(() => {
+      console.log(tileChoices)
+      getFirst(hollowboss).x = randTile.x
+      getFirst(hollowboss).y = randTile.y
+
+      startslashing('down',35)
+    }, 600)
+  
 }
 function finBossSlashes() {
     for (let i = 1; i < height(); i++) {
@@ -5062,44 +5124,38 @@ function finBossSlashes() {
 }
 let shootStarsTimer = setTimeout(shootStars, 300);
 function shootStars() { // this naming is confusing oops
-let stars = getAll(star)
+let stars = getAll(star) 
+
+    if (stars.length === 0) { 
+        console.log("No stars available: check spawning?!");
+        return;
+    }
   
-  if (!getFirst(star)) { // exit
+  if (starCounter > 14) { // exit
     console.log("Exiting stars")
     starCounter = 0
       stars.forEach(s => { 
         s.remove() 
       })
+    stars = []
+    chosenStars = []
+    clearTimeout(shootStarsTimer);
       return;
 
   }
 
   let randomStarId = Math.floor(Math.random() * stars.length)
   let randomStar = stars[randomStarId];
-    if (randomStar && !chosenStars.includes(randomStar)) {
+  
+    if (chosenStars.includes(randomStar) && starCounter < 11) {
+      shootStars()
+    } else {
         chosenStars.push(randomStar);
-        stars.splice(randomStarId, 1)
-        starMove()
+        starMove();
         clearTimeout(shootStarsTimer);
         shootStarsTimer = setTimeout(shootStars, 200);
-    } else if (randomStar && chosenStars.length != stars.length) {
-      try {
-        randomStarId = Math.floor(Math.random() * stars.length)
-        randomStar = stars[randomStarId];
-        shootStars()
-      }
-      catch (error) {
-      console.error(error);
-            console.log("Stack overflow; exiting stars") 
-    starCounter = 0 
-            stars.forEach(s => { 
-        s.remove() 
-      })      
-      return;
-} 
+    }
 
-    } else
-        starMove()
 }
 
 function starMove() {
@@ -5107,13 +5163,15 @@ starCounter++;
   console.log(getAll(star))
   chosenStars.forEach( str => {
     if (str != undefined) {
-      if (str.y < 7) {
+      if (str && str.y < 7) {
         str.y++;
+        return true;
       } else
         str.remove();
+        return false;
     }
   })
-  
+    console.log(chosenStars)
 }
 
 
