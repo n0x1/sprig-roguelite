@@ -17,18 +17,13 @@ III: Hollows
 
 
 /* bulletin 
-    dash attack
-    
-    more items
+plasma attack
 
-    
-   
+
    boss rush mode
 
 
-   then add scroller lvls & difficulty curve (with score var
-
-   storyboard final boss battle in burning village save mentor
+   storyboard final boss battle in burning village save mentor ? 
 */
 let testModeOn = true;
 
@@ -117,6 +112,8 @@ const skeleton = ">"
 const bat = ","
 const batspawner = "0"
 const plasmasword = "1"
+const finaldoor = "2"
+const plasmaslash = "3"
 
 const legendKeys = [
   black,
@@ -127,6 +124,7 @@ const legendKeys = [
   roofoverhangleft,
   roofoverhangright,
   bossslash,
+  plasmaslash,
   sword,
   lightning,
 
@@ -149,6 +147,7 @@ const legendKeys = [
   revlavafish,
   player,
   mentor,
+  finaldoor,
   door,
   lockeddoor,
   mobegg,
@@ -1237,6 +1236,23 @@ legend.set(lightning, [lightning, bitmap`
 ..066600........
 ..0661..........
 ...60.1.........`])
+legend.set(plasmaslash, [plasmaslash, bitmap`
+...............4
+..4...........44
+..4HH......22H55
+..25H.....22545.
+..25H.....2H555.
+..25H....2HH55..
+..25.H..22H55...
+..255H222H55....
+..225H2HH555....
+...225HH555.....
+....25H55.......
+....HH55........
+...H5522H.......
+..H55..225H4....
+...5.....22224..
+................`])
 legend.set(amethyst, [amethyst, bitmap`
 HHHHHHHHHHHHHHHH
 H12H11HH2HH22HHH
@@ -1306,21 +1322,21 @@ HHH15577CH0HHHHH
 HHL55L7HHHL7HLHH
 HHHHHHHHHHHHHHHH`])
 legend.set(plasmasword, [plasmasword, bitmap`
-............000.
-...........0HH0.
-..........0H7H0.
-.........0H7H0..
-........0H7HH0..
-.......0HHHH0...
-......0HHH00....
-.....0HHHH0.....
-00..0HHH00......
-0500HHHH0.......
-0550HH000.......
-0555HH00........
-.05550..........
-.0055500........
-00000550........
+...5555.....000.
+.......555.0HH0.
+.........55H9H0.
+.........055H0..
+........0H95H0..
+.555...0H99H5...
+..555.0H990055..
+...5.0H99H0..5..
+00..0HHH00...5..
+01005HHH0.555...
+0110H5H0........
+01119H50........
+.01110.55.......
+.0011100.55.....
+00000110...555..
 00..0000........`])
 
 
@@ -1626,7 +1642,7 @@ setLegend(...legend.values())
 
 const commonLootPool = [hppotion, energydrink, curse]
 const rareLootPool = [bomb, clock, lightningscroll]
-const epicLootPool = [lifeelixir, plasmasword]
+const epicLootPool = [lifeelixir] // i want plasma sword to only be boss
 
 const breakablesArray = getAll(mobegg)
 
@@ -1664,13 +1680,13 @@ ccccccipe`,
 
   map`
 ffffffffff
-ffCCffffff
-CCaCCf=fff
+ffffffffff
+ffafff=fff
 jlqzkfffff
-Cecifff,ff
-CenifCwwww
-ffff....ff
-..pfffffff`, //start
+fecifff,ff
+feniffwwww
+ffffffffff
+ffpEEEffff`, //start
 
   // enemy lvls
   map`
@@ -2094,7 +2110,7 @@ function putGrassUnderRoofs() { // and under the player
 
 
 }
-putGrassUnderRoofs() // and under the player
+putGrassUnderRoofs() // and under the player (init)
 
 function putGrassGraveyardLvl() {
   let tombstones = getAll(hurtplayer);
@@ -2163,13 +2179,8 @@ function levelSpecificStuff() {
       y:3,
         color:color`9`
     })
-    let decider;
-    if (maxhealth >= 4) {
-      decider = 'plasmasword'
-    } else {
-      decider = 'lifeelixir'
-    }
-    addSprite(getFirst(brokenrocks).x,getFirst(brokenrocks).y, decider)
+    let finalitem = plasmasword
+    addSprite(getFirst(brokenrocks).x,getFirst(brokenrocks).y, finalitem)
   }
   /*  if (level < 9) {
 let decowall = getAll(wall2);
@@ -2304,6 +2315,12 @@ const slash = tune`
 94.33962264150944: E5~94.33962264150944,
 94.33962264150944: B5^94.33962264150944 + E5^94.33962264150944 + G5^94.33962264150944 + F5^94.33962264150944 + A5^94.33962264150944,
 2735.8490566037735`
+const plasmaOn = tune`
+206.89655172413794: C4/206.89655172413794 + E4/206.89655172413794 + G4/206.89655172413794 + B4/206.89655172413794,
+206.89655172413794: F5/206.89655172413794 + A5/206.89655172413794 + B4/206.89655172413794 + C5/206.89655172413794,
+206.89655172413794: A5/206.89655172413794 + F5/206.89655172413794 + C5/206.89655172413794 + B4/206.89655172413794,
+206.89655172413794: A5/206.89655172413794 + F5/206.89655172413794 + C5/206.89655172413794 + B4/206.89655172413794,
+5793.103448275862`
 
 const advancelvl = tune`
 118.57707509881423: C4-118.57707509881423,
@@ -2725,7 +2742,7 @@ onInput("d", () => {
   }
 
 });
-
+let plasmaswordActive = true;
 let cooldown = false; // init
 let cooldownTime = 400 // init; can get smaller
 let interacting = false; // init
@@ -2753,11 +2770,36 @@ function basicAttack() {
       legend.set(sword, frames[sword].DOWN)
       xOffset = 0;
       yOffset = 1;
-
     }
     playTune(slash);
-    let swing = addSprite(plr.x + xOffset, plr.y + yOffset, sword)
+    if (tileExists(plr.x + xOffset, plr.y + yOffset))
+        addSprite(plr.x + xOffset, plr.y + yOffset, sword)
+    if (plasmaswordActive) {
+      let theSwordspritejustSpawned = getFirst(sword)
+      if (playerDir === "UP" || playerDir === "DOWN" ) {
+        if (theSwordspritejustSpawned && tileExists(theSwordspritejustSpawned.x-1, theSwordspritejustSpawned.y ))
+          addSprite(theSwordspritejustSpawned.x-1,theSwordspritejustSpawned.y, plasmaslash)
+        if (theSwordspritejustSpawned && tileExists(theSwordspritejustSpawned.x+1, theSwordspritejustSpawned.y))
+          addSprite(theSwordspritejustSpawned.x+1,theSwordspritejustSpawned.y, plasmaslash)
+      }
+        if (playerDir === "LEFT" || playerDir === "RIGHT" ) {
+        if (theSwordspritejustSpawned && tileExists(theSwordspritejustSpawned.x, theSwordspritejustSpawned.y-1))
+          addSprite(theSwordspritejustSpawned.x,theSwordspritejustSpawned.y-1, plasmaslash)
+        if (theSwordspritejustSpawned && tileExists(theSwordspritejustSpawned.x, theSwordspritejustSpawned.y+1))
+          addSprite(theSwordspritejustSpawned.x,theSwordspritejustSpawned.y+1, plasmaslash)
+      }
+      if (theSwordspritejustSpawned)
+        addSprite(theSwordspritejustSpawned.x,theSwordspritejustSpawned.y, plasmaslash) // center
 
+
+
+
+      let plsSlashes = getAll(plasmaslash)
+      setTimeout(() => {
+        plsSlashes.forEach(ps => { ps.remove() })
+      }, 101)
+
+    }
 
     //attack with hp? not working tho
 
@@ -2783,6 +2825,11 @@ function basicAttack() {
     }, 100);
   }
 }
+
+function tileExists(x, y) { // for sword addsprite
+  return x >= 0 && x < width() && y >= 0 && y < height();
+}
+
 onInput("i", () => {
   // tryInteract();
   // let tempspawn = getFirst(spawn);
@@ -2897,12 +2944,17 @@ function useItem() {
   if (currentItem === energydrink)
     boostAttackSpeed(30000) //ms arg
   if (currentItem === curse) {
+
     if (health > 1) {
       playerCollided();
+      setTimeout(() => {potionHeal();},100)
+      
     } else
-      playTune(hit);
-    swordDmg++;
-    strbuff = true;
+        playTune(hit);
+
+          swordDmg++
+      strbuff = true;
+    
   }
   if (currentItem === bomb) {
     let px = plr.x
@@ -2975,6 +3027,12 @@ clearInterval(batSpawnInterval)
     
     
   }
+  if (currentItem === plasmasword) {
+      plasmaswordActive = true;
+      playTune(plasmaOn)
+      swordDmg += 2; 
+    
+  }
 
 
   itemsArray.pop()
@@ -2993,7 +3051,7 @@ clearInterval(batSpawnInterval)
 let movementDown = false; // init
 
 function checkIfOnSpawnPos() {
-  if (movementDown && getFirst(spawn) && getFirst(player).x === getFirst(spawn).x && getFirst(player).y === getFirst(spawn).y) {
+  if (getFirst(player) && movementDown && getFirst(spawn) && getFirst(player).x === getFirst(spawn).x && getFirst(player).y === getFirst(spawn).y) {
     return false;
   } else {
     return true;
@@ -3073,7 +3131,7 @@ afterInput(() => {
         resetMap()
   }
 
-  if (getAll(housedoor).length > 0 && plr.x === houseDoor.x && plr.y === houseDoor.y) {
+  if (getFirst(player) && getAll(housedoor).length > 0 && plr.x === houseDoor.x && plr.y === houseDoor.y) {
     level = 0;
     setMap(levels[0]);
     clearText()
@@ -3539,7 +3597,7 @@ lightningBolts.forEach(b => {
   // mobs below here bc glitchy
   if (mobSprites) {
     mobSprites.forEach(mob => {
-      if (plr.x === mob.x && plr.y === mob.y) {
+      if (plr && plr.x === mob.x && plr.y === mob.y) {
         playerCollided();
       }
       if (lightningBolts) {
@@ -3560,7 +3618,7 @@ lightningBolts.forEach(b => {
 
   if (ghostSprites) {
     ghostSprites.forEach(ghost => {
-      if (plr.x === ghost.x && plr.y === ghost.y) {
+      if (plr && plr.x === ghost.x && plr.y === ghost.y) {
         playerCollided();
       }
           if (lightningBolts) {
@@ -3581,7 +3639,7 @@ lightningBolts.forEach(b => {
 
   if (spiderSprites) {
     spiderSprites.forEach(spider => {
-      if (plr.x === spider.x && plr.y === spider.y) {
+      if (plr && plr.x === spider.x && plr.y === spider.y) {
         playerCollided();
       }
           if (lightningBolts) {
@@ -3601,7 +3659,7 @@ lightningBolts.forEach(b => {
   }
   if (bats) {
     bats.forEach(bat => {
-      if (plr.x === bat.x && plr.y === bat.y) {
+      if (plr && plr.x === bat.x && plr.y === bat.y) {
         playerCollided();
       }
           if (lightningBolts) {
@@ -3637,21 +3695,21 @@ lightningBolts.forEach(b => {
 
   if (hpPotion) {
     hpPotion.forEach(pot => {
-      if (plr.x === pot.x && plr.y === pot.y) {
+      if (plr && plr.x === pot.x && plr.y === pot.y) {
         addItem(hppotion, pot)
       }
     })
   }
   if (energyDrink) {
     energyDrink.forEach(dr => {
-      if (plr.x === dr.x && plr.y === dr.y) {
+      if (plr && plr.x === dr.x && plr.y === dr.y) {
         addItem(energydrink, dr)
       }
     })
   }
 
   //RANDOM ITEMS FROM CHEST
-  if (comChst && plr.x === comChst.x && plr.y === comChst.y) {
+  if (plr && comChst && plr.x === comChst.x && plr.y === comChst.y) {
     let rndId = Math.floor(Math.random() * commonLootPool.length)
     let fcall = addItem(commonLootPool[rndId]);
     if (fcall === true) {
@@ -3659,7 +3717,7 @@ lightningBolts.forEach(b => {
       playTune(getItem);
     }
   }
-  if (rrChst && plr.x === rrChst.x && plr.y === rrChst.y) {
+  if (plr && rrChst && plr.x === rrChst.x && plr.y === rrChst.y) {
     let rndId = Math.floor(Math.random() * rareLootPool.length)
     let fcall = addItem(rareLootPool[rndId]);
     if (fcall === true) {
@@ -3667,7 +3725,7 @@ lightningBolts.forEach(b => {
       playTune(getItem);
     }
   }
-  if (epChst && plr.x === epChst.x && plr.y === epChst.y) {
+  if (plr && epChst && plr.x === epChst.x && plr.y === epChst.y) {
     let rndId = Math.floor(Math.random() * epicLootPool.length)
     let fcall = addItem(epicLootPool[rndId]);
     if (fcall === true) {
@@ -3707,7 +3765,7 @@ lightningBolts.forEach(b => {
 function checkCollisionforFireBalls() {
   let fireballSprites = getAll(fireball)
   fireballSprites.forEach(fireball => {
-    if (getFirst(player).x === fireball.x && getFirst(player).y === fireball.y) {
+    if (getFirst(player) && getFirst(player).x === fireball.x && getFirst(player).y === fireball.y) {
       playerCollided();
     }
   });
@@ -3802,7 +3860,7 @@ function addItem(pickup, groundspritetoremove) {
     if (pickup === hppotion)
       addText("Health Potion", { x: 3, y: 1, color: color`8` })
     if (pickup === curse)
-      addText("Sacrifice", { x: 2, y: 1, color: color`2` })
+      addText("Power Talisman", { x: 2, y: 1, color: color`2` })
     if (pickup === bomb) {
       addText("Bomb", { x: 3, y: 1, color: color`4` })
   itemsArray.push(bomb) // 2 uses
@@ -3816,6 +3874,9 @@ function addItem(pickup, groundspritetoremove) {
         itemsArray.push(lightningscroll)
         itemsArray.push(lightningscroll) // 3 uses
       }
+      if (pickup === plasmasword)
+        addText("Plasma Blade", { x: 2, y: 1, color: color`8` })
+
 
     setTimeout(() => { clearText() }, 1000)
 
@@ -4867,16 +4928,7 @@ function heartPickup() {
 
   }
 
-  if (strbuff === true) {
-    strbuff = false
-    let asp = getAll(strengthparticles)
-    if (asp) {
-      asp.forEach(ptc => {
-        ptc.remove()
-        swordDmg--;
-      })
-    }
-  }
+
 }
 
 function potionHeal() {
@@ -4886,7 +4938,7 @@ function potionHeal() {
     handleHealthUI(health);
     createHeartsArray(health);
   }
-  if (health === maxhealth) {
+  else if (health === maxhealth) {
     addText("max health: " + maxhealth, {
       x: (width() / 2),
       y: 3,
@@ -4896,16 +4948,7 @@ function potionHeal() {
       clearText();
     }, 1500);
   }
-  if (strbuff === true) {
-    strbuff = false
-    let asp = getAll(strengthparticles)
-    if (asp) {
-      asp.forEach(ptc => {
-        ptc.remove()
-        swordDmg--;
-      })
-    }
-  }
+
 }
 let boostactive = false;
 
@@ -4978,6 +5021,17 @@ function playerCollided(dmg) { //collide with normal mob
       health -= dmg;
       setTimeout(() => { playTune(hit); }, 100)
     }
+    
+  if (strbuff === true) {
+    strbuff = false
+    let asp = getAll(strengthparticles)
+    if (asp) {
+      asp.forEach(ptc => {
+        ptc.remove()
+        swordDmg--;
+      })
+    }
+  }
 
     invincible = true;
     handleHealthUI(health);
@@ -5128,8 +5182,12 @@ spawnedfishdefeated = false;
 
   
   strbuff = false;
+  plasmaswordActive = false; 
 
   plr = getFirst(player)
+
+putGrassUnderRoofs()
+
 }
 
 function plrTouching(obj) {
