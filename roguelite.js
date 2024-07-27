@@ -591,22 +591,22 @@ LL0CC666666CC0LL
 L60C6CCCCCC6C06L
 1166CCCCCCCC6611`])
 legend.set(finaldoor, [finaldoor, bitmap`
-2LL0LL000000LLL2
-22LL00L00L0LLL22
-L22LL000000LL22L
-LL2LL000000L2LLL
-LLL0000110000LLL
-0LL0000110000LL0
-L000001111000000
-LL000011110000LL
-LL000011110000LL
-L00000111100002L
-0L00001111000022
-LL000111111000L2
-22000111111000LL
-2L0011111111000L
-2L01111111111000
-LL011111111110LL`])
+0000000000000000
+02LH00H00H0LHL20
+0225LH0000HL5220
+0LHLL001100L2HL0
+0LL0001111000LL0
+0L5H01111110H5L0
+0000011111100000
+0LH0111111110HL0
+0L011111111110L0
+0H011111111110H0
+0L01111111111020
+0LH1111111111HL0
+02011111111110L0
+0L01111111111000
+0H011111111110H0
+0000000000000000`])
 legend.set(spawn, [spawn, bitmap`
 7777777777777777
 7771LL1111LL1777
@@ -1945,14 +1945,14 @@ X.X@@..@
 X.X@.@..
 N>X@..vp`, //12 this is lil skellies of 13 and spawner
   map`
-X.>.Ddv
+Xvd.DXv
 X.X...v
-X.t..$v
-X.X...v
+X.>..$v
+X.X$..v
 X.m..$v
 X.X...v
 X.....v
-X.p...v`,
+X.p.XEv`,
   map`
 X....L...XXX
 ............
@@ -2062,12 +2062,22 @@ XXX<<<...0<
 ......((((%
 p...X((((((`, // 9
   map`
-UUUUAUUUU
+UUUU2UUUU
 UUU...UUU
 UU..F..UU
 UU..@..UU
 UUU...UUU
 UUUUpUUUU`, // 10 hollowsPreFightLvl
+  map`
+<<<<<vLv<<<<<
+<<.........<<
+<.....=.....<
+<...........<
+<...........<
+<...........<
+<...........<
+<<.........<<
+<<<<<<p<<<<<<`, //the final boss 11 
   
 ] 
 const hollowsPreFightLvl = 10
@@ -2742,7 +2752,7 @@ onInput("d", () => {
   }
 
 });
-let plasmaswordActive = true;
+let plasmaswordActive = false; // false init
 let cooldown = false; // init
 let cooldownTime = 400 // init; can get smaller
 let interacting = false; // init
@@ -2912,7 +2922,7 @@ onInput("l", () => {
   
     if (testModeOn ) {
   stage = 3
-  resetMap(hollowsPreFightLvl) //  debug debugging debug tags etc 
+  resetMap(10) //  debug debugging debug tags etc 
   }
 
 
@@ -3297,6 +3307,20 @@ lightningBolts.forEach(b => {
       pL.remove();
     }
   }
+  let psmSword = getFirst(plasmasword)
+  if (psmSword) {
+    if (!plasmaswordActive && plr && plr.x === psmSword.x && plr.y === psmSword.y) {
+      plasmaswordActive = true;
+      psmSword.remove();
+      playTune(plasmaOn)
+      addText("Plasma Sword", {
+        x: 2,
+        y:1,
+        color:color`H`
+      })
+      setTimeout(() => {clearText()}, 1000)
+    }
+  }
 
   if (fireballSprites) {
     if (crates) {
@@ -3311,6 +3335,7 @@ lightningBolts.forEach(b => {
     }
   }
 
+  
   if (mobSprites) {
     //modify pushable sprites
     crates.forEach(crate => {
@@ -3405,7 +3430,7 @@ lightningBolts.forEach(b => {
     if (plr.x === gobBossSprite.x && plr.y === gobBossSprite.y)
       playerCollided(2)
     if (attacki && attacki.x === gobBossSprite.x && attacki.y === gobBossSprite.y && arbitrarySecondCd === false) {
-      gobBossHp--;
+      gobBossHp -= swordDmg;
       arbitrarySecondCd = true;
       setTimeout(() => { arbitrarySecondCd = false }, 100)
     }
@@ -3503,7 +3528,11 @@ lightningBolts.forEach(b => {
 
   //doors for specific lvls levelspecific stuff
   const portal = getFirst(advancetile);
+  const findoor = getFirst(finaldoor);
   plr = getFirst(player);
+  if (findoor && plr.x === findoor.x && plr.y === findoor.y) {
+    resetMap(11)
+  }
   if (portal && plr.x === portal.x && plr.y === portal.y) {
     if (level === 8 && stage === 1) { // water realm 
       resetMap(9)
@@ -3511,7 +3540,7 @@ lightningBolts.forEach(b => {
     if (level === 0 && stage === 2) {
       console.log("caverns transition")
       chosenLevels = [0]
-      randomPickBlacklist = [0, 4] // blacklist for caverns
+      randomPickBlacklist = [0, 4, 7, 14] // blacklist for caverns
     
       resetMap()
 
@@ -3526,7 +3555,7 @@ lightningBolts.forEach(b => {
       if (level === 0 && stage === 3) {
     console.log("hollows transition")
     chosenLevels = [0]
-    randomPickBlacklist = [0, 7,] // blacklist for hollows
+    randomPickBlacklist = [0, 7, 10, 11] // blacklist for hollows
     resetMap()
     setTimeout(() => { clearText(); }, 50)
     setTimeout(() => { addText("III: Hollows", { x: 4, y: 3, color: color`0` }) }, 100)
@@ -4337,10 +4366,12 @@ var arbitrarySecondCd = false;
 let eggCount = 0; // init
 let eggOpenTime = 1000; // init
 let gobBossHp = 25; // init
+let gobChoice;
+let pastGobChoice; 
 let gobBossEnraged = false; // init
 async function goblinBossAttack() {
   let gobBoss = getFirst(mobboss);
-  let choice;
+
   if (gobBossHp < 13) {
     if (gobBossEnraged === false) {
       playTune(bossRage, 1);
@@ -4351,12 +4382,18 @@ async function goblinBossAttack() {
   }
   if (gobBoss) {
     allowBossAttack = true;
-    const options = ["surroundXaoe", "surroundXaoe", "eggSummon", "sideaoe"];
+    const options = ["surroundXaoe", "eggSummon", "sideaoe"];
     let randomIndex = Math.floor(Math.random() * options.length);
 
-    choice = options[randomIndex];
+    gobChoice = options[randomIndex];
 
-    if (choice === "surroundXaoe") {
+
+    if (pastGobChoice === gobChoice) {
+      pastGobChoice = gobChoice;
+      goblinBossAttack();
+
+    }
+    if (gobChoice === "surroundXaoe") {
       for (let i = -1; i < 2; i++) {
         for (let j = -1; j < 3; j++) {
           addSprite(gobBoss.x + i, gobBoss.y + j, warningtile);
@@ -4376,7 +4413,7 @@ async function goblinBossAttack() {
         startslashing("down", 45);
       }, 1000);
     }
-    if (choice === "eggSummon") {
+    if (gobChoice === "eggSummon") {
       let xchoices = [2, 3, 4, 6, 7, 8]
       let ychoices = [3, 4, 6]
 
@@ -4410,7 +4447,7 @@ async function goblinBossAttack() {
         }
       }
     }
-    if (choice === "sideaoe") {
+    if (gobChoice === "sideaoe") {
       for (let i = 1; i < 3; i++) {
         for (let j = 1; j < 7; j++) {
           addSprite(i, j, warningtile);
@@ -4432,6 +4469,8 @@ async function goblinBossAttack() {
         if (gobBossEnraged) { sideslashsecondattack() }
       }, 900)
     }
+
+  pastGobChoice = gobChoice; 
   }
 }
 
@@ -4876,6 +4915,74 @@ if (bossFishEnraged) {
 }
 
 let bossFishInt = setInterval(fishBossAttack, 3000)
+
+let finalBossHp = 75; // init 75 is good i think
+let finalBossEnraged = false;
+let finalBossMsBetweenAttacks = 3000
+let finalBossChoice;
+let finalBossPrevChoice;
+async function finalBossAttack() {
+  let hob = getFirst(hollowboss);
+  let choice;
+  let hgt = (height() -1)
+  let wdt = (width() -1)
+  if (finalBossHp < 37) {
+    if (finalBossEnraged === false) {
+      playTune(bossRage, 1);
+    }
+
+    finalBossEnraged = true;
+    legend.set(hollowboss, frames[hollowboss].RAGE)
+  }
+  if (hob) {
+    allowBossAttack = true;
+    const options = ["slashes"];
+    let randomIndex = Math.floor(Math.random() * options.length);
+      
+    finalBossChoice = options[randomIndex];
+
+    if (finalBossChoice === finalBossPrevChoice)
+      finalBossAttack()
+
+    //attacks
+
+    if (finalBossChoice === 'slashes')
+    {
+      console.log('slashes')
+      finBossSlashes()
+
+    }
+
+
+    finalBossPrevChoice = finalBossChoice
+}
+}
+function finBossSlashes() {
+    for (let i = 1; i < height(); i++) {
+        addSprite(i, i, warningtile);
+        addSprite(i + 1, i, warningtile);
+        addSprite(i + 2, i, warningtile);
+    }
+
+    setTimeout(() => {
+        startslashing('down', 25);
+        setTimeout(() => {
+    for (let i = 2; i < height(); i++) {
+        addSprite(i, height()- i, warningtile);
+        addSprite(i + 1, height()-i, warningtile);
+        addSprite(i + 2, height()-i, warningtile);
+        }
+        setTimeout(() => {      
+          startslashing('up', 25);}, 200)}, 450)
+          setTimeout(()=> {
+            for (let i = 1; i < width()-2; i++) {
+              addSprite(i,5,warningtile)
+            }
+          }, 200)
+        }, 700);
+}
+let finalBossInt = setInterval(finalBossAttack,finalBossMsBetweenAttacks)
+
 
 function defeatEnemy(enemy) {
   enemy.remove();
