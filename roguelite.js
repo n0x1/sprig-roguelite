@@ -16,23 +16,8 @@ III: Hollows
 */
 
 
-/* bulletin 
-plasma attack
 
-
-   boss rush mode
-
-
-   storyboard final boss battle in burning village save mentor ? 
-*/
-let testModeOn = false; // for pressing L to tp to a lvl
-
-const dirVectors = {
-  "RIGHT": [1, 0],
-  "LEFT": [-1, 0],
-  "UP": [0, -1],
-  "DOWN": [0, 1]
-}
+let testModeOn = true;
 
 const directions = [
     { x: 0, y: -1 },
@@ -118,8 +103,7 @@ const star = "4"
 const purplelightning = "5"
 
 const legendKeys = [
-  
-  hppotion,
+    hppotion,
   curse,
   energydrink,
   bomb,
@@ -128,8 +112,6 @@ const legendKeys = [
   lightningscroll,
   plasmasword,
     heart,
-      plasmaslash,
-
   black,
   rooftip,
   roofleft,
@@ -137,15 +119,13 @@ const legendKeys = [
   roofoverhangleft,
   roofoverhangright,
   bossslash,
+  plasmaslash,
   sword,
   lightning,
   purplelightning,
-
   invincibility,
   strengthparticles,
   boostparticles,
-
-
   star,
   mobboss,
   hollowboss,
@@ -1736,7 +1716,7 @@ cccccciFe
 cccccci.e
 ccccccipe`,
 
-  map`
+ map`
 fffffffvGv
 fffffffv!v
 ffaffffvGv
@@ -1896,7 +1876,6 @@ x....w
 x....w
 xTTT.w
 xwvxpw`, //boss rush intermediary 18
-
 ]
 const caverns = [
   map`
@@ -2143,7 +2122,7 @@ UUUUpUUUU`, // 10 hollowsPreFightLvl
 <...........<
 <...........<
 <<<<<<p<<<<<<`, //the final boss 11 
-  map`
+    map`
 UUUUUUUU
 UUUUUUUU
 UUUUUUUU
@@ -2157,9 +2136,9 @@ const hollowsPreFightLvl = 10
 let traptriggered = false;
 let crateonplate = false;
 
-let randomPickBlacklist = [ // for surface
+let randomPickBlacklist = [ 
   0, 1, 9, 14, 15, 17, 18
-]
+] // for surface
 
 setMap(levels[level]); // only for init
 
@@ -2263,8 +2242,9 @@ function levelSpecificStuff() {
     })
     let finalitem = plasmasword
     addSprite(getFirst(brokenrocks).x,getFirst(brokenrocks).y, finalitem)
-    if (health < maxhealth)
-      addSprite(getFirst(mentor).x, getFirst(mentor).y+1, healingheart)
+        if (health < maxhealth)
+          addSprite(getFirst(mentor).x, getFirst(mentor).y+1, healingheart)
+
   }
   /*  if (level < 9) {
 let decowall = getAll(wall2);
@@ -2556,10 +2536,20 @@ const hardbgm = tune`
 let bgm = playTune(villagebgm, Infinity);
 
 
+function successivetracks() {
+  if (level > 1) {
+    bgm.end();
+    bgm = playTune(surbgm1)
+    setTimeout(() => {
+      bgm.end();
+      bgm = playTune(surbgm2)
+    }, 16 * 1000) // 16 seconds; 32 sections per thing and each half is a beat
+  }
+}
 
 var timestopped = false;
-let currentbgm = "villagebgm" //init
-function playbgm() { // plays bgm appropriate to lvl MAINLY FOR BSOSES
+let currentbgm = 'villagebgm' // init
+function playbgm() { // plays bgm appropriate to lvl
 
   if (level === 17 && stage === 1) {
     bgm.end();
@@ -2573,14 +2563,6 @@ function playbgm() { // plays bgm appropriate to lvl MAINLY FOR BSOSES
     bgm = playTune(currentbgm, Infinity)
      timestopped = false;
   }
-
-
-  /* if (arguments[0] === "r") {
-    bgm.end();
-    bgm = playTune(villagebgm, Infinity)
-  }*/
-
-
 
 }
 
@@ -2655,7 +2637,7 @@ function levelOneSetDeco() {
     x: 15,
     y: 4,
     color: color`6`
-  })
+    })
 }
 levelOneSetDeco() // init, call whenever returning
 
@@ -3069,6 +3051,7 @@ clearInterval(moveRavafishInterval)
 clearInterval(fsShootInterval) 
 clearInterval(skeleint)
 clearInterval(batSpawnInterval)
+
     clearInterval(batMoveInt)
     setTimeout(() => {  
       playTune(clockTick);
@@ -3076,12 +3059,14 @@ clearInterval(batSpawnInterval)
           moveMobsInterval = setInterval(mobMoveAll, 750);
           spawnMobsInterval = setInterval(mobSpawn, 1500);
         batMoveInt = setInterval(batMoveAll, 480)
+
         batSpawnInterval = setInterval(batSpawn,3000)
             moveGhostInterval = setInterval(ghostMoveAll, 1000);
         moveSpiderInterval = setInterval(spiderMoveAll, 480);
       moveLavafishInterval = setInterval(lavaFishMove, 900);
       moveRavafishInterval = setInterval(ravaFishMove, 900);
       fsShootInterval = setInterval(fireShoot, 500);
+        //ghost fire interval
       bossFishInt = setInterval(fishBossAttack, 3000)
       skeleint = setInterval(skeleLoop, 670)
         console.log("intervals set again")
@@ -3217,14 +3202,13 @@ afterInput(() => {
       setTimeout(() => { clearText() }, 2000)
     }
   } // tutorial and mentor
-  if (doorSprite) { 
-    if (stage === 1 && level != 1 && level != 18 && level != 17 && plr.x === doorSprite.x && plr.y === doorSprite.y)
+if (doorSprite && stage === 1 && level != 1 && level != 18 && level != 17 && plr.x === doorSprite.x && plr.y === doorSprite.y)
       resetMap(); // Load the next level
-    if (stage === 2 && level != 14 && plr.x === doorSprite.x && plr.y === doorSprite.y)
+    if (doorSprite && stage === 2 && level != 14 && plr.x === doorSprite.x && plr.y === doorSprite.y)
       resetMap()
-    if (stage === 3 && level != 11 && plr.x === doorSprite.x && plr.y === doorSprite.y)
+    if (doorSprite && stage === 3 && level != 11 && plr.x === doorSprite.x && plr.y === doorSprite.y)
         resetMap()
-    if (stage === 3 && level === 11 && plr.x === doorSprite.x && plr.y === doorSprite.y) {
+    if (doorSprite && stage === 3 && level === 11 && plr.x === doorSprite.x && plr.y === doorSprite.y) {
         resetMap(12)
       gameOver = true;
       addText("You win! \nPeace is restored.", {
@@ -3245,6 +3229,7 @@ afterInput(() => {
     }
     if (stage === 1 && level === 1 && plr.x === doorSprite.x && plr.y === doorSprite.y) {
       bossRushEnabled = true;
+      levelspassed = 99; // so u go thru everything immediatley to boss n prevent glitcheshopefully 
       stage = 1;
       level = 18;
       resetMap(18) // 18 is only for  boss rush
@@ -3252,12 +3237,13 @@ afterInput(() => {
       setTimeout(() => { addText("An expert, eh?", { x: 4, y: 5, color: color`4` }) }, 100)
 
       setTimeout(() => { clearText() }, 2000)
-      
+
     }
     //boss rush levels
     if (stage === 1 && bossRushEnabled && level === 18) {//boss rush goblin
       console.log(getFirst(player))
     }
+
   if (getFirst(player) && getAll(housedoor).length > 0 && plr.x === houseDoor.x && plr.y === houseDoor.y) {
     level = 0;
     setMap(levels[0]);
@@ -3295,10 +3281,9 @@ afterInput(() => {
 
   //heal 
   if (healingHeart) {
-    if (plr && plr.x === healingHeart.x && plr.y === healingHeart.y) {
+    if (plr && plr.x === healingHeart.x && plr.y === healingHeart.y)
       heartPickup();
-      console.log("Healed from pickup heart")
-    }
+    
   }
   plr = getFirst(player)
 
@@ -3602,11 +3587,13 @@ lightningBolts.forEach(b => {
     if (attacki && attacki.x === finBo.x && attacki.y === finBo.y && arbitrarySecondCd === false) {
       finalBossHp -= swordDmg;
       arbitrarySecondCd = true;
-      setTimeout(() => { arbitrarySecondCd = false }, 70)
-}     else if (plasmaslashes) {
+      setTimeout(() => { arbitrarySecondCd = false }, 100)
+}     else if (plasmaslashes && arbitrarySecondCd === false) {
       plasmaslashes.forEach(p => {
         if (p.x === finBo.x && p.y === finBo.y) {
           finalBossHp -= swordDmg
+                arbitrarySecondCd = true;
+      setTimeout(() => { arbitrarySecondCd = false }, 100)
         }
       })
     }
@@ -3687,6 +3674,12 @@ lightningBolts.forEach(b => {
     playTune(danger)
     traptriggered = true
   }
+  if (level === 14 && stage === 2 && !traptriggered) {
+    bossFishInt = setInterval(fishBossAttack, 3000) 
+        playTune(danger)
+    traptriggered = true
+    // bgm is already handled in the function for it
+  }
 
   //doors for specific lvls levelspecific stuff
   const portal = getFirst(advancetile);
@@ -3695,18 +3688,18 @@ lightningBolts.forEach(b => {
   if (findoor && plr.x === findoor.x && plr.y === findoor.y) {
     resetMap(11)
   }
-    
   if (portal && plr.x === portal.x && plr.y === portal.y) {
     if (level === 8 && stage === 1) { // water realm 
       resetMap(9)
     }
+    if (level === 18 && stage === 1) {
+      resetMap(17)
     }
-
-    if (level === 0 && stage === 2 && !bossRushEnabled) {
+    if (level === 0 && stage === 2) {
       console.log("caverns transition")
-      bgm.end();
+        bgm.end();
       currentbgm = "cavernsbgm"
-    bgm = playTune(cavernsbgm, Infinity)
+      bgm = playTune(cavernsbgm, Infinity)
       chosenLevels = [0]
       randomPickBlacklist = [0, 4, 7, 14] // blacklist for caverns
     
@@ -3719,21 +3712,20 @@ lightningBolts.forEach(b => {
     } else if (level === 0 && stage === 2 && bossRushEnabled) {
       stage = 2;
       resetMap(14)
-      
     }
     if (level === 4 && stage === 2)
       resetMap(5)
 
       if (level === 0 && stage === 3) {
     console.log("hollows transition")
-              bgm.end();
+                      bgm.end();
     currentbgm = "hollowsbgm"
     bgm = playTune(hollowsbgm, Infinity)
     chosenLevels = [0]
     randomPickBlacklist = [0, 7, 10, 11] // blacklist for hollows
     resetMap()
     setTimeout(() => { clearText(); }, 50)
-    setTimeout(() => { addText("III: Hollows", { x: 4, y: 3, color: color`0` }) }, 100)
+    setTimeout(() => { addText("III: Hollows", { x: 4, y: 3, color: color`7` }) }, 100)
 
     setTimeout(() => { clearText() }, 2000)
   }
@@ -5119,9 +5111,10 @@ if (bossFishEnraged) {
   }
 }
 
-let bossFishInt = setInterval(fishBossAttack, 3000) // change on enraged; higher init
+let bossFishInt; 
 
 
+let finalBossInt; // init when u walk out of spawn
 let finalBossHp = 75; // init 75 is good i think
 let finalBossEnraged = false;
 let finalCharging = false;
@@ -5139,10 +5132,11 @@ async function finalBossAttack() {
   if (finalBossHp < 37) {
     if (finalBossEnraged === false) {
       playTune(bossRage, 1);
+     finalBossMsBetweenAttacks = 3000
+      clearInterval(finalBossInt)
+      finalBossInt = setInterval(finalBossAttack,finalBossMsBetweenAttacks)
     }
-    finalBossMsBetweenAttacks = 3000
-    clearInterval(finalBossInt)
-    finalBossInt = setInterval(finalBossAttack,finalBossMsBetweenAttacks)
+
     finalBossEnraged = true;
     legend.set(hollowboss, frames[hollowboss].RAGE)
   }
@@ -5177,7 +5171,7 @@ async function finalBossAttack() {
         return;
     }
     
-    if (finalBossRestChoiceCount % 13 === 0) { // every 13, it does this hard combo attack
+    if (finalBossRestChoiceCount % 13 === 0) { // every 13th attack
       finalBossRestChoiceCount++;
       setTimeout(() => {
         for (let i = 2; i < 11; i++) {
@@ -5274,13 +5268,13 @@ hob.x = 1;
     
 beam(1, 800)
 setTimeout(() => {
-  hob.x = 10;
+  hob.x = 11;
   hob.y = 2;
   beam(1, 800)
  }, 950)
 setTimeout(() => {
       hob.y = 1;
-    hob.x = 6
+    hob.x = 6;
   if (finalBossEnraged)  {
     beam(2, 790) // makes y+1l
   }
@@ -5291,6 +5285,7 @@ setTimeout(() => {
     finalBossRestChoiceCount++;
 }
 }
+
 
 function beam(instance, timeUntilExplode) {
 let start = { x: plr.x, y: plr.y + Math.floor(instance / 2) }
@@ -5377,7 +5372,7 @@ function isTileEmpty(x, y) {
       getFirst(hollowboss).x = randTile.x
       getFirst(hollowboss).y = randTile.y
 
-      startslashing('down',35)
+      startslashing('down',25)
     }, 600)
   
 }
@@ -5422,10 +5417,10 @@ function finBossSlashes() {
               }
             }
 
-               setTimeout(() => { startslashing('down', 70) },500)
-          }, 200)
+               setTimeout(() => { startslashing('down', 40) },500)
+          }, 400)
           
-        }, 450)
+        }, 500)
 
           
         }, 200) // transition
@@ -5487,7 +5482,7 @@ starCounter++;
     console.log(chosenStars)
 }
 
-let finalBossInt; // init when u walk out of spawn
+
 
 
 
@@ -5511,10 +5506,16 @@ function defeatBoss(boss) {
   let slashes = getAll(bossslash)
   let fiyaz = getAll(fireball)
   let lavas = getAll(lava)
+  let stars = getAll(star)
+  for (let i = 0; i < 30; i++) {
+    setTimeout(() => {
   attackwarners.forEach(tile => { tile.remove() })
   slashes.forEach(s => { s.remove(); })
   fiyaz.forEach(f => {f.remove()})
   lavas.forEach(l => { l.remove() })
+    stars.forEach(z => { z.remove() })
+    }, i * 10)
+  }
   playTune(killEnemy);
   bgm.end();
   clearText();
@@ -5531,7 +5532,6 @@ function heartPickup() {
     createHeartsArray(health);
     getFirst(healingheart).remove();
   } else {
-    console.log("MAX HP")
     addText("max health: " + maxhealth, {
       x: (width() / 2),
       y: 3,
@@ -5606,7 +5606,7 @@ function bombExplosion(startx, starty) {
               expldTile[k].type != crate &&
               expldTile[k].type != commonchest &&
               expldTile[k].type != rarechest &&
-              // expldTile[k].type != epicchest &&
+              expldTile[k].type != epicchest &&
               expldTile[k].type != heart &&
               expldTile[k].type != spawn &&
               expldTile[k].type != door &&
@@ -5746,20 +5746,21 @@ function checkGameOver() {
 let stage = 1;
 let strbuff = false;
 let bossRushEnabled = false;
-let swordDmg = 30// init plr dmg per sword attack ; can grow
+let swordDmg = 1 // init plr dmg per sword attack ; can grow
 function initGame() { //  used for restart after death
   level = 1
   levelspassed = 0
   stage = 1
-  score = 0;
   bossRushEnabled = false;
+  score = 0;
 
    allowBossAttack = false;
   clearInterval(finalBossInt)
-  
+    bossRushEnabled = false;
   chosenLevels = []
   resetMap(1)
-  timestopped = false;
+  
+    timestopped = false;
   currentbgm = "villagebgm" //init
         
   
@@ -5797,12 +5798,12 @@ function initGame() { //  used for restart after death
   
    bossFishHp = 30;
   bossFishEnraged = false; 
-  pastFishChoice = undefined;
- fishChoice = undefined;
+  pastFishChoice;
+ fishChoice;
 spawnedfishdefeated = false;
  okToChooseFishOption = true;
 
-finalBossHp = 75; 
+  finalBossHp = 75; 
 finalBossEnraged = false;
 finalCharging = false;
 finalBossMsBetweenAttacks = 3500
@@ -5811,7 +5812,6 @@ finalBossPrevChoice;
 finalBossRestChoiceCount = 1 
 chosenStars = [];
 starCounter = 0;
-
   
   strbuff = false;
   plasmaswordActive = false; 
