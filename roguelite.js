@@ -17,7 +17,7 @@ III: Hollows
 
 
 
-let testModeOn = true;
+let testModeOn = false;
 
 const directions = [
     { x: 0, y: -1 },
