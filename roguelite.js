@@ -25,7 +25,7 @@ plasma attack
 
    storyboard final boss battle in burning village save mentor ? 
 */
-let testModeOn = true;
+let testModeOn = false; // for pressing L to tp to a lvl
 
 const dirVectors = {
   "RIGHT": [1, 0],
@@ -118,23 +118,7 @@ const star = "4"
 const purplelightning = "5"
 
 const legendKeys = [
-  black,
-  heart,
-  rooftip,
-  roofleft,
-  roofright,
-  roofoverhangleft,
-  roofoverhangright,
-  bossslash,
-  plasmaslash,
-  sword,
-  lightning,
-  purplelightning,
-
-  invincibility,
-  strengthparticles,
-  boostparticles,
-
+  
   hppotion,
   curse,
   energydrink,
@@ -143,6 +127,24 @@ const legendKeys = [
   lifeelixir,
   lightningscroll,
   plasmasword,
+    heart,
+      plasmaslash,
+
+  black,
+  rooftip,
+  roofleft,
+  roofright,
+  roofoverhangleft,
+  roofoverhangright,
+  bossslash,
+  sword,
+  lightning,
+  purplelightning,
+
+  invincibility,
+  strengthparticles,
+  boostparticles,
+
 
   star,
   mobboss,
@@ -1735,14 +1737,14 @@ cccccci.e
 ccccccipe`,
 
   map`
+fffffffvGv
+fffffffv!v
+ffaffffvGv
+jlqzkffvdv
+feciffffff
+feniffffff
 ffffffffff
-ffffffffff
-ffafff=fff
-jlqzkfffff
-fecifff,ff
-feniffwwww
-ffffffffff
-ffpEEEffff`, //start
+ffpfffffff`, //start
 
   // enemy lvls
   map`
@@ -1887,6 +1889,13 @@ x.........w
 x.........w
 x.........w
 xwvxwpxwvxw`, // first boss; 17
+  map`
+xAwvxw
+x..EFw
+x....w
+x....w
+xTTT.w
+xwvxpw`, //boss rush intermediary 18
 
 ]
 const caverns = [
@@ -2119,8 +2128,8 @@ XXX<<<...0<
 p...X((((((`, // 9
   map`
 UUUU2UUUU
-UUU...UUU
-UU..F..UU
+UUU..FUUU
+UU.....UU
 UU..@..UU
 UUU...UUU
 UUUUpUUUU`, // 10 hollowsPreFightLvl
@@ -2134,6 +2143,13 @@ UUUUpUUUU`, // 10 hollowsPreFightLvl
 <...........<
 <...........<
 <<<<<<p<<<<<<`, //the final boss 11 
+  map`
+UUUUUUUU
+UUUUUUUU
+UUUUUUUU
+UUUUUUUU
+UUUUUUUU
+UUUpUUUU`, // victory level
   
 ] 
 const hollowsPreFightLvl = 10
@@ -2141,8 +2157,8 @@ const hollowsPreFightLvl = 10
 let traptriggered = false;
 let crateonplate = false;
 
-let randomPickBlacklist = [
-  0, 1, 9, 14, 15, 17
+let randomPickBlacklist = [ // for surface
+  0, 1, 9, 14, 15, 17, 18
 ]
 
 setMap(levels[level]); // only for init
@@ -2247,6 +2263,8 @@ function levelSpecificStuff() {
     })
     let finalitem = plasmasword
     addSprite(getFirst(brokenrocks).x,getFirst(brokenrocks).y, finalitem)
+    if (health < maxhealth)
+      addSprite(getFirst(mentor).x, getFirst(mentor).y+1, healingheart)
   }
   /*  if (level < 9) {
 let decowall = getAll(wall2);
@@ -2436,7 +2454,7 @@ const villagebgm = tune`
 238.0952380952381: G4~238.0952380952381 + B4^238.0952380952381,
 238.0952380952381,
 238.0952380952381: C5^238.0952380952381 + C4^238.0952380952381`
-const surbgm1 = tune`
+const cavernsbgm = tune`
 260.8695652173913: C4^260.8695652173913 + E4^260.8695652173913 + G4^260.8695652173913 + D5~260.8695652173913,
 260.8695652173913: C5/260.8695652173913,
 260.8695652173913: B4~260.8695652173913 + D5/260.8695652173913,
@@ -2469,36 +2487,38 @@ const surbgm1 = tune`
 260.8695652173913: C5~260.8695652173913 + F4~260.8695652173913 + F5/260.8695652173913,
 260.8695652173913: B4^260.8695652173913 + E4^260.8695652173913 + E5/260.8695652173913 + C4~260.8695652173913,
 260.8695652173913: C4/260.8695652173913 + A4/260.8695652173913`
-const surbgm2 = tune`
-500: G5~500 + B4~500 + G4^500,
+const hollowsbgm = tune`
+500: G5/500 + B4~500 + G4^500,
 500,
-500: E4~500 + G4~500 + B4~500 + D5~500 + F5~500,
+500: E4~500 + G4~500 + B4~500 + D5~500 + F5/500,
 500,
-500: A4~500 + C5~500 + E5~500,
-500: E4~500,
-500: E4^500,
-500: E4^500,
-500: F4^500,
-500: G4^500,
+500: A4~500 + C5/500 + E5/500,
+500: E4~500 + D5^500,
+500: E4^500 + C5^500,
+500: E4^500 + B4^500,
+500: F4^500 + C5^500 + D5^500,
+500: G4^500 + C5^500,
 500: F4^500,
 500: E4^500 + A4~500 + C5~500 + E5~500,
-500: G4~500 + B4~500 + D5~500,
-1500,
-500: C5~500 + C4~500 + F4~500,
-500,
-500: D4^500,
-500: E4^500,
-500: F4~500 + C5~500 + G4~500,
-500,
-500: C5~500 + D5~500 + G5~500,
-500: F5~500,
-500: E5~500 + E4~500 + B4~500,
-500: C5~500,
-500: C5~500,
-500: C5~500,
-500: C5~500,
+500: G4~500 + B4~500 + D5/500,
 1000,
-500: C5~500 + C4~500 + E4~500 + G4~500`
+500: C5/500,
+500: C5^500 + C4^500 + F4^500,
+500,
+500: D4^500 + A4/500,
+500: E4^500,
+500: F4~500 + C5/500 + G4~500,
+500,
+500: C5~500 + D5/500 + G5~500,
+500: F5/500,
+500: E5/500 + E4~500 + B4~500,
+500: C5~500,
+500: C5~500 + D5/500,
+500: C5~500 + B4/500,
+500: C5/500,
+500: A4/500,
+500: B4/500,
+500: C5/500 + C4~500 + E4~500 + G4/500`
 const hardbgm = tune`
 476.1904761904762: A5-476.1904761904762 + C5-476.1904761904762 + B4^476.1904761904762 + C4/476.1904761904762,
 476.1904761904762: B5-476.1904761904762 + C5-476.1904761904762 + B4^476.1904761904762 + D4^476.1904761904762 + C4^476.1904761904762,
@@ -2536,19 +2556,10 @@ const hardbgm = tune`
 let bgm = playTune(villagebgm, Infinity);
 
 
-function successivetracks() {
-  if (level > 1) {
-    bgm.end();
-    bgm = playTune(surbgm1)
-    setTimeout(() => {
-      bgm.end();
-      bgm = playTune(surbgm2)
-    }, 16 * 1000) // 16 seconds; 32 sections per thing and each half is a beat
-  }
-}
 
 var timestopped = false;
-function playbgm() { // plays bgm appropriate to lvl
+let currentbgm = "villagebgm" //init
+function playbgm() { // plays bgm appropriate to lvl MAINLY FOR BSOSES
 
   if (level === 17 && stage === 1) {
     bgm.end();
@@ -2559,7 +2570,7 @@ function playbgm() { // plays bgm appropriate to lvl
     bgm = playTune(hardbgm, Infinity)
   }
  if (timestopped) {
-    bgm = playTune(villagebgm, Infinity)
+    bgm = playTune(currentbgm, Infinity)
      timestopped = false;
   }
 
@@ -2633,10 +2644,17 @@ function handleHealthUI(health) {
 
 function levelOneSetDeco() {
   putGrassUnderRoofs();
-  addText("mentor", {
-    x: 2,
+  addText("Start", {
+    x: 3,
     y: 9,
-    color: color`0`
+    color: color`2`
+  })
+  addSprite(7,3,candle)
+  addSprite(9,3,candle)
+    addText("Boss\nRush", {
+    x: 15,
+    y: 4,
+    color: color`6`
   })
 }
 levelOneSetDeco() // init, call whenever returning
@@ -2987,7 +3005,7 @@ onInput("l", () => {
   
     if (testModeOn ) {
   stage = 3
-  resetMap(10) //  debug debugging debug tags etc 
+  resetMap(11) //  debug debugging debug tags etc 
   }
 
 
@@ -3200,14 +3218,46 @@ afterInput(() => {
     }
   } // tutorial and mentor
   if (doorSprite) { 
-    if (stage === 1 && level != 17 && plr.x === doorSprite.x && plr.y === doorSprite.y)
+    if (stage === 1 && level != 1 && level != 18 && level != 17 && plr.x === doorSprite.x && plr.y === doorSprite.y)
       resetMap(); // Load the next level
     if (stage === 2 && level != 14 && plr.x === doorSprite.x && plr.y === doorSprite.y)
       resetMap()
-    if (stage === 3 && plr.x === doorSprite.x && plr.y === doorSprite.y)
+    if (stage === 3 && level != 11 && plr.x === doorSprite.x && plr.y === doorSprite.y)
         resetMap()
-  }
+    if (stage === 3 && level === 11 && plr.x === doorSprite.x && plr.y === doorSprite.y) {
+        resetMap(12)
+      gameOver = true;
+      addText("You win! \nPeace is restored.", {
+        x:1,
+        y:1,
+        color:color`6`
+      })
+      addText("Thanks for playing!\nMade by noxi\n", {
+        x:1,
+        y:4,
+        color:color`7`
+      })
+            addText("Play again?: j", {
+        x:1,
+        y:7,
+        color:color`H`
+      })
+    }
+    if (stage === 1 && level === 1 && plr.x === doorSprite.x && plr.y === doorSprite.y) {
+      bossRushEnabled = true;
+      stage = 1;
+      level = 18;
+      resetMap(18) // 18 is only for  boss rush
+      setTimeout(() => { clearText(); }, 50)
+      setTimeout(() => { addText("An expert, eh?", { x: 4, y: 5, color: color`4` }) }, 100)
 
+      setTimeout(() => { clearText() }, 2000)
+      
+    }
+    //boss rush levels
+    if (stage === 1 && bossRushEnabled && level === 18) {//boss rush goblin
+      console.log(getFirst(player))
+    }
   if (getFirst(player) && getAll(housedoor).length > 0 && plr.x === houseDoor.x && plr.y === houseDoor.y) {
     level = 0;
     setMap(levels[0]);
@@ -3245,8 +3295,10 @@ afterInput(() => {
 
   //heal 
   if (healingHeart) {
-    if (plr && plr.x === healingHeart.x && plr.y === healingHeart.y)
+    if (plr && plr.x === healingHeart.x && plr.y === healingHeart.y) {
       heartPickup();
+      console.log("Healed from pickup heart")
+    }
   }
   plr = getFirst(player)
 
@@ -3643,12 +3695,18 @@ lightningBolts.forEach(b => {
   if (findoor && plr.x === findoor.x && plr.y === findoor.y) {
     resetMap(11)
   }
+    
   if (portal && plr.x === portal.x && plr.y === portal.y) {
     if (level === 8 && stage === 1) { // water realm 
       resetMap(9)
     }
-    if (level === 0 && stage === 2) {
+    }
+
+    if (level === 0 && stage === 2 && !bossRushEnabled) {
       console.log("caverns transition")
+      bgm.end();
+      currentbgm = "cavernsbgm"
+    bgm = playTune(cavernsbgm, Infinity)
       chosenLevels = [0]
       randomPickBlacklist = [0, 4, 7, 14] // blacklist for caverns
     
@@ -3658,12 +3716,19 @@ lightningBolts.forEach(b => {
       setTimeout(() => { addText("II: Caverns", { x: 4, y: 3, color: color`C` }) }, 100)
 
       setTimeout(() => { clearText() }, 2000)
+    } else if (level === 0 && stage === 2 && bossRushEnabled) {
+      stage = 2;
+      resetMap(14)
+      
     }
     if (level === 4 && stage === 2)
       resetMap(5)
 
       if (level === 0 && stage === 3) {
     console.log("hollows transition")
+              bgm.end();
+    currentbgm = "hollowsbgm"
+    bgm = playTune(hollowsbgm, Infinity)
     chosenLevels = [0]
     randomPickBlacklist = [0, 7, 10, 11] // blacklist for hollows
     resetMap()
@@ -5060,7 +5125,7 @@ let bossFishInt = setInterval(fishBossAttack, 3000) // change on enraged; higher
 let finalBossHp = 75; // init 75 is good i think
 let finalBossEnraged = false;
 let finalCharging = false;
-let finalBossMsBetweenAttacks = 3000
+let finalBossMsBetweenAttacks = 3500
 let finalBossChoice;
 let finalBossPrevChoice;
 let finalBossRestChoiceCount = 1 // atevery 10 or so do a rest and charge attack
@@ -5075,7 +5140,9 @@ async function finalBossAttack() {
     if (finalBossEnraged === false) {
       playTune(bossRage, 1);
     }
-
+    finalBossMsBetweenAttacks = 3000
+    clearInterval(finalBossInt)
+    finalBossInt = setInterval(finalBossAttack,finalBossMsBetweenAttacks)
     finalBossEnraged = true;
     legend.set(hollowboss, frames[hollowboss].RAGE)
   }
@@ -5110,7 +5177,7 @@ async function finalBossAttack() {
         return;
     }
     
-    if (finalBossRestChoiceCount % 10 === 0) { // every 10
+    if (finalBossRestChoiceCount % 13 === 0) { // every 13, it does this hard combo attack
       finalBossRestChoiceCount++;
       setTimeout(() => {
         for (let i = 2; i < 11; i++) {
@@ -5420,7 +5487,7 @@ starCounter++;
     console.log(chosenStars)
 }
 
-let finalBossInt; 
+let finalBossInt; // init when u walk out of spawn
 
 
 
@@ -5464,6 +5531,7 @@ function heartPickup() {
     createHeartsArray(health);
     getFirst(healingheart).remove();
   } else {
+    console.log("MAX HP")
     addText("max health: " + maxhealth, {
       x: (width() / 2),
       y: 3,
@@ -5677,19 +5745,22 @@ function checkGameOver() {
 
 let stage = 1;
 let strbuff = false;
-let swordDmg = 1 // init plr dmg per sword attack ; can grow
+let bossRushEnabled = false;
+let swordDmg = 30// init plr dmg per sword attack ; can grow
 function initGame() { //  used for restart after death
   level = 1
   levelspassed = 0
   stage = 1
   score = 0;
+  bossRushEnabled = false;
 
    allowBossAttack = false;
   clearInterval(finalBossInt)
   
   chosenLevels = []
   resetMap(1)
-  
+  timestopped = false;
+  currentbgm = "villagebgm" //init
         
   
   getAll(fireball).forEach(f => {f.remove()})
@@ -5726,10 +5797,20 @@ function initGame() { //  used for restart after death
   
    bossFishHp = 30;
   bossFishEnraged = false; 
-  pastFishChoice;
- fishChoice;
+  pastFishChoice = undefined;
+ fishChoice = undefined;
 spawnedfishdefeated = false;
  okToChooseFishOption = true;
+
+finalBossHp = 75; 
+finalBossEnraged = false;
+finalCharging = false;
+finalBossMsBetweenAttacks = 3500
+finalBossChoice = undefined;
+finalBossPrevChoice;
+finalBossRestChoiceCount = 1 
+chosenStars = [];
+starCounter = 0;
 
   
   strbuff = false;
