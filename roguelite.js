@@ -17,7 +17,7 @@ III: Hollows
 
 
 
-let testModeOn = true;
+let testModeOn = false;
 
 const directions = [
   { x: 0, y: -1 },
@@ -4896,10 +4896,11 @@ function fishExpBombs() {
                 expldTile[k].type != advancetile &&
                 expldTile[k].type != hiddenadvance &&
                 expldTile[k].type != black &&
+                stage === 2 &&
                 expldTile[k].type != player) {
                 expldTile[k].remove()
                 // addSprite(i, j, brokenrocks); // add back if not  conflicts with eruption
-              } else if (expldTile[k].type === player) {
+              } else if (stage === 2 && expldTile[k].type === player) {
                 playerCollided()
               }
             }
@@ -5180,6 +5181,8 @@ async function finalBossAttack() {
         }
         addSprite(1, 2, warningtile)
         addSprite(11, 2, warningtile)
+        starCounter = 0
+        chosenStars = []
         setTimeout(() => {
           for (let i = 2; i < 11; i++) {
             addSprite(i, 1, star)
@@ -5804,7 +5807,9 @@ function initGame() { //  used for restart after death
   finalBossRestChoiceCount = 1
   chosenStars = [];
   starCounter = 0;
-
+    legend.set(hollowboss, frames[hollowboss].NORM)
+      legend.set(mobboss, frames[mobboss].NORM)
+        legend.set(bossfish, frames[bossfish].NORM)
   strbuff = false;
   plasmaswordActive = false;
 
