@@ -17,13 +17,13 @@ III: Hollows
 
 
 
-let testModeOn = false;
+let testModeOn = true;
 
 const directions = [
-    { x: 0, y: -1 },
-    { x: 1, y: 0 }, 
-    { x: 0, y: 1 },  
-    { x: -1, y: 0 }  // idk whuch to use is better
+  { x: 0, y: -1 },
+  { x: 1, y: 0 },
+  { x: 0, y: 1 },
+  { x: -1, y: 0 } // idk whuch to use is better
 ];
 
 
@@ -103,7 +103,7 @@ const star = "4"
 const purplelightning = "5"
 
 const legendKeys = [
-    hppotion,
+  hppotion,
   curse,
   energydrink,
   bomb,
@@ -111,7 +111,7 @@ const legendKeys = [
   lifeelixir,
   lightningscroll,
   plasmasword,
-    heart,
+  heart,
   black,
   rooftip,
   roofleft,
@@ -176,7 +176,7 @@ const legendKeys = [
   pressureplate,
   hiddenadvance,
   brokenrocks,
-  
+
 ]
 
 
@@ -1716,7 +1716,7 @@ cccccciFe
 cccccci.e
 ccccccipe`,
 
- map`
+  map`
 fffffffvGv
 fffffffv!v
 ffaffffvGv
@@ -2072,7 +2072,7 @@ dvBBB...p`, // 4
 <<].......v
 <XX$@.....<
 <<XXvxwvp<<`,
-map`
+  map`
 UX<N<(<((
 <X...>..(
 U<...X..(
@@ -2096,7 +2096,7 @@ X.@]Z@@].
 ........C..
 .......<.,.
 p..<Cy....<`,
-    map`
+  map`
 X.&B<d<<<<<
 H.Bfffff<<<
 ffffff<.<<<
@@ -2122,21 +2122,21 @@ UUUUpUUUU`, // 10 hollowsPreFightLvl
 <...........<
 <...........<
 <<<<<<p<<<<<<`, //the final boss 11 
-    map`
+  map`
 UUUUUUUU
 UUUUUUUU
 UUUUUUUU
 UUUUUUUU
 UUUUUUUU
 UUUpUUUU`, // victory level
-  
-] 
+
+]
 const hollowsPreFightLvl = 10
 
 let traptriggered = false;
 let crateonplate = false;
 
-let randomPickBlacklist = [ 
+let randomPickBlacklist = [
   0, 1, 9, 14, 15, 17, 18
 ] // for surface
 
@@ -2232,18 +2232,18 @@ function levelSpecificStuff() {
     addSprite(0, 0, candle)
   }
   if (level === 0 && stage === 3) {
-        addSprite(2, 0, candle)
+    addSprite(2, 0, candle)
   }
   if (level === hollowsPreFightLvl && stage === 3) {
     addText("At last... \navenge me", {
-      x:2,
-      y:3,
-        color:color`9`
+      x: 2,
+      y: 3,
+      color: color`9`
     })
     let finalitem = plasmasword
-    addSprite(getFirst(brokenrocks).x,getFirst(brokenrocks).y, finalitem)
-        if (health < maxhealth)
-          addSprite(getFirst(mentor).x, getFirst(mentor).y+1, healingheart)
+    addSprite(getFirst(brokenrocks).x, getFirst(brokenrocks).y, finalitem)
+    if (health < maxhealth)
+      addSprite(getFirst(mentor).x, getFirst(mentor).y + 1, healingheart)
 
   }
   /*  if (level < 9) {
@@ -2559,9 +2559,9 @@ function playbgm() { // plays bgm appropriate to lvl
     bgm.end();
     bgm = playTune(hardbgm, Infinity)
   }
- if (timestopped) {
+  if (timestopped) {
     bgm = playTune(currentbgm, Infinity)
-     timestopped = false;
+    timestopped = false;
   }
 
 }
@@ -2631,13 +2631,13 @@ function levelOneSetDeco() {
     y: 9,
     color: color`2`
   })
-  addSprite(7,3,candle)
-  addSprite(9,3,candle)
-    addText("Boss\nRush", {
+  addSprite(7, 3, candle)
+  addSprite(9, 3, candle)
+  addText("Boss\nRush", {
     x: 15,
     y: 4,
     color: color`6`
-    })
+  })
 }
 levelOneSetDeco() // init, call whenever returning
 
@@ -2711,7 +2711,7 @@ function resetMap(n) {
   console.log("RPB: " + randomPickBlacklist)
   console.log("chosenLevels: " + chosenLevels)
   console.log("Levels Passed: " + levelspassed)
-  
+
   mapJustChanged = true;
   crateonplate = false;
   traptriggered = false;
@@ -2758,7 +2758,7 @@ function resetMap(n) {
 
   clearText();
   levelSpecificStuff();
-  
+
   if (itemsArray[0])
     addSprite(0, 0, itemsArray[0])
 
@@ -2848,23 +2848,23 @@ function basicAttack() {
     }
     playTune(slash);
     if (tileExists(plr.x + xOffset, plr.y + yOffset))
-        addSprite(plr.x + xOffset, plr.y + yOffset, sword)
+      addSprite(plr.x + xOffset, plr.y + yOffset, sword)
     if (plasmaswordActive) {
       let theSwordspritejustSpawned = getFirst(sword)
-      if (playerDir === "UP" || playerDir === "DOWN" ) {
-        if (theSwordspritejustSpawned && tileExists(theSwordspritejustSpawned.x-1, theSwordspritejustSpawned.y ))
-          addSprite(theSwordspritejustSpawned.x-1,theSwordspritejustSpawned.y, plasmaslash)
-        if (theSwordspritejustSpawned && tileExists(theSwordspritejustSpawned.x+1, theSwordspritejustSpawned.y))
-          addSprite(theSwordspritejustSpawned.x+1,theSwordspritejustSpawned.y, plasmaslash)
+      if (playerDir === "UP" || playerDir === "DOWN") {
+        if (theSwordspritejustSpawned && tileExists(theSwordspritejustSpawned.x - 1, theSwordspritejustSpawned.y))
+          addSprite(theSwordspritejustSpawned.x - 1, theSwordspritejustSpawned.y, plasmaslash)
+        if (theSwordspritejustSpawned && tileExists(theSwordspritejustSpawned.x + 1, theSwordspritejustSpawned.y))
+          addSprite(theSwordspritejustSpawned.x + 1, theSwordspritejustSpawned.y, plasmaslash)
       }
-        if (playerDir === "LEFT" || playerDir === "RIGHT" ) {
-        if (theSwordspritejustSpawned && tileExists(theSwordspritejustSpawned.x, theSwordspritejustSpawned.y-1))
-          addSprite(theSwordspritejustSpawned.x,theSwordspritejustSpawned.y-1, plasmaslash)
-        if (theSwordspritejustSpawned && tileExists(theSwordspritejustSpawned.x, theSwordspritejustSpawned.y+1))
-          addSprite(theSwordspritejustSpawned.x,theSwordspritejustSpawned.y+1, plasmaslash)
+      if (playerDir === "LEFT" || playerDir === "RIGHT") {
+        if (theSwordspritejustSpawned && tileExists(theSwordspritejustSpawned.x, theSwordspritejustSpawned.y - 1))
+          addSprite(theSwordspritejustSpawned.x, theSwordspritejustSpawned.y - 1, plasmaslash)
+        if (theSwordspritejustSpawned && tileExists(theSwordspritejustSpawned.x, theSwordspritejustSpawned.y + 1))
+          addSprite(theSwordspritejustSpawned.x, theSwordspritejustSpawned.y + 1, plasmaslash)
       }
       if (theSwordspritejustSpawned)
-        addSprite(theSwordspritejustSpawned.x,theSwordspritejustSpawned.y, plasmaslash) // center
+        addSprite(theSwordspritejustSpawned.x, theSwordspritejustSpawned.y, plasmaslash) // center
 
 
 
@@ -2892,8 +2892,8 @@ function basicAttack() {
     // Reset cooldown and remove sword
     cooldown = true;
     setTimeout(() => {
-    if (getFirst(sword))
-      getFirst(sword).remove();
+      if (getFirst(sword))
+        getFirst(sword).remove();
       setTimeout(() => {
         cooldown = false;
       }, cooldownTime)
@@ -2961,33 +2961,33 @@ onInput("j", () => { // RESET game if game over is on
 });
 
 onInput("l", () => {
-  
 
 
-    movementDown = false;
+
+  movementDown = false;
   let tempdir = playerDir
-   if (tempdir === "UP") {
-     playerDir = "RIGHT"
-     basicAttack();
+  if (tempdir === "UP") {
+    playerDir = "RIGHT"
+    basicAttack();
 
-   } else if (tempdir === "LEFT") {
-     playerDir = "UP"
-     basicAttack();
-   } else if (tempdir === "RIGHT") {
-     playerDir = "DOWN"
-     basicAttack();
-   }
-   if (tempdir === "DOWN") {
-     playerDir = "LEFT"
-     basicAttack();
-   }
-   plr.x = plr.x
-   plr.y = plr.y 
-   movementDown = false;
-  
-    if (testModeOn ) {
-  stage = 3
-  resetMap(11) //  debug debugging debug tags etc 
+  } else if (tempdir === "LEFT") {
+    playerDir = "UP"
+    basicAttack();
+  } else if (tempdir === "RIGHT") {
+    playerDir = "DOWN"
+    basicAttack();
+  }
+  if (tempdir === "DOWN") {
+    playerDir = "LEFT"
+    basicAttack();
+  }
+  plr.x = plr.x
+  plr.y = plr.y
+  movementDown = false;
+
+  if (testModeOn) {
+    stage = 3
+    resetMap(10) //  debug debugging debug tags etc 
   }
 
 
@@ -2996,8 +2996,8 @@ onInput("l", () => {
 onInput("k", () => {
   movementDown = false;
   console.log(itemsArray)
-  
-    useItem()
+
+  useItem()
 
 
 })
@@ -3022,14 +3022,14 @@ function useItem() {
 
     if (health > 1) {
       playerCollided();
-      setTimeout(() => {potionHeal();},100)
-      
-    } else
-        playTune(hit);
+      setTimeout(() => { potionHeal(); }, 100)
 
-          swordDmg++
-      strbuff = true;
-    
+    } else
+      playTune(hit);
+
+    swordDmg++
+    strbuff = true;
+
   }
   if (currentItem === bomb) {
     let px = plr.x
@@ -3039,77 +3039,75 @@ function useItem() {
     bombExplosion(px, py)
   }
   if (currentItem === clock) {
-        bgm.end();
+    bgm.end();
 
-clearInterval(bossFishInt)
-clearInterval(moveMobsInterval) 
-clearInterval(spawnMobsInterval)
-clearInterval(moveGhostInterval) 
-clearInterval(moveSpiderInterval) 
-clearInterval(moveLavafishInterval) 
-clearInterval(moveRavafishInterval) 
-clearInterval(fsShootInterval) 
-clearInterval(skeleint)
-clearInterval(batSpawnInterval)
+    clearInterval(bossFishInt)
+    clearInterval(moveMobsInterval)
+    clearInterval(spawnMobsInterval)
+    clearInterval(moveGhostInterval)
+    clearInterval(moveSpiderInterval)
+    clearInterval(moveLavafishInterval)
+    clearInterval(moveRavafishInterval)
+    clearInterval(fsShootInterval)
+    clearInterval(skeleint)
+    clearInterval(batSpawnInterval)
 
     clearInterval(batMoveInt)
-    setTimeout(() => {  
+    setTimeout(() => {
       playTune(clockTick);
       setTimeout(() => {
-          moveMobsInterval = setInterval(mobMoveAll, 750);
-          spawnMobsInterval = setInterval(mobSpawn, 1500);
+        moveMobsInterval = setInterval(mobMoveAll, 750);
+        spawnMobsInterval = setInterval(mobSpawn, 1500);
         batMoveInt = setInterval(batMoveAll, 480)
 
-        batSpawnInterval = setInterval(batSpawn,3000)
-            moveGhostInterval = setInterval(ghostMoveAll, 1000);
+        batSpawnInterval = setInterval(batSpawn, 3000)
+        moveGhostInterval = setInterval(ghostMoveAll, 1000);
         moveSpiderInterval = setInterval(spiderMoveAll, 480);
-      moveLavafishInterval = setInterval(lavaFishMove, 900);
-      moveRavafishInterval = setInterval(ravaFishMove, 900);
-      fsShootInterval = setInterval(fireShoot, 500);
+        moveLavafishInterval = setInterval(lavaFishMove, 900);
+        moveRavafishInterval = setInterval(ravaFishMove, 900);
+        fsShootInterval = setInterval(fireShoot, 500);
         //ghost fire interval
-      bossFishInt = setInterval(fishBossAttack, 3000)
-      skeleint = setInterval(skeleLoop, 670)
+        bossFishInt = setInterval(fishBossAttack, 3000)
+        skeleint = setInterval(skeleLoop, 670)
         console.log("intervals set again")
         timestopped = true
         playbgm()
       }, 3500)
-                     }, 1000)
+    }, 1000)
   }
   if (currentItem === lifeelixir) {
     maxhealth++;
     potionHeal()
-    
+
   }
   if (currentItem === lightningscroll) {
 
     playTune(lightningStrike)
     if (playerDir === "LEFT") {
-        for (let i = 1; i < plr.x+1; i++)
-        addSprite(plr.x-i,plr.y,lightning)
-    } else     if (playerDir === "RIGHT") {
-        for (let i = plr.x+1; i < mW; i++)
-        addSprite(i,plr.y,lightning)
-    } 
-      else  if (playerDir === "UP") {
-        for (let i = plr.y-1; i >= 0; i--)
-        addSprite(plr.x,i,lightning)
-    } 
-        else  if (playerDir === "DOWN") {
-        for (let i = plr.y+1; i < mH; i++)
-        addSprite(plr.x,i,lightning)
-    } 
+      for (let i = 1; i < plr.x + 1; i++)
+        addSprite(plr.x - i, plr.y, lightning)
+    } else if (playerDir === "RIGHT") {
+      for (let i = plr.x + 1; i < mW; i++)
+        addSprite(i, plr.y, lightning)
+    } else if (playerDir === "UP") {
+      for (let i = plr.y - 1; i >= 0; i--)
+        addSprite(plr.x, i, lightning)
+    } else if (playerDir === "DOWN") {
+      for (let i = plr.y + 1; i < mH; i++)
+        addSprite(plr.x, i, lightning)
+    }
     setTimeout(() => {
-        let lbz = getAll(lightning)
+      let lbz = getAll(lightning)
       lbz.forEach(lb => { lb.remove() })
     }, 75)
-    
-    
+
+
   }
   if (currentItem === plasmasword) { // pickup not an itemn now
-      plasmaswordActive = true;
-      playTune(plasmaOn)
-      swordDmg ++; 
-    
+    plasmaswordActive = true;
+    playTune(plasmaOn)
+    swordDmg++;
+
   }
 
 
@@ -3202,47 +3200,47 @@ afterInput(() => {
       setTimeout(() => { clearText() }, 2000)
     }
   } // tutorial and mentor
-if (doorSprite && stage === 1 && level != 1 && level != 18 && level != 17 && plr.x === doorSprite.x && plr.y === doorSprite.y)
-      resetMap(); // Load the next level
-    if (doorSprite && stage === 2 && level != 14 && plr.x === doorSprite.x && plr.y === doorSprite.y)
-      resetMap()
-    if (doorSprite && stage === 3 && level != 11 && plr.x === doorSprite.x && plr.y === doorSprite.y)
-        resetMap()
-    if (doorSprite && stage === 3 && level === 11 && plr.x === doorSprite.x && plr.y === doorSprite.y) {
-        resetMap(12)
-      gameOver = true;
-      addText("You win! \nPeace is restored.", {
-        x:1,
-        y:1,
-        color:color`6`
-      })
-      addText("Thanks for playing!\nMade by noxi\n", {
-        x:1,
-        y:4,
-        color:color`7`
-      })
-            addText("Play again?: j", {
-        x:1,
-        y:7,
-        color:color`H`
-      })
-    }
-    if (stage === 1 && level === 1 && plr.x === doorSprite.x && plr.y === doorSprite.y) {
-      bossRushEnabled = true;
-      levelspassed = 99; // so u go thru everything immediatley to boss n prevent glitcheshopefully 
-      stage = 1;
-      level = 18;
-      resetMap(18) // 18 is only for  boss rush
-      setTimeout(() => { clearText(); }, 50)
-      setTimeout(() => { addText("An expert, eh?", { x: 4, y: 5, color: color`4` }) }, 100)
+  if (doorSprite && stage === 1 && level != 1 && level != 18 && level != 17 && plr.x === doorSprite.x && plr.y === doorSprite.y)
+    resetMap(); // Load the next level
+  if (doorSprite && stage === 2 && level != 14 && plr.x === doorSprite.x && plr.y === doorSprite.y)
+    resetMap()
+  if (doorSprite && stage === 3 && level != 11 && plr.x === doorSprite.x && plr.y === doorSprite.y)
+    resetMap()
+  if (doorSprite && stage === 3 && level === 11 && plr.x === doorSprite.x && plr.y === doorSprite.y) {
+    resetMap(12)
+    gameOver = true;
+    addText("You win! \nPeace is restored.", {
+      x: 1,
+      y: 1,
+      color: color`6`
+    })
+    addText("Thanks for playing!\nMade by noxi\n", {
+      x: 1,
+      y: 4,
+      color: color`7`
+    })
+    addText("Play again?: j", {
+      x: 1,
+      y: 7,
+      color: color`H`
+    })
+  }
+  if (stage === 1 && level === 1 && plr.x === doorSprite.x && plr.y === doorSprite.y) {
+    bossRushEnabled = true;
+    levelspassed = 99; // so u go thru everything immediatley to boss n prevent glitcheshopefully 
+    stage = 1;
+    level = 18;
+    resetMap(18) // 18 is only for  boss rush
+    setTimeout(() => { clearText(); }, 50)
+    setTimeout(() => { addText("An expert, eh?", { x: 4, y: 5, color: color`4` }) }, 100)
 
-      setTimeout(() => { clearText() }, 2000)
+    setTimeout(() => { clearText() }, 2000)
 
-    }
-    //boss rush levels
-    if (stage === 1 && bossRushEnabled && level === 18) {//boss rush goblin
-      console.log(getFirst(player))
-    }
+  }
+  //boss rush levels
+  if (stage === 1 && bossRushEnabled && level === 18) { //boss rush goblin
+    console.log(getFirst(player))
+  }
 
   if (getFirst(player) && getAll(housedoor).length > 0 && plr.x === houseDoor.x && plr.y === houseDoor.y) {
     level = 0;
@@ -3265,7 +3263,7 @@ if (doorSprite && stage === 1 && level != 1 && level != 18 && level != 17 && plr
   if (boostactive === true) { //speedboost logic
     if (getFirst(boostparticles) && getFirst(player))
       getFirst(boostparticles).remove();
-      const bp = addSprite(plr.x, plr.y, boostparticles)
+    const bp = addSprite(plr.x, plr.y, boostparticles)
   } else {
     let boosts = getAll(boostparticles)
     boosts.forEach(b => { b.remove(); })
@@ -3283,14 +3281,14 @@ if (doorSprite && stage === 1 && level != 1 && level != 18 && level != 17 && plr
   if (healingHeart) {
     if (plr && plr.x === healingHeart.x && plr.y === healingHeart.y)
       heartPickup();
-    
+
   }
   plr = getFirst(player)
 
-lightningBolts.forEach(b => {
-  if (plr.x === b.x && plr.y === b.y)
-    stillDamage();
-})
+  lightningBolts.forEach(b => {
+    if (plr.x === b.x && plr.y === b.y)
+      stillDamage();
+  })
 
 
 
@@ -3316,31 +3314,31 @@ lightningBolts.forEach(b => {
   let skele = getAll(skeleton)
   if (skele) {
     skele.forEach(s => {
-    if (plr.x === s.x && plr.y === s.y)
-      playerCollided()
-    if (lightningBolts) {
-    lightningBolts.forEach(b => {
-      if (s.x === b.x && s.y === b.y)
-        skeletonHp -=2;
-    })
-    }
-    if (!standardEnemyArbCD && attacki && attacki.x === s.x && attacki.y === s.y) {
-      skeletonHp -= swordDmg
-      playTune(hitEnemy)
-
-      standardEnemyArbCD = true;
-      setTimeout(() => { standardEnemyArbCD = false }, 100)
-      if (skeletonHp <= 0) {
-        defeatEnemy(s)
-        skeletonHp = 6
-        if (getFirst(skeleton)) {
-          playTune(heal)
-          playTune(danger)
-        }
-
+      if (plr.x === s.x && plr.y === s.y)
+        playerCollided()
+      if (lightningBolts) {
+        lightningBolts.forEach(b => {
+          if (s.x === b.x && s.y === b.y)
+            skeletonHp -= 2;
+        })
       }
-    }
-  })
+      if (!standardEnemyArbCD && attacki && attacki.x === s.x && attacki.y === s.y) {
+        skeletonHp -= swordDmg
+        playTune(hitEnemy)
+
+        standardEnemyArbCD = true;
+        setTimeout(() => { standardEnemyArbCD = false }, 100)
+        if (skeletonHp <= 0) {
+          defeatEnemy(s)
+          skeletonHp = 6
+          if (getFirst(skeleton)) {
+            playTune(heal)
+            playTune(danger)
+          }
+
+        }
+      }
+    })
   }
 
 
@@ -3366,25 +3364,25 @@ lightningBolts.forEach(b => {
         crateonplate = true;
       }
       if (level === 10 && stage === 2 && !crateonplate) {
-            playTune(secret)
-                crateonplate = true;
+        playTune(secret)
+        crateonplate = true;
         let w2s = getAll(wall2)
-        w2s.forEach(w2 => {w2.remove()})
+        w2s.forEach(w2 => { w2.remove() })
       }
       if (level === 2 && stage === 3 && !crateonplate) {
         playTune(secret)
-        crateonplate= true;
-        clearTile(2,2)
-                clearTile(1,3)
-          clearTile(3,1)
-        clearTile(3,2)
-          clearTile(2,3)
+        crateonplate = true;
+        clearTile(2, 2)
+        clearTile(1, 3)
+        clearTile(3, 1)
+        clearTile(3, 2)
+        clearTile(2, 3)
       }
-        if (level === 7 && stage === 3 && !crateonplate) {
+      if (level === 7 && stage === 3 && !crateonplate) {
         playTune(secret)
-        crateonplate= true;
-          addSprite(getFirst(lockeddoor).x,getFirst(lockeddoor).y,door)
-          getFirst(lockeddoor).remove();
+        crateonplate = true;
+        addSprite(getFirst(lockeddoor).x, getFirst(lockeddoor).y, door)
+        getFirst(lockeddoor).remove();
       }
     }
   });
@@ -3416,13 +3414,13 @@ lightningBolts.forEach(b => {
     if (!plasmaswordActive && plr && plr.x === psmSword.x && plr.y === psmSword.y) {
       plasmaswordActive = true;
       psmSword.remove();
-      swordDmg++; 
+      swordDmg++;
       addText("Plasma Sword", {
         x: 2,
-        y:1,
-        color:color`H`
+        y: 1,
+        color: color`H`
       })
-      setTimeout(() => {clearText()}, 1000)
+      setTimeout(() => { clearText() }, 1000)
     }
   }
 
@@ -3440,13 +3438,13 @@ lightningBolts.forEach(b => {
   }
 
   if (stars) {
-    stars.forEach( s=> {
+    stars.forEach(s => {
       if (plr.x === s.x && plr.y === s.y)
         playerCollided();
     })
   }
 
-  
+
   if (mobSprites) {
     //modify pushable sprites
     crates.forEach(crate => {
@@ -3488,10 +3486,10 @@ lightningBolts.forEach(b => {
     if (plr.x === lvf.x && plr.y === lvf.y)
       playerCollided()
     if (lightningBolts) {
-    lightningBolts.forEach(b => {
-      if (lvf.x === b.x && lvf.y === b.y)
-        lavaFishHp -=2;
-    })
+      lightningBolts.forEach(b => {
+        if (lvf.x === b.x && lvf.y === b.y)
+          lavaFishHp -= 2;
+      })
     }
     if (!standardEnemyArbCD && attacki && attacki.x === lvf.x && attacki.y === lvf.y) {
       lavaFishHp -= swordDmg
@@ -3511,10 +3509,10 @@ lightningBolts.forEach(b => {
     if (plr.x === rlvf.x && plr.y === rlvf.y)
       playerCollided()
     if (lightningBolts) {
-    lightningBolts.forEach(b => {
-      if (rlvf.x === b.x && rlvf.y === b.y)
-        ravaFishHp -= 2;
-    })
+      lightningBolts.forEach(b => {
+        if (rlvf.x === b.x && rlvf.y === b.y)
+          ravaFishHp -= 2;
+      })
     }
     if (!standardEnemyArbCD && attacki && attacki.x === rlvf.x && attacki.y === rlvf.y) {
       ravaFishHp -= swordDmg
@@ -3550,16 +3548,16 @@ lightningBolts.forEach(b => {
       let eggstoclear = getAll(mobegg)
       eggstoclear.forEach(e => { e.remove() })
     }
-  } 
+  }
   //dmg fish boss
   if (bossFishSp) {
     if (plr.x === bossFishSp.x && plr.y === bossFishSp.y)
       playerCollided()
     if (lightningBolts) {
-    lightningBolts.forEach(b => {
-      if (bossFishSp.x === b.x && bossFishSp.y === b.y)
-        bossFishHp -= 2;
-    })
+      lightningBolts.forEach(b => {
+        if (bossFishSp.x === b.x && bossFishSp.y === b.y)
+          bossFishHp -= 2;
+      })
     }
     if (attacki && attacki.x === bossFishSp.x && attacki.y === bossFishSp.y && arbitrarySecondCd === false) {
       bossFishHp -= swordDmg;
@@ -3567,7 +3565,7 @@ lightningBolts.forEach(b => {
       setTimeout(() => { arbitrarySecondCd = false }, 70)
     }
     if (bossFishHp <= 0) {
-      fireballSprites.forEach(f => {f.remove()})
+      fireballSprites.forEach(f => { f.remove() })
       defeatBoss(bossFishSp)
     }
   }
@@ -3578,28 +3576,28 @@ lightningBolts.forEach(b => {
       playerCollided();
     }
     if (lightningBolts) {
-    lightningBolts.forEach(b => {
-      if (finBo.x === b.x && finBo.y === b.y)
-        finalBossHp -= 2;
-    })
+      lightningBolts.forEach(b => {
+        if (finBo.x === b.x && finBo.y === b.y)
+          finalBossHp -= 2;
+      })
     }
 
     if (attacki && attacki.x === finBo.x && attacki.y === finBo.y && arbitrarySecondCd === false) {
       finalBossHp -= swordDmg;
       arbitrarySecondCd = true;
       setTimeout(() => { arbitrarySecondCd = false }, 100)
-}     else if (plasmaslashes && arbitrarySecondCd === false) {
+    } else if (plasmaslashes && arbitrarySecondCd === false) {
       plasmaslashes.forEach(p => {
         if (p.x === finBo.x && p.y === finBo.y) {
           finalBossHp -= swordDmg
-                arbitrarySecondCd = true;
-      setTimeout(() => { arbitrarySecondCd = false }, 100)
+          arbitrarySecondCd = true;
+          setTimeout(() => { arbitrarySecondCd = false }, 100)
         }
       })
     }
     if (finalBossHp <= 0) {
       let ppl = getAll(purplelightning)
-      ppl.forEach(f => {f.remove()})
+      ppl.forEach(f => { f.remove() })
       defeatBoss(finBo)
     }
   }
@@ -3616,8 +3614,8 @@ lightningBolts.forEach(b => {
       addSprite(grave.x, grave.y, ghost)
     })
   }
-  if (level === 7 && stage === 2 && traptriggered === false && plr.x === 8 ) {
-      let graves = getAll(hurtplayer)
+  if (level === 7 && stage === 2 && traptriggered === false && plr.x === 8) {
+    let graves = getAll(hurtplayer)
     traptriggered = true;
 
     graves.forEach(grave => {
@@ -3657,26 +3655,26 @@ lightningBolts.forEach(b => {
   }
   if (level === 3 && stage === 3) {
     if (!getFirst(bat)) {
-      addSprite(getFirst(lockeddoor).x,getFirst(lockeddoor).y,door)
+      addSprite(getFirst(lockeddoor).x, getFirst(lockeddoor).y, door)
       getFirst(lockeddoor).remove();
     }
   }
   if (level === 5 && stage === 3) {
     if (!getFirst(skeleton)) {
-      addSprite(getFirst(lockeddoor).x,getFirst(lockeddoor).y,door)
+      addSprite(getFirst(lockeddoor).x, getFirst(lockeddoor).y, door)
       getFirst(lockeddoor).remove();
     }
   }
   if (level === 11 && stage === 3 && !traptriggered) {
-    finalBossInt = setInterval(finalBossAttack,finalBossMsBetweenAttacks)
+    finalBossInt = setInterval(finalBossAttack, finalBossMsBetweenAttacks)
     bgm.end();
     bgm = playTune(hardbgm, Infinity)
     playTune(danger)
     traptriggered = true
   }
   if (level === 14 && stage === 2 && !traptriggered) {
-    bossFishInt = setInterval(fishBossAttack, 3000) 
-        playTune(danger)
+    bossFishInt = setInterval(fishBossAttack, 3000)
+    playTune(danger)
     traptriggered = true
     // bgm is already handled in the function for it
   }
@@ -3697,12 +3695,12 @@ lightningBolts.forEach(b => {
     }
     if (level === 0 && stage === 2) {
       console.log("caverns transition")
-        bgm.end();
+      bgm.end();
       currentbgm = "cavernsbgm"
       bgm = playTune(cavernsbgm, Infinity)
       chosenLevels = [0]
       randomPickBlacklist = [0, 4, 7, 14] // blacklist for caverns
-    
+
       resetMap()
 
       setTimeout(() => { clearText(); }, 50)
@@ -3716,20 +3714,20 @@ lightningBolts.forEach(b => {
     if (level === 4 && stage === 2)
       resetMap(5)
 
-      if (level === 0 && stage === 3) {
-    console.log("hollows transition")
-                      bgm.end();
-    currentbgm = "hollowsbgm"
-    bgm = playTune(hollowsbgm, Infinity)
-    chosenLevels = [0]
-    randomPickBlacklist = [0, 7, 10, 11] // blacklist for hollows
-    resetMap()
-    setTimeout(() => { clearText(); }, 50)
-    setTimeout(() => { addText("III: Hollows", { x: 4, y: 3, color: color`7` }) }, 100)
+    if (level === 0 && stage === 3) {
+      console.log("hollows transition")
+      bgm.end();
+      currentbgm = "hollowsbgm"
+      bgm = playTune(hollowsbgm, Infinity)
+      chosenLevels = [0]
+      randomPickBlacklist = [0, 7, 10, 11] // blacklist for hollows
+      resetMap()
+      setTimeout(() => { clearText(); }, 50)
+      setTimeout(() => { addText("III: Hollows", { x: 4, y: 3, color: color`7` }) }, 100)
 
-    setTimeout(() => { clearText() }, 2000)
-  }
+      setTimeout(() => { clearText() }, 2000)
     }
+  }
 
 
   // hidden advance tiles
@@ -3756,18 +3754,18 @@ lightningBolts.forEach(b => {
       }
     }
     if (level === 12 && stage === 2) {
-       let adv = getFirst(hiddenadvance)
+      let adv = getFirst(hiddenadvance)
       if (plrTouching(adv)) {
         resetMap(13)
       }
     }
     if (level === 6 && stage === 3) {
-       let adv = getFirst(hiddenadvance)
+      let adv = getFirst(hiddenadvance)
       if (plrTouching(adv)) {
         resetMap(7)
       }
     }
-    
+
   }
   //boss advancing
   if (level === 17 && stage === 1) { // mobboss
@@ -3778,14 +3776,14 @@ lightningBolts.forEach(b => {
   }
   if (level === fishbosslvl && stage === 2) { //fish boss
     console.log("fishbos")
-    if (doorSprite) { 
+    if (doorSprite) {
       console.log("thers a door (defeated)")
       if (plr.x === doorSprite.x && plr.y === doorSprite.y) {
-      console.log("Reset to hollows pls work")
-      stage = 3;
-      resetMap(0) // hollows
+        console.log("Reset to hollows pls work")
+        stage = 3;
+        resetMap(0) // hollows
+      }
     }
-                    }
   }
 
 
@@ -3797,11 +3795,11 @@ lightningBolts.forEach(b => {
         playerCollided();
       }
       if (lightningBolts) {
-    lightningBolts.forEach(b => {
-      if (b.x === mob.x && b.y === mob.y)
-        defeatEnemy(mob)
-    })
-    }
+        lightningBolts.forEach(b => {
+          if (b.x === mob.x && b.y === mob.y)
+            defeatEnemy(mob)
+        })
+      }
     })
     if (attacki) {
       mobSprites.forEach(mob => {
@@ -3817,12 +3815,12 @@ lightningBolts.forEach(b => {
       if (plr && plr.x === ghost.x && plr.y === ghost.y) {
         playerCollided();
       }
-          if (lightningBolts) {
-    lightningBolts.forEach(b => {
-      if (b.x === ghost.x && b.y === ghost.y)
-        defeatEnemy(ghost)
-    })
-    }
+      if (lightningBolts) {
+        lightningBolts.forEach(b => {
+          if (b.x === ghost.x && b.y === ghost.y)
+            defeatEnemy(ghost)
+        })
+      }
     })
     if (attacki) {
       ghostSprites.forEach(ghost => {
@@ -3838,12 +3836,12 @@ lightningBolts.forEach(b => {
       if (plr && plr.x === spider.x && plr.y === spider.y) {
         playerCollided();
       }
-          if (lightningBolts) {
-    lightningBolts.forEach(b => {
-      if (b.x === spider.x && b.y === spider.y)
-        defeatEnemy(spider)
-    })
-    }
+      if (lightningBolts) {
+        lightningBolts.forEach(b => {
+          if (b.x === spider.x && b.y === spider.y)
+            defeatEnemy(spider)
+        })
+      }
     })
     if (attacki) {
       spiderSprites.forEach(spider => {
@@ -3858,12 +3856,12 @@ lightningBolts.forEach(b => {
       if (plr && plr.x === bat.x && plr.y === bat.y) {
         playerCollided();
       }
-          if (lightningBolts) {
-    lightningBolts.forEach(b => {
-      if (b.x === bat.x && b.y === bat.y)
-        defeatEnemy(bat)
-    })
-    }
+      if (lightningBolts) {
+        lightningBolts.forEach(b => {
+          if (b.x === bat.x && b.y === bat.y)
+            defeatEnemy(bat)
+        })
+      }
     })
     if (attacki) {
       bats.forEach(bat => {
@@ -3880,7 +3878,7 @@ lightningBolts.forEach(b => {
         defeatEnemy(egg)
         eggCount--
       }
-      
+
     })
   }
 
@@ -3940,7 +3938,7 @@ lightningBolts.forEach(b => {
       color: color`4`
     })
   }
-    if (bossFishSp && bossFishHp > 0) {
+  if (bossFishSp && bossFishHp > 0) {
     clearText();
     addText("HP: " + bossFishHp, {
       x: 2,
@@ -3949,7 +3947,7 @@ lightningBolts.forEach(b => {
     })
   }
 
-      if (getFirst(hollowboss) && finalBossHp > 0) {
+  if (getFirst(hollowboss) && finalBossHp > 0) {
     clearText();
     addText("HP: " + finalBossHp, {
       x: 2,
@@ -4068,19 +4066,19 @@ function addItem(pickup, groundspritetoremove) {
       addText("Power Talisman", { x: 2, y: 1, color: color`2` })
     if (pickup === bomb) {
       addText("Bomb", { x: 3, y: 1, color: color`4` })
-  itemsArray.push(bomb) // 2 uses
+      itemsArray.push(bomb) // 2 uses
     }
     if (pickup === clock)
       addText("Time Stop", { x: 2, y: 1, color: color`2` })
     if (pickup === lifeelixir)
       addText("Life Elixir", { x: 2, y: 1, color: color`3` })
-      if (pickup === lightningscroll) {
+    if (pickup === lightningscroll) {
       addText("Lightning", { x: 2, y: 1, color: color`6` })
-        itemsArray.push(lightningscroll)
-        itemsArray.push(lightningscroll) // 3 uses
-      }
-      if (pickup === plasmasword)
-        addText("Plasma Blade", { x: 2, y: 1, color: color`8` })
+      itemsArray.push(lightningscroll)
+      itemsArray.push(lightningscroll) // 3 uses
+    }
+    if (pickup === plasmasword)
+      addText("Plasma Blade", { x: 2, y: 1, color: color`8` })
 
 
     setTimeout(() => { clearText() }, 1000)
@@ -4111,13 +4109,14 @@ function mobSpawn() {
     }
   })
 }
+
 function batSpawn() {
   let batSpawner = getFirst(batspawner)
   if (batSpawner) {
-    addSprite(batSpawner.x,batSpawner.y,bat)
+    addSprite(batSpawner.x, batSpawner.y, bat)
   }
 }
-batSpawnInterval = setInterval(batSpawn,3000)
+batSpawnInterval = setInterval(batSpawn, 3000)
 
 function ghostMoveAll() {
   const options = ["up", "down", "left", "right"];
@@ -4192,7 +4191,7 @@ function spiderMoveAll() {
     }
 
     const spritesAtNextPos = getTile(spiderSprite.x, spiderSprite.y);
-    const isWallCollision = spritesAtNextPos.some(sprite => [rocks,lava,amethyst, wall, wall2, wall3, water, commonchest, crate, heart, fireball, mob, ghost, spikes].includes(sprite.type));
+    const isWallCollision = spritesAtNextPos.some(sprite => [rocks, lava, amethyst, wall, wall2, wall3, water, commonchest, crate, heart, fireball, mob, ghost, spikes].includes(sprite.type));
     const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
 
     if (isWallCollision) {
@@ -4229,8 +4228,8 @@ function fireShoot() {
     const spritesAtNextPos = getTile(fireproj.x, fireproj.y + 1);
     const isWallCollision = spritesAtNextPos.some(sprite => [amethyst, rocks, wall, wall2, wall3, heart, spawn, door, commonchest, spider, mob, ghost, spikes].includes(sprite.type));
     const isPlayerCollision = spritesAtNextPos.some(sprite => sprite.type === player);
-    const isCrateCollision =spritesAtNextPos.some(sprite => sprite.type === crate);
-    
+    const isCrateCollision = spritesAtNextPos.some(sprite => sprite.type === crate);
+
     if (!isWallCollision && !isPlayerCollision)
       fireproj.y++;
 
@@ -4292,7 +4291,7 @@ function moveEnemiesTowardsPlayerPrioY(thingtomove, playerX, playerY) { // Prior
     const dx = playerX - enemy.x;
     const dy = playerY - enemy.y;
 
-    const directionX = Math.sign(dx); 
+    const directionX = Math.sign(dx);
     const directionY = Math.sign(dy);
 
 
@@ -4327,7 +4326,7 @@ function lavaFishMove() {
 
 
     if (stage === 2 && level === 14 && !spawnedfishdefeated) {
-      addSprite(llfv.x,llfv.y,lava)
+      addSprite(llfv.x, llfv.y, lava)
     }
 
   }
@@ -4345,7 +4344,7 @@ function ravaFishMove() {
     })
 
     if (stage === 2 && level === 14 && !spawnedfishdefeated) {
-      addSprite(getFirst(revlavafish).x,getFirst(revlavafish).y,lava)
+      addSprite(getFirst(revlavafish).x, getFirst(revlavafish).y, lava)
     }
   }
 }
@@ -4353,51 +4352,51 @@ function ravaFishMove() {
 // bats cannot go through other bats
 function smartMoveThruWalls(enemy, plr) {
   if (getFirst(spawn) && enemy && (plr.x !== getFirst(spawn).x || plr.y !== getFirst(spawn).y)) {
-  if (enemy) {
-    const dx = plr.x - enemy.x;
-    const dy = plr.y - enemy.y;
+    if (enemy) {
+      const dx = plr.x - enemy.x;
+      const dy = plr.y - enemy.y;
 
-    let nextX = enemy.x;
-    let nextY = enemy.y;
+      let nextX = enemy.x;
+      let nextY = enemy.y;
 
-    if (Math.abs(dx) > Math.abs(dy)) {
+      if (Math.abs(dx) > Math.abs(dy)) {
         nextX = enemy.x + Math.sign(dx);
         if (isBatObstacle(nextX, enemy.y)) {
-            nextX = enemy.x; // Reset if the next step is an obstacle
+          nextX = enemy.x; // Reset if the next step is an obstacle
         }
-    } else {
+      } else {
         nextY = enemy.y + Math.sign(dy);
         if (isBatObstacle(enemy.x, nextY)) {
-            nextY = enemy.y; // Reset if the next step is an obstacle
+          nextY = enemy.y; // Reset if the next step is an obstacle
         }
-    }
+      }
 
-    // If horizontal move is blocked, try vertical and vice versa
-    if (nextX === enemy.x && nextY === enemy.y) {
+      // If horizontal move is blocked, try vertical and vice versa
+      if (nextX === enemy.x && nextY === enemy.y) {
         if (Math.abs(dx) > Math.abs(dy)) {
-            nextY = enemy.y + Math.sign(dy);
-            if (isBatObstacle(enemy.x, nextY)) {
-                nextY = enemy.y; // Reset if the next step is an obstacle
-            }
+          nextY = enemy.y + Math.sign(dy);
+          if (isBatObstacle(enemy.x, nextY)) {
+            nextY = enemy.y; // Reset if the next step is an obstacle
+          }
         } else {
-            nextX = enemy.x + Math.sign(dx);
-            if (isBatObstacle(nextX, enemy.y)) {
-                nextX = enemy.x; // Reset if the next step is an obstacle
-            }
+          nextX = enemy.x + Math.sign(dx);
+          if (isBatObstacle(nextX, enemy.y)) {
+            nextX = enemy.x; // Reset if the next step is an obstacle
+          }
         }
+      }
+
+
+
+      if (nextX != getFirst(spawn).x || nextY != getFirst(spawn).y) {
+        enemy.x = nextX;
+        enemy.y = nextY;
+      }
+
+
+      if (enemy.x === plr.x && enemy.y === plr.y)
+        playerCollided()
     }
-
-
-
-    if (nextX != getFirst(spawn).x || nextY != getFirst(spawn).y) {
-      enemy.x = nextX;
-      enemy.y = nextY;
-    }
-
-
-    if (enemy.x === plr.x && enemy.y === plr.y)
-       playerCollided()
-  }
   }
 }
 
@@ -4432,21 +4431,21 @@ function spawnEnemy(type, x, y, health) {
     // 
   };
 
-  activeEnemies.push(enemy); 
+  activeEnemies.push(enemy);
 }
 
-const obstacleTypes = [wall, wall2, rocks, wall3, amethyst, skeleton,lava, water, pressureplate, crate, mob, spider, fireball, spawn, lockeddoor, door, heart, commonchest, rarechest, epicchest]; // universal
+const obstacleTypes = [wall, wall2, rocks, wall3, amethyst, skeleton, lava, water, pressureplate, crate, mob, spider, fireball, spawn, lockeddoor, door, heart, commonchest, rarechest, epicchest]; // universal
 
 const batObstacles = [fireball, bat, lavafish, revlavafish, door, lockeddoor, commonchest, rarechest, epicchest, spawn]
 
 function isObstacle(x, y) { // reuse in a* 
-    const sprites = getTile(x, y); // Get all sprites at the specified position
-    return sprites.some(sprite => obstacleTypes.includes(sprite.type));
+  const sprites = getTile(x, y); // Get all sprites at the specified position
+  return sprites.some(sprite => obstacleTypes.includes(sprite.type));
 }
 
 function isBatObstacle(x, y) {
-    const sprites = getTile(x, y);
-    return sprites.some(sprite => batObstacles.includes(sprite.type));
+  const sprites = getTile(x, y);
+  return sprites.some(sprite => batObstacles.includes(sprite.type));
 }
 
 
@@ -4459,30 +4458,30 @@ function moveTowardsAvoidingObstacles(enemy, plr) {
     let nextY = enemy.y;
 
     if (Math.abs(dx) > Math.abs(dy)) {
-        nextX = enemy.x + Math.sign(dx);
-        if (isObstacle(nextX, enemy.y)) {
-            nextX = enemy.x; // Reset if the next step is an obstacle
-        }
+      nextX = enemy.x + Math.sign(dx);
+      if (isObstacle(nextX, enemy.y)) {
+        nextX = enemy.x; // Reset if the next step is an obstacle
+      }
     } else {
-        nextY = enemy.y + Math.sign(dy);
-        if (isObstacle(enemy.x, nextY)) {
-            nextY = enemy.y; // Reset if the next step is an obstacle
-        }
+      nextY = enemy.y + Math.sign(dy);
+      if (isObstacle(enemy.x, nextY)) {
+        nextY = enemy.y; // Reset if the next step is an obstacle
+      }
     }
 
     // If horizontal move is blocked, try vertical and vice versa
     if (nextX === enemy.x && nextY === enemy.y) {
-        if (Math.abs(dx) > Math.abs(dy)) {
-            nextY = enemy.y + Math.sign(dy);
-            if (isObstacle(enemy.x, nextY)) {
-                nextY = enemy.y; // Reset if the next step is an obstacle
-            }
-        } else {
-            nextX = enemy.x + Math.sign(dx);
-            if (isObstacle(nextX, enemy.y)) {
-                nextX = enemy.x; // Reset if the next step is an obstacle
-            }
+      if (Math.abs(dx) > Math.abs(dy)) {
+        nextY = enemy.y + Math.sign(dy);
+        if (isObstacle(enemy.x, nextY)) {
+          nextY = enemy.y; // Reset if the next step is an obstacle
         }
+      } else {
+        nextX = enemy.x + Math.sign(dx);
+        if (isObstacle(nextX, enemy.y)) {
+          nextX = enemy.x; // Reset if the next step is an obstacle
+        }
+      }
     }
 
     enemy.x = nextX;
@@ -4490,18 +4489,18 @@ function moveTowardsAvoidingObstacles(enemy, plr) {
 
 
     if (enemy.x === plr.x && enemy.y === plr.y)
-       playerCollided()
+      playerCollided()
   }
 }
 
 
 function skeleLoop() {
   let en = getAll(skeleton);
-    if (en) {
-        en.forEach(e => {
-        moveTowardsAvoidingObstacles(e, plr);
-      })
-    } 
+  if (en) {
+    en.forEach(e => {
+      moveTowardsAvoidingObstacles(e, plr);
+    })
+  }
 }
 
 let skeleint = setInterval(skeleLoop, 670)
@@ -4509,7 +4508,7 @@ let skeleint = setInterval(skeleLoop, 670)
 
 
 function getNeighbors(x, y) {
-    return directions.map(dir => ({ x: x + dir.x, y: y + dir.y }));
+  return directions.map(dir => ({ x: x + dir.x, y: y + dir.y }));
 }
 
 
@@ -4517,22 +4516,22 @@ function getNeighbors(x, y) {
 
 // kinda deprecated?
 function handleMultipleHits(swordX, swordY, damage) {
-    const en = activeEnemies.find(enemy => {
-        return swordX === enemy.x && swordY === enemy.y && enemy.type === 'Y';
-        // Adjust the condition based on your collision detection logic
-    });
-    
-    if (en) {
-        console.log("FOUND ENEMY");
-        hitLavaFishMob(en.x, en.y, swordDmg); // Deal damage to the enemy
-        
-        if (en.health > 0) {
-            console.log("HIT");
-        } else {
-            playTune(killEnemy);
-        }
+  const en = activeEnemies.find(enemy => {
+    return swordX === enemy.x && swordY === enemy.y && enemy.type === 'Y';
+    // Adjust the condition based on your collision detection logic
+  });
+
+  if (en) {
+    console.log("FOUND ENEMY");
+    hitLavaFishMob(en.x, en.y, swordDmg); // Deal damage to the enemy
+
+    if (en.health > 0) {
+      console.log("HIT");
+    } else {
+      playTune(killEnemy);
     }
-} 
+  }
+}
 
 
 
@@ -4543,7 +4542,7 @@ let eggCount = 0; // init
 let eggOpenTime = 1000; // init
 let gobBossHp = 25; // init
 let gobChoice;
-let pastGobChoice; 
+let pastGobChoice;
 let gobBossEnraged = false; // init
 async function goblinBossAttack() {
   let gobBoss = getFirst(mobboss);
@@ -4647,7 +4646,7 @@ async function goblinBossAttack() {
       }, 900)
     }
 
-  pastGobChoice = gobChoice; 
+    pastGobChoice = gobChoice;
   }
 }
 
@@ -4671,16 +4670,16 @@ function startslashing(dir, delayBetweenSlashMs) {
             if (plr && plr.x === s.x && plr.y === s.y) {
               clearAllSlashes();
               playerCollided();
-            if (playerCollided && getFirst(hollowboss)) {
+              if (playerCollided && getFirst(hollowboss)) {
                 finalBossHp += 3;
                 playTune(heal)
-                    clearText();
-                  addText("HP: " + finalBossHp, {
+                clearText();
+                addText("HP: " + finalBossHp, {
                   x: 2,
-                y: 1,
-                color: color`2`
-              })
-            }
+                  y: 1,
+                  color: color`2`
+                })
+              }
             }
 
             if (s.y + 1 === runcount)
@@ -4709,16 +4708,16 @@ function startslashing(dir, delayBetweenSlashMs) {
             if (plr.x === s.x && plr.y === s.y) {
               clearAllSlashes();
               playerCollided();
-            if (playerCollided && getFirst(hollowboss)) {
+              if (playerCollided && getFirst(hollowboss)) {
                 finalBossHp += 3;
                 playTune(heal)
-                    clearText();
-                  addText("HP: " + finalBossHp, {
+                clearText();
+                addText("HP: " + finalBossHp, {
                   x: 2,
-                y: 1,
-                color: color`2`
-              })
-            }
+                  y: 1,
+                  color: color`2`
+                })
+              }
             }
 
             if (s.y - 1 === runcount)
@@ -4775,8 +4774,8 @@ async function fishBossAttack() {
   if (bossFishHp < 16) {
     if (!bossFishEnraged) {
       bossFishEnraged = true;
-      addSprite(0,1,revlavafish)
-      addSprite(width()-1,1,lavafish)
+      addSprite(0, 1, revlavafish)
+      addSprite(width() - 1, 1, lavafish)
       okToChooseFishOption = false;
       playTune(bossRage)
       legend.set(bossfish, frames[bossfish].RAGE)
@@ -4784,19 +4783,19 @@ async function fishBossAttack() {
     }
 
 
-    
+
     if (!spawnedfishdefeated && !getFirst(lavafish) && !getFirst(revlavafish)) { // set spawned fish to defeated tho
-      addSprite(5,4,bossfish);
+      addSprite(5, 4, bossfish);
       let lvsps = getAll(lava)
-      lvsps.forEach(l => {l.remove()})
+      lvsps.forEach(l => { l.remove() })
       spawnedfishdefeated = true;
       okToChooseFishOption = true;
       fishBossAttack()
     }
-    
+
   }
   if (fsBo && okToChooseFishOption && stage === 2) {
-   allowBossAttack = true;
+    allowBossAttack = true;
     const options = ["bombs", "erupt", "encirclingfire", "linesslash"] // [fireslash]  & summon both fish and invul ONE TIME once raged
 
     let randomIndex = Math.floor(Math.random() * options.length);
@@ -4813,27 +4812,27 @@ async function fishBossAttack() {
       let yopt = [2, 3, 4, 5]
       let bombN = 2
       if (bossFishEnraged) {
-            bombN = 4;
+        bombN = 4;
       }
-        
-        setTimeout(() => {
-          selRandomBombs()
-                fishExpBombs()
 
-        },1500)
+      setTimeout(() => {
+        selRandomBombs()
+        fishExpBombs()
 
-      
+      }, 1500)
+
+
       function selRandomBombs() {
-      for (let i = 0; i < bombN; i++) {
-      let rx = Math.floor(Math.random() * xopt.length);
-      let ry = Math.floor(Math.random() * yopt.length);
-      let cx = xopt[rx]
-      let cy = yopt[ry]
-      addSprite(cx, cy, bomb)
-      }
+        for (let i = 0; i < bombN; i++) {
+          let rx = Math.floor(Math.random() * xopt.length);
+          let ry = Math.floor(Math.random() * yopt.length);
+          let cx = xopt[rx]
+          let cy = yopt[ry]
+          addSprite(cx, cy, bomb)
+        }
       }
       selRandomBombs()
-      
+
       fishExpBombs()
 
     }
@@ -4913,7 +4912,7 @@ function fishExpBombs() {
 
 
   }, 1400);
-  
+
 }
 
 function lavaEruption(ms) {
@@ -4979,7 +4978,7 @@ function prepareEruption(startx, starty) { // 2x2 grid
       let xrokTil = getTile(i, j)
 
       for (let k = 0; k < xrokTil.length; k++) {
-        if (xrokTil[k].type != 'p' && xrokTil[k].type != bossfish && xrokTil[k].type != sword && xrokTil[k].type != black && xrokTil[k].type != lava && allowBossAttack )
+        if (xrokTil[k].type != 'p' && xrokTil[k].type != bossfish && xrokTil[k].type != sword && xrokTil[k].type != black && xrokTil[k].type != lava && allowBossAttack)
           xrokTil[k].remove()
       }
       addSprite(i, j, brokenrocks)
@@ -5001,18 +5000,18 @@ function startEncircle(intervalMs) {
 
 
     for (let i = fireEncircleRuncount + 1; i < w; i++) {
-    if (allowBossAttack) {
-            addSprite(i, fireEncircleRuncount, fireball)
-    }
-        if (plr.x === i && plr.y === fireEncircleRuncount)
-            playerCollided()
+      if (allowBossAttack) {
+        addSprite(i, fireEncircleRuncount, fireball)
+      }
+      if (plr.x === i && plr.y === fireEncircleRuncount)
+        playerCollided()
     }
     for (let i = fireEncircleRuncount; i < w; i++) {
       if (allowBossAttack) {
-      addSprite(i, h, fireball)
+        addSprite(i, h, fireball)
       }
-        if (plr.x === i && plr.y === h)
-            playerCollided()
+      if (plr.x === i && plr.y === h)
+        playerCollided()
     }
 
 
@@ -5023,11 +5022,11 @@ function startEncircle(intervalMs) {
       fireEncircleRuncount = 0;
       let fz = getAll(fireball)
       setTimeout(() => {
-        fz.forEach(f => { 
-          f.remove() 
+        fz.forEach(f => {
+          f.remove()
         })
 
-        if (bossFishEnraged) { 
+        if (bossFishEnraged) {
           // idk this boss is already hard so keeping for now
         }
 
@@ -5042,6 +5041,7 @@ function startEncircle(intervalMs) {
 
 let lineRunning = false;
 let middleWarning = false;
+
 function startLines(intervalMs) {
   let lineInterval = setInterval(lineFire, intervalMs)
   let lineFireRuncount = 0;
@@ -5054,8 +5054,8 @@ function startLines(intervalMs) {
     if (!lineRunning) {
       for (let cc = 0; cc < h; cc++) {
         if (allowBossAttack) {
-        addSprite(lineFireRuncount, cc, fireball)
-        addSprite(w - lineFireRuncount, cc, fireball)
+          addSprite(lineFireRuncount, cc, fireball)
+          addSprite(w - lineFireRuncount, cc, fireball)
         }
         if (plr.x === lineFireRuncount && plr.y === cc)
           playerCollided()
@@ -5063,55 +5063,56 @@ function startLines(intervalMs) {
           playerCollided()
       }
     } else
-        return 
+      return
 
     setTimeout(() => {
       let fz = getAll(fireball)
-      fz.forEach(f => { 
-        f.remove() 
+      fz.forEach(f => {
+        f.remove()
       })
     }, (intervalMs / 3))
 
-if (bossFishEnraged) {
-    if (lineFireRuncount >= 5) { // one extra
-      lineFireRuncount = 0;
-      let checkundef = clearInterval(lineInterval);
-      if (checkundef === undefined)
-        console.log('supposedly worked Enraged')
-      lineRunning = false;
-      middleWarning = false;
+    if (bossFishEnraged) {
+      if (lineFireRuncount >= 5) { // one extra
+        lineFireRuncount = 0;
+        let checkundef = clearInterval(lineInterval);
+        if (checkundef === undefined)
+          console.log('supposedly worked Enraged')
+        lineRunning = false;
+        middleWarning = false;
 
-    } else if (lineFireRuncount < 5) {
-      
-    if (!middleWarning) {
-      for (let q = 0; q < h; q++) {
-        addSprite(5,q,warningtile)
-        addSprite(6,q,warningtile)
+      } else if (lineFireRuncount < 5) {
+
+        if (!middleWarning) {
+          for (let q = 0; q < h; q++) {
+            addSprite(5, q, warningtile)
+            addSprite(6, q, warningtile)
+          }
+          setTimeout(() => {
+            let wts = getAll(warningtile)
+            wts.forEach(w => { w.remove() })
+          }, 500)
+          middleWarning = true;
+        }
+
+        lineFireRuncount++;
       }
-      setTimeout(() => {     
-        let wts = getAll(warningtile)
-      wts.forEach(w => {w.remove()})}, 500)
-      middleWarning = true;
-    }
-      
-      lineFireRuncount++;
-    }
-} else {
+    } else {
       if (lineFireRuncount >= 4) {
-      lineFireRuncount = 0;
-      let checkundef = clearInterval(lineInterval);
-      if (checkundef === undefined)
-        console.log('supposedly worked')
-      lineRunning = false;
-    } else if (lineFireRuncount < 4) {
-      lineFireRuncount++;
+        lineFireRuncount = 0;
+        let checkundef = clearInterval(lineInterval);
+        if (checkundef === undefined)
+          console.log('supposedly worked')
+        lineRunning = false;
+      } else if (lineFireRuncount < 4) {
+        lineFireRuncount++;
+      }
     }
-}
 
   }
 }
 
-let bossFishInt; 
+let bossFishInt;
 
 
 let finalBossInt; // init when u walk out of spawn
@@ -5127,14 +5128,14 @@ let starCounter = 0;
 async function finalBossAttack() {
   let hob = getFirst(hollowboss);
   let choice;
-  let hgt = (height() -1)
-  let wdt = (width() -1)
+  let hgt = (height() - 1)
+  let wdt = (width() - 1)
   if (finalBossHp < 37) {
     if (finalBossEnraged === false) {
       playTune(bossRage, 1);
-     finalBossMsBetweenAttacks = 3000
+      finalBossMsBetweenAttacks = 3150;
       clearInterval(finalBossInt)
-      finalBossInt = setInterval(finalBossAttack,finalBossMsBetweenAttacks)
+      finalBossInt = setInterval(finalBossAttack, finalBossMsBetweenAttacks)
     }
 
     finalBossEnraged = true;
@@ -5144,7 +5145,7 @@ async function finalBossAttack() {
     allowBossAttack = true;
     const options = ["slashes", "stars", "home", "beam"];
     let randomIndex = Math.floor(Math.random() * options.length);
-      
+
     finalBossChoice = options[randomIndex];
 
     if (finalBossChoice === finalBossPrevChoice) {
@@ -5152,321 +5153,313 @@ async function finalBossAttack() {
       return;
     }
     if (finalCharging) {
-        finalBossRestChoiceCount++;
-        hob.x = 6;
-        hob.y = 1;
+      finalBossRestChoiceCount++;
+      hob.x = 6;
+      hob.y = 1;
 
 
-       setTimeout(() => { beam(1, 1000) }, 10)
+      setTimeout(() => { beam(1, 1000) }, 10)
 
-        setTimeout(() => {
-                
+      setTimeout(() => {
+
         beam(1, 800)
-        }, 1150)
-              setTimeout(() => {
-                
+      }, 1150)
+      setTimeout(() => {
+
         beam(1, 800)
-        }, 2150)
+      }, 2150)
       finalCharging = false;
-        return;
+      return;
     }
-    
+
     if (finalBossRestChoiceCount % 13 === 0) { // every 13th attack
       finalBossRestChoiceCount++;
       setTimeout(() => {
         for (let i = 2; i < 11; i++) {
-             addSprite(i,1,warningtile)
-      }
-            addSprite(1,2,warningtile)
-            addSprite(11,2,warningtile)
+          addSprite(i, 1, warningtile)
+        }
+        addSprite(1, 2, warningtile)
+        addSprite(11, 2, warningtile)
         setTimeout(() => {
-                            for (let i = 2; i < 11; i++) {
-            addSprite(i,1,star)
+          for (let i = 2; i < 11; i++) {
+            addSprite(i, 1, star)
+            console.log("charge stars")
+          }
+          addSprite(1, 2, star)
+          addSprite(11, 2, star)
+          let wts = getAll(warningtile)
+          wts.forEach(w => { w.remove() })
+          setTimeout(() => {shootStars() }, 100)
+        }, 1000)
+      }, 1500)
 
-      }
-              addSprite(1,2,star)
-            addSprite(11,2,star)
-        let wts = getAll(warningtile)
-        wts.forEach(w=> {w.remove() })
-        shootStars() 
-
-
-          setTimeout(() => {
-                    legend.set(hollowboss, frames[hollowboss].NORM) // noraml
-          }, 499)
-        },1000)
-      },1500)
-        
       for (let i = 0; i < 5; i++) {
         setTimeout(() => {
           finalBossHp++;
           playTune(heal)
-              clearText();
-    addText("HP: " + finalBossHp, {
-      x: 2,
-      y: 1,
-      color: color`2`
-    })
+          clearText();
+          addText("HP: " + finalBossHp, {
+            x: 2,
+            y: 1,
+            color: color`2`
+          })
         }, i * 100)
       }
 
       hob.x = 6;
       hob.y = 1;
-      legend.set(hollowboss, frames[hollowboss].CHARGE)
+
       finalCharging = true;
-
-
-      setTimeout(() => {
-
-      }, 2999) 
+      legend.set(hollowboss, frames[hollowboss].CHARGE)
+      setLegend(...legend.values())
+              setTimeout(() => {
+            legend.set(hollowboss, frames[hollowboss].NORM) // noraml
+          }, 2999)
       return;
     }
 
     //attacks
 
-    if (finalBossChoice === 'slashes')
-    {
+    if (finalBossChoice === 'slashes') {
 
       finBossSlashes()
 
     }
-        if (finalBossChoice === 'stars') 
-    {
-      let removingexcess = getAll(star)
-      if (removingexcess) {
-        removingexcess.forEach(sr => {sr.remove() })
-      }
-        console.log(chosenStars)
-        playTune(starFall)
-          starCounter = 0
+    if (finalBossChoice === 'stars') {
+      console.log(chosenStars)
+      playTune(starFall)
+      starCounter = 0
 
       for (let i = 2; i < 11; i++) {
-             addSprite(i,1,warningtile)
+        addSprite(i, 1, warningtile)
       }
-            addSprite(1,2,warningtile)
-            addSprite(11,2,warningtile)
+      addSprite(1, 2, warningtile)
+      addSprite(11, 2, warningtile)
       setTimeout(() => {
-          for (let i = 2; i < 11; i++) {
-            addSprite(i,1,star)
+        for (let i = 2; i < 11; i++) {
+          addSprite(i, 1, star)
 
-      }
-              addSprite(1,2,star)
-            addSprite(11,2,star)
+        }
+        addSprite(1, 2, star)
+        addSprite(11, 2, star)
         let wts = getAll(warningtile)
-        wts.forEach(w=> {w.remove() })
-        shootStars() 
+        wts.forEach(w => { w.remove() })
+        shootStars()
       }, 400)
     }
-if (finalBossChoice === 'home') {
-  homing()
-  setTimeout(() => {  homing() }, 1100)
-  setTimeout(() => {  homing() }, 2000)
-}
-if (finalBossChoice === 'beam') {
-hob.y = 2
-hob.x = 1;
-    
-beam(1, 800)
-setTimeout(() => {
-  hob.x = 11;
-  hob.y = 2;
-  beam(1, 800)
- }, 950)
-setTimeout(() => {
-      hob.y = 1;
-    hob.x = 6;
-  if (finalBossEnraged)  {
-    beam(2, 790) // makes y+1l
-  }
-}, 1900)
-}
+    if (finalBossChoice === 'home') {
+      homing()
+      setTimeout(() => { homing() }, 1100)
+      setTimeout(() => { homing() }, 2000)
+    }
+    if (finalBossChoice === 'beam') {
+      hob.y = 2
+      hob.x = 1;
+
+      beam(1, 800)
+      setTimeout(() => {
+        hob.x = 11;
+        hob.y = 2;
+        beam(1, 800)
+      }, 950)
+      setTimeout(() => {
+        hob.y = 1;
+        hob.x = 6;
+        if (finalBossEnraged) {
+          beam(2, 790) // makes y+1l
+        }
+      }, 1900)
+    }
 
     finalBossPrevChoice = finalBossChoice
     finalBossRestChoiceCount++;
-}
+  }
 }
 
 
 function beam(instance, timeUntilExplode) {
-let start = { x: plr.x, y: plr.y + Math.floor(instance / 2) }
-let end = { x: getFirst(hollowboss).x, y: getFirst(hollowboss).y }
+  let start = { x: plr.x, y: plr.y + Math.floor(instance / 2) }
+  let end = { x: getFirst(hollowboss).x, y: getFirst(hollowboss).y }
 
-let dx = end.x - start.x
-let dy = end.y - start.y
+  let dx = end.x - start.x
+  let dy = end.y - start.y
 
-let bms = getAll(purplelightning)
-if (bms) {
-  bms.forEach(b => {b.remove() })
-}
+  let bms = getAll(purplelightning)
+  if (bms) {
+    bms.forEach(b => { b.remove() })
+  }
 
-for (let i = 0; i <= Math.max(Math.abs(dx), Math.abs(dy)); i++) {
-  let x = start.x + Math.round((i / Math.max(Math.abs(dx), Math.abs(dy))) * dx)
-  let y = start.y + Math.round((i / Math.max(Math.abs(dx), Math.abs(dy))) * dy)
-  
-  addSprite(x, y, warningtile)
-    addSprite(x-1, y, warningtile)
-      addSprite(x+1, y, warningtile)
-}
-  
-setTimeout(() => {
-let wts = getAll(warningtile)
-wts.forEach(w => {
-        playTune(lightningStrike)
-  addSprite(w.x,w.y,purplelightning)
-  if (plr.x === w.x && plr.y === w.y) 
-    playerCollided(2)
-  w.remove();
-})
+  for (let i = 0; i <= Math.max(Math.abs(dx), Math.abs(dy)); i++) {
+    let x = start.x + Math.round((i / Math.max(Math.abs(dx), Math.abs(dy))) * dx)
+    let y = start.y + Math.round((i / Math.max(Math.abs(dx), Math.abs(dy))) * dy)
+
+    addSprite(x, y, warningtile)
+    addSprite(x - 1, y, warningtile)
+    addSprite(x + 1, y, warningtile)
+  }
+
   setTimeout(() => {
+    let wts = getAll(warningtile)
+    wts.forEach(w => {
+      playTune(lightningStrike)
+      addSprite(w.x, w.y, purplelightning)
+      if (plr && plr.x === w.x && plr.y === w.y)
+        playerCollided(2)
+      w.remove();
+    })
+    setTimeout(() => {
       let bms = getAll(purplelightning)
-if (bms) {
-  bms.forEach(b => {b.remove() })
-}
-  }, 100)
-},timeUntilExplode)
+      if (bms) {
+        bms.forEach(b => { b.remove() })
+      }
+    }, 100)
+  }, timeUntilExplode)
 
 
 }
-  
+
 function homing() {
   let plrx = plr.x
   let plry = plr.y
-function isTileEmpty(x, y) {
 
-  const tileSprites = getTile(x, y)
-  const hasCollide = tileSprites.some(sprite => [wall2,amethyst,spawn,lockeddoor].includes(sprite.type))
-  const mapWidth = width()
-  const mapHeight = height()
-  const isWithinBounds = x >= 0 && x < mapWidth && y >= 0 && y < mapHeight
+  function isTileEmpty(x, y) {
+
+    const tileSprites = getTile(x, y)
+    const hasCollide = tileSprites.some(sprite => [wall2, amethyst, spawn, lockeddoor].includes(sprite.type))
+    const mapWidth = width()
+    const mapHeight = height()
+    const isWithinBounds = x >= 0 && x < mapWidth && y >= 0 && y < mapHeight
 
 
-  return (isWithinBounds && !hasCollide)
-}
-  
-    for (let m = plrx - 1; m <= plrx + 1; m++) {
-      for (let n = plry - 1; n <= plry + 1; n++) {
-        if (isTileEmpty(m, n)) {
-          addSprite(m, n, warningtile)
-        }
+    return (isWithinBounds && !hasCollide)
+  }
+
+  for (let m = plrx - 1; m <= plrx + 1; m++) {
+    for (let n = plry - 1; n <= plry + 1; n++) {
+      if (isTileEmpty(m, n)) {
+        addSprite(m, n, warningtile)
       }
     }
+  }
 
-    if (finalBossEnraged) {
-      for (let k = -2; k < 3; k += 4) {
-        if (isTileEmpty(plrx-k, plry) === true) {
-          addSprite(plrx - k, plry, warningtile)
-        }
-        if (isTileEmpty(plrx, plry-k) === true) {
-          addSprite(plrx, plry - k, warningtile)
-        }
+  if (finalBossEnraged) {
+    for (let k = -2; k < 3; k += 4) {
+      if (isTileEmpty(plrx - k, plry) === true) {
+        addSprite(plrx - k, plry, warningtile)
+      }
+      if (isTileEmpty(plrx, plry - k) === true) {
+        addSprite(plrx, plry - k, warningtile)
       }
     }
+  }
 
-    let tileChoices = getAll(warningtile)
-    let randIndexForThisTile = Math.floor(Math.random() * tileChoices.length)
-    let randTile = tileChoices[randIndexForThisTile]
+  let tileChoices = getAll(warningtile)
+  let randIndexForThisTile = Math.floor(Math.random() * tileChoices.length)
+  let randTile = tileChoices[randIndexForThisTile]
 
 
-    setTimeout(() => {
-      console.log(tileChoices)
-      getFirst(hollowboss).x = randTile.x
-      getFirst(hollowboss).y = randTile.y
+  setTimeout(() => {
+    console.log(tileChoices)
+    getFirst(hollowboss).x = randTile.x
+    getFirst(hollowboss).y = randTile.y
 
-      startslashing('down',25)
-    }, 600)
-  
+    startslashing('down', 25)
+  }, 600)
+
 }
+
 function finBossSlashes() {
 
-      addSprite(6,2,warningtile)
-    for (let i = 1; i < height(); i++) {
-        addSprite(i, i, warningtile);
-        addSprite(i + 1, i, warningtile);
-        addSprite(i + 2, i, warningtile);
+  addSprite(6, 2, warningtile)
+  for (let i = 1; i < height(); i++) {
+    addSprite(i, i, warningtile);
+    addSprite(i + 1, i, warningtile);
+    addSprite(i + 2, i, warningtile);
 
-                if (finalBossEnraged) {
-                   addSprite(i + 3,i,warningtile)
-              }
+    if (finalBossEnraged) {
+      addSprite(i + 3, i, warningtile)
     }
-  
+  }
 
+
+  setTimeout(() => {
+    getFirst(hollowboss).x = 6;
+    getFirst(hollowboss).y = 2;
+    startslashing('down', 25);
     setTimeout(() => {
-              getFirst(hollowboss).x=6;
-      getFirst(hollowboss).y=2;
-        startslashing('down', 25);
+
+      for (let i = 2; i < height(); i++) {
+        addSprite(i, height() - i, warningtile);
+        addSprite(i + 1, height() - i, warningtile);
+        addSprite(i + 2, height() - i, warningtile);
+
+      }
+
+      setTimeout(() => { // slash      
+
+        startslashing('up', 25)
         setTimeout(() => {
-          
-    for (let i = 2; i < height(); i++) {
-        addSprite(i, height()- i, warningtile);
-        addSprite(i + 1, height()-i, warningtile);
-        addSprite(i + 2, height()-i, warningtile);
-      
-        }
-          
-        setTimeout(() => { // slash      
-          
-          startslashing('up', 25)
-                 setTimeout(()=> {
-                   
-            for (let i = 1; i < width()-1; i++) {
-              addSprite(i,5,warningtile)
-             addSprite(i,4,warningtile)
-                           addSprite(i,3,warningtile)
-              if (finalBossEnraged) {
-                   addSprite(i,6,warningtile)
-              }
+
+          for (let i = 1; i < width() - 1; i++) {
+            addSprite(i, 5, warningtile)
+            addSprite(i, 4, warningtile)
+            addSprite(i, 3, warningtile)
+            if (finalBossEnraged) {
+              addSprite(i, 6, warningtile)
             }
+          }
 
-               setTimeout(() => { startslashing('down', 40) },500)
-          }, 400)
-          
-        }, 500)
+          setTimeout(() => { startslashing('down', 40) }, 500)
+        }, 400)
 
-          
-        }, 200) // transition
-      
-}, 700)
+      }, 500)
+
+
+    }, 200) // transition
+
+  }, 700)
 }
 let shootStarsTimer = setTimeout(shootStars, 250);
-function shootStars() { // this naming is confusing oops
-let stars = getAll(star) 
 
-    if (stars.length === 0) { 
-        console.log("No stars available: check spawning?!");
-        return;
-    }
-  
+function shootStars() { // this naming is confusing oops
+  let stars = getAll(star)
+
+  if (stars.length === 0) {
+    console.log("No stars available: check spawning?!");
+    return;
+  }
+
   if (starCounter > 14) { // exit
     console.log("Exiting stars")
     starCounter = 0
-      stars.forEach(s => { 
-        s.remove() 
-      })
+    stars.forEach(s => {
+      s.remove()
+    })
     stars = []
     chosenStars = []
     clearTimeout(shootStarsTimer);
-      return;
+    return;
 
   }
 
   let randomStarId = Math.floor(Math.random() * stars.length)
   let randomStar = stars[randomStarId];
-  
-    if (chosenStars.includes(randomStar) && starCounter < 11) {
-      shootStars()
-    } else {
-        chosenStars.push(randomStar);
-        starMove();
-        clearTimeout(shootStarsTimer);
-        shootStarsTimer = setTimeout(shootStars, 250);
-    }
+
+  if (chosenStars.includes(randomStar) && starCounter < 11) {
+    shootStars()
+  } else {
+    chosenStars.push(randomStar);
+    starMove();
+    clearTimeout(shootStarsTimer);
+    shootStarsTimer = setTimeout(shootStars, 250);
+  }
 
 }
 
 function starMove() {
-starCounter++;
+  starCounter++;
   console.log(getAll(star))
-  chosenStars.forEach( str => {
+  chosenStars.forEach(str => {
     if (str != undefined) {
       if (str && str.y < 7) {
         str.y++;
@@ -5476,10 +5469,10 @@ starCounter++;
         return true;
       } else
         str.remove();
-        return false;
+      return false;
     }
   })
-    console.log(chosenStars)
+  console.log(chosenStars)
 }
 
 
@@ -5509,11 +5502,11 @@ function defeatBoss(boss) {
   let stars = getAll(star)
   for (let i = 0; i < 30; i++) {
     setTimeout(() => {
-  attackwarners.forEach(tile => { tile.remove() })
-  slashes.forEach(s => { s.remove(); })
-  fiyaz.forEach(f => {f.remove()})
-  lavas.forEach(l => { l.remove() })
-    stars.forEach(z => { z.remove() })
+      attackwarners.forEach(tile => { tile.remove() })
+      slashes.forEach(s => { s.remove(); })
+      fiyaz.forEach(f => { f.remove() })
+      lavas.forEach(l => { l.remove() })
+      stars.forEach(z => { z.remove() })
     }, i * 10)
   }
   playTune(killEnemy);
@@ -5552,8 +5545,7 @@ function potionHeal() {
     health++;
     handleHealthUI(health);
     createHeartsArray(health);
-  }
-  else if (health === maxhealth) {
+  } else if (health === maxhealth) {
     addText("max health: " + maxhealth, {
       x: (width() / 2),
       y: 3,
@@ -5636,17 +5628,17 @@ function playerCollided(dmg) { //collide with normal mob
       health -= dmg;
       setTimeout(() => { playTune(hit); }, 100)
     }
-    
-  if (strbuff === true) {
-    strbuff = false
-    let asp = getAll(strengthparticles)
-    if (asp) {
-      asp.forEach(ptc => {
-        ptc.remove()
-        swordDmg--;
-      })
+
+    if (strbuff === true) {
+      strbuff = false
+      let asp = getAll(strengthparticles)
+      if (asp) {
+        asp.forEach(ptc => {
+          ptc.remove()
+          swordDmg--;
+        })
+      }
     }
-  }
 
     invincible = true;
     handleHealthUI(health);
@@ -5723,23 +5715,23 @@ function checkGameOver() {
         addSprite(i, j, black)
       }
     }
-  setTimeout(() => {
-    addText("Game Over", {
-      x: 1,
-      y: 2,
-      color: color`3`
-    })
-    addText("Score: " + score, {
-      x: 1,
-      y: 3,
-      color: color`7`
-    })
-    addText("Play again: j", {
-      x: 1,
-      y: 4,
-      color: color`4`
-    })
-  }, 200)
+    setTimeout(() => {
+      addText("Game Over", {
+        x: 1,
+        y: 2,
+        color: color`3`
+      })
+      addText("Score: " + score, {
+        x: 1,
+        y: 3,
+        color: color`7`
+      })
+      addText("Play again: j", {
+        x: 1,
+        y: 4,
+        color: color`4`
+      })
+    }, 200)
   }
 }
 
@@ -5754,17 +5746,17 @@ function initGame() { //  used for restart after death
   bossRushEnabled = false;
   score = 0;
 
-   allowBossAttack = false;
+  allowBossAttack = false;
   clearInterval(finalBossInt)
-    bossRushEnabled = false;
+  bossRushEnabled = false;
   chosenLevels = []
   resetMap(1)
-  
-    timestopped = false;
+
+  timestopped = false;
   currentbgm = "villagebgm" //init
-        
-  
-  getAll(fireball).forEach(f => {f.remove()})
+
+
+  getAll(fireball).forEach(f => { f.remove() })
 
   clearText();
   levelOneSetDeco();
@@ -5787,38 +5779,38 @@ function initGame() { //  used for restart after death
 
   //reset item
   itemsArray = [];
-  clearTile(0,0)
-  addSprite(0,0,grass)
+  clearTile(0, 0)
+  addSprite(0, 0, grass)
 
   // reset bosses stats
   eggCount = 0;
   eggOpenTime = 1000;
   gobBossHp = 25;
   gobBossEnraged = false;
-  
-   bossFishHp = 30;
-  bossFishEnraged = false; 
-  pastFishChoice;
- fishChoice;
-spawnedfishdefeated = false;
- okToChooseFishOption = true;
 
-  finalBossHp = 75; 
-finalBossEnraged = false;
-finalCharging = false;
-finalBossMsBetweenAttacks = 3500
-finalBossChoice = undefined;
-finalBossPrevChoice;
-finalBossRestChoiceCount = 1 
-chosenStars = [];
-starCounter = 0;
-  
+  bossFishHp = 30;
+  bossFishEnraged = false;
+  pastFishChoice;
+  fishChoice;
+  spawnedfishdefeated = false;
+  okToChooseFishOption = true;
+
+  finalBossHp = 75;
+  finalBossEnraged = false;
+  finalCharging = false;
+  finalBossMsBetweenAttacks = 3500
+  finalBossChoice = undefined;
+  finalBossPrevChoice;
+  finalBossRestChoiceCount = 1
+  chosenStars = [];
+  starCounter = 0;
+
   strbuff = false;
-  plasmaswordActive = false; 
+  plasmaswordActive = false;
 
   plr = getFirst(player)
 
-putGrassUnderRoofs()
+  putGrassUnderRoofs()
 
 }
 
