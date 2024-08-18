@@ -1,5 +1,5 @@
 # Darkening Descent - a Roguelite Game Made for Hack Club's Sprig 
-## Play at https://sprig.hackclub.com/
+## Play at https://sprig.hackclub.com/ (TURN TEST MODE TO FALSE IN THE SOURCE)
 
 
 
