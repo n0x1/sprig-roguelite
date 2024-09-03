@@ -1,5 +1,9 @@
 # Darkening Descent - a Roguelite Game Made for Hack Club's Sprig 
-## Play at https://sprig.hackclub.com/gallery/Darkening_Descent (TURN TEST MODE TO FALSE IN THE SOURCE)
+## Play at https://sprig.hackclub.com/gallery/Darkening_Descent 
+*TURN TEST MODE TO FALSE IN THE SOURCE IF NOT ALREADY*
+
+<img width="1172" alt="Hollows_Boss" src="https://github.com/user-attachments/assets/a51adb3b-33d8-4efc-a2c8-11d4eeceb6f0">^Hollows boss
+
 
 
 
@@ -13,6 +17,8 @@ I: Surface
 
 II: Caverns
 
-III: Hallows
+III: Hollows  
+
+Boss rush allows you to skip dungeon stages and fight the bosses in chronological order.
 
 > my pr had test mode off
