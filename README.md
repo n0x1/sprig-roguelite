@@ -19,6 +19,6 @@ II: Caverns
 
 III: Hollows  
 
-Boss rush allows you to skip dungeon stages and fight the bosses in chronological order.
+Boss rush allows you to skip dungeon stages and fight the bosses in chronological order. Standard mode with the tutorial is recommended for new players.
 
 > my pr had test mode off
